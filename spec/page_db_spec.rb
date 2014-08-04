@@ -1,4 +1,5 @@
 require_relative "spec_helper"
+
 describe AudioBookCreator::PageDb do
   subject { described_class.new(":memory:") }
 
@@ -29,4 +30,21 @@ describe AudioBookCreator::PageDb do
     subject[key] = contents
     expect(subject[key]).to eq(contents)
   end
+
+  it "should return all keys in order of insert" do
+    subject["keyc"] = "value"
+    subject["keya"] = "value"
+    subject["keyz"] = "value"
+
+    expect(subject.keys).to eq(%w(keyc keya keyz))
+  end
+
+  it "should support enumerable (map)" do
+    subject["keyc"] = "v"
+    subject["keya"] = "v"
+    subject["keyz"] = "v"
+
+    expect(subject.map { |(n, v)| "#{n}:#{v}" }).to eq(%w(keyc:v keya:v keyz:v))
+  end
+
 end

@@ -2,6 +2,8 @@ require "sqlite3"
 
 module AudioBookCreator
   class PageDb
+    include Enumerable
+
     attr_accessor :filename
     attr_accessor :db
 
@@ -16,10 +18,22 @@ module AudioBookCreator
 
     def [](key)
       result = nil
-      @db.execute "select contents from pages where name = ?", key do |rows|
-        result = rows.first
+      @db.execute "select contents from pages where name = ?", key do |row|
+        result = row.first
       end
       result
+    end
+
+    def keys
+      result = []
+      @db.execute "select name from pages order by rowid" do |row|
+        result << row.first
+      end
+      result
+    end
+
+    def each(&block)
+      @db.execute "select * from pages order by rowid", &block
     end
 
     def clear
