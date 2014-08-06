@@ -62,6 +62,17 @@ describe AudioBookCreator::Spider do
     subject.send(:log) {"phrase"}
   end
 
+  it "should be ok visiting less than max pages" do
+    subject.max = 4
+    subject.visit(%w(url1 url2 url3))
+  end
+
+  it "should notify user of visiting more than max pages" do
+    subject.max = 4
+    subject.visited = %w(url1 url2 url3)
+    expect { subject.visit(%w(url4 url5)) }.to raise_error("too many pages")
+  end
+
   private
 
   def link(url)

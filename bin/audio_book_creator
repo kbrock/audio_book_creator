@@ -1,3 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'audio_book_creator'
+require 'audio_book_creator/cli'
+
+AudioBookCreator::Cli.new.parse(ARGV, ENV).run

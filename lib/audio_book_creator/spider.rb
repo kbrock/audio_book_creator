@@ -11,19 +11,24 @@ module AudioBookCreator
     attr_accessor :visited
 
     attr_accessor :verbose
+    # @!attribute max
+    #   @return Numeric max number of pages to visit
+    attr_accessor :max
 
     def initialize(cache = {}, options = {})
       @cache = cache
       @outstanding = []
       @visited = []
       @verbose = options[:verbose]
+      @max             = options[:max]
     end
 
     # Add a url to visit
     # note: this is called by the block yielded by visit to properly spider
     def visit(urls)
-      log { "queue url #{url}" }
-      @outstanding += Array(urls).join(" ").split(/ +/).flatten
+      log { "queue url #{urls}" }
+      @outstanding += Array(urls).map {|url| url.split("#").first }.uniq.delete_if { |url| visited.include?(url) }
+      raise "too many pages" if max && (visited.size + @outstanding.size) > max
     end
 
     def run(link = "a", &block)
@@ -31,7 +36,7 @@ module AudioBookCreator
       while url = @outstanding.shift
         unless visited.include? url
           log { "visiting url #{url}" }
-          self.visited << url
+          visited << url
           visit_page(url, &block)
         end
       end
