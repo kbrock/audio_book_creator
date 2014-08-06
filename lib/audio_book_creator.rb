@@ -5,3 +5,4 @@ module AudioBookCreator
 end
 
 require "audio_book_creator/page_db"
+require "audio_book_creator/spider"
