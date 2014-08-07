@@ -1,5 +1,6 @@
 require 'nokogiri'
 require 'open-uri'
+require 'uri'
 
 module AudioBookCreator
   class Spider
@@ -38,6 +39,18 @@ module AudioBookCreator
       self
     end
 
+    def visit_relative_page(page_url, href)
+      # alt: URI.parse(root).merge(URI.parse(href)).to_s
+      absolute_href = local_href(page_url, href)
+      visit(absolute_href) if absolute_href
+    end
+
+    def local_href(page_url, href)
+      ref = URI.join( page_url, href ).to_s
+      ref = ref.split("#").first
+      ref # TODO: determine if we want to visit this url via regex
+    end
+
     def run(link = "a", &block)
       block = basic_spider(link) unless block_given?
       while (url = @outstanding.shift)
@@ -59,9 +72,9 @@ module AudioBookCreator
     private
 
     def basic_spider(link)
-      lambda do |doc, spider|
+      lambda do |url, doc, spider|
         doc.css(link).each do |a|
-          spider.visit(a["href"])
+          spider.visit_relative_page(url, a["href"])
         end
       end
     end
@@ -82,7 +95,7 @@ module AudioBookCreator
         cache[url] = contents
       end
 
-      yield Nokogiri::HTML(contents), self if block_given?
+      yield url, Nokogiri::HTML(contents), self if block_given?
     end
   end
 end
