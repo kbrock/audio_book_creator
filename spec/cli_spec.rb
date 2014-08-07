@@ -46,12 +46,24 @@ describe AudioBookCreator::Cli do
 
   it "should stick database under base directory" do
     subject.parse(%w(title url1))
-    expect(subject[:database]).to eq("title/pages.db")    
+    expect(subject[:database]).to eq("title/pages.db")
   end
 
   it "should become verbose" do
     subject.parse(%w(-v title url1))
     expect(subject[:verbose]).to be_truthy
+  end
+
+  context "#follow" do
+    it "should default to all links" do
+      subject.parse(%w(title url1))
+      expect(subject[:follow]).to eq("a")
+    end
+
+    it "should respect --follow" do
+      subject.parse(["--follow", ".navbar a[title='page']", "title", "url1"])
+      expect(subject[:follow]).to eq(".navbar a[title='page']")
+    end
   end
 
   context "#max" do
@@ -82,7 +94,6 @@ describe AudioBookCreator::Cli do
     subject[:load_from_cache] = false
     expect(subject.spider.load_from_cache).to eq(subject[:load_from_cache])
   end
-
 
   # private method
 

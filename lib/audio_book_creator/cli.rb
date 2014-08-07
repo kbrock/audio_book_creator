@@ -25,6 +25,8 @@ module AudioBookCreator
         exit 1
       else
         self[:database] = "#{base_dir}/pages.db"
+        # TODO: use self[:urls].first to guess :follow
+        self[:follow] ||= "a"
       end
     end
 
@@ -48,6 +50,7 @@ module AudioBookCreator
         opts.program_name = File.basename($PROGRAM_NAME)
         opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url [url]"
         opts.on("-v", "--[no-]verbose", "Run verbosely") { |v| self[:verbose] = v }
+        opts.on("-a", "--follow STRING", "Follow css (e.g.: a.Next)") { |v| self[:follow] = v}
         opts.on(      "--no-max", "Don't limit the number of pages to visit") { self[:max] = nil }
         opts.on(      "--max NUMBER", Integer, "Maximum number of pages to visit (default: #{self[:max]})") do |v|
           self[:max] = v
@@ -83,7 +86,7 @@ module AudioBookCreator
 
     def run
       make_directory_structure
-      pages = spider.visit(self[:urls]).run
+      pages = spider.visit(self[:urls]).run(self[:follow])
     end
 
     def make_directory_structure
