@@ -71,7 +71,21 @@ describe AudioBookCreator::Cli do
     end
   end
 
+  # components
+
+  it "should populate page cache" do
+    subject[:database] = ":memory:"
+    expect(subject.page_cache.filename).to eq(subject[:database])
+  end
+
+  it "should populate spider" do
+    subject[:load_from_cache] = false
+    expect(subject.spider.load_from_cache).to eq(subject[:load_from_cache])
+  end
+
+
   # private method
+
   context "#default" do
     it "should properly default values" do
       subject[:test] = nil
