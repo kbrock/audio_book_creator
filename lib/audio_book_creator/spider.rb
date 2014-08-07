@@ -31,8 +31,11 @@ module AudioBookCreator
     # Add a url to visit
     # note: this is called by the block yielded by visit to properly spider
     def visit(urls)
-      log { "queue url #{urls}" }
-      @outstanding += Array(urls)
+      urls = Array(urls)
+      log { "queue  #{urls.join(", ")}" }
+      @outstanding += urls
+
+      self
     end
 
     def run(link = "a", &block)
@@ -40,10 +43,10 @@ module AudioBookCreator
       while (url = @outstanding.shift)
         unless visited.include?(url)
           if max && (visited.size >= max)
-            raise "visited #{max} pages. use --max to override"
+            raise "visited #{max} pages.\n  use --max to increase pages visited"
           end
 
-          log { "visiting url #{url}" }
+          log { "visit  #{url} [#{visited.size + 1}/#{max || "all"}]" }
           visited << url
           visit_page(url, &block)
         end
@@ -71,9 +74,14 @@ module AudioBookCreator
     end
 
     def visit_page(url)
-      contents = cache[url] if load_from_cache
-      contents ||= open(url)
-      cache[url] = contents
+      if load_from_cache && (contents = cache[url])
+        log { "cache  #{url}" }
+      else
+        log { "fetch  #{url}" }
+        contents ||= open(url).read
+        cache[url] = contents
+      end
+
       yield Nokogiri::HTML(contents), self if block_given?
     end
   end

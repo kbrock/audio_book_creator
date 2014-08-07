@@ -80,7 +80,7 @@ describe AudioBookCreator::Spider do
       subject.visited = %w(url1 url2 url3)
       expect_visit_page("url4")
       subject.visit(%w(url1 url2 url3 url4 url5))
-      expect { subject.run }.to raise_error("visited 4 pages. use --max to override")
+      expect { subject.run }.to raise_error(/visited 4 pages/)
     end
   end
 
@@ -104,7 +104,7 @@ describe AudioBookCreator::Spider do
   private
 
   def expect_visit_page(url, *args)
-    expect(subject).to receive(:open).with(url).once.and_return(page(url, *args))
+    expect(subject).to receive(:open).with(url).once.and_return(double(read:page(url, *args)))
   end
 
   def link(url)

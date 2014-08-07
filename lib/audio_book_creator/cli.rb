@@ -75,7 +75,10 @@ module AudioBookCreator
     end
 
     def spider
-      @spider ||= Spider.new(page_cache, verbose: self[:verbose], load_from_cache: self[:load_from_cache])
+      @spider ||= Spider.new(page_cache, verbose: self[:verbose],
+                             load_from_cache: self[:load_from_cache], max: self[:max])
+    end
+
     end
 
     def run
