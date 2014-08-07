@@ -13,9 +13,10 @@ module AudioBookCreator
     end
 
     def set_defaults
-      options[:database] ||= ":memory:"
-      options[:verbose]  ||= false
-      options[:max]      ||= 10
+      default(:database, ":memory:")
+      default(:verbose, false)
+      default(:max, 10)
+      default(:load_from_cache, true)
     end
 
     def base_dir
@@ -61,6 +62,10 @@ module AudioBookCreator
 
     def make_directory_structure
       FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
+    end
+
+    def default(key, value)
+      self[key] = value if self[key].nil?
     end
   end
 end

@@ -32,8 +32,35 @@ describe AudioBookCreator::Cli do
     expect(subject[:verbose]).to be_truthy
   end
 
-  it "should mark max pages to visit" do
-    subject.parse(%w(--max 25 title url1))
-    expect(subject[:max]).to eq(25)
+  context "#max" do
+    it "should have default" do
+      subject.parse(%w(title url1))
+      expect(subject[:max]).to eq(10)
+    end
+
+    it "should be setable" do
+      subject.parse(%w(--max 25 title url1))
+      expect(subject[:max]).to eq(25)
+    end
+
+    it "should be removable" do
+      subject.parse(%w(--no-max title url1))
+      expect(subject[:max]).to be_nil
+    end
+  end
+
+  # private method
+  context "#default" do
+    it "should properly default values" do
+      subject[:test] = nil
+      subject.default(:test, 5)
+      expect(subject[:test]).to eq(5)
+    end
+
+    it "should not default false" do
+      subject[:test] = false
+      subject.default(:test, true)
+      expect(subject[:test]).to be_falsy
+    end
   end
 end
