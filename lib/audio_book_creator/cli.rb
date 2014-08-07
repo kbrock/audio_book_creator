@@ -3,12 +3,10 @@ require 'fileutils'
 
 module AudioBookCreator
   class Cli
-
-    attr_accessor :options
     attr_accessor :argv
 
     def initialize(options = {})
-      self.options = options
+      @options = options
       set_defaults
     end
 
@@ -20,44 +18,50 @@ module AudioBookCreator
     end
 
     def base_dir
-      @base_dir ||= options[:title].gsub(" ","-")
+      @base_dir ||= self[:title].gsub(" ", "-")
     end
 
     def [](name)
-      options[name]
+      @options[name]
     end
 
     def []=(name, value)
-      options[name] = value
+      @options[name] = value
     end
 
-    def parse(argv = [], env = {})
+    def parse(argv = [], _env = {})
       self.argv = argv.dup
 
       OptionParser.new do |opts|
-        opts.program_name = File.basename($0)
+        opts.program_name = File.basename($PROGRAM_NAME)
         opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url"
-        opts.on("-v", "--[no-]verbose", "Run verbosely") { |v| options[:verbose] = v }
-        opts.on(      "--no-max", "Don't limit the number of pages to visit") { |v| options[:max] = nil }
-        opts.on(      "--max NUMBER", Integer, "Maximum number of pages to visit (default: #{options[:max]})") do |v|
-          options[:max] = v
+        opts.on("-v", "--[no-]verbose", "Run verbosely") { |v| self[:verbose] = v }
+        opts.on(      "--no-max", "Don't limit the number of pages to visit") { self[:max] = nil }
+        opts.on(      "--max NUMBER", Integer, "Maximum number of pages to visit (default: #{self[:max]})") do |v|
+          self[:max] = v
         end
       end.parse!(argv)
 
-      options[:title] = argv.shift
-      options[:urls] = argv
-      options[:database] = "#{base_dir}/pages.db"
+      self[:title] = argv.shift
+      self[:urls] = argv
+      self[:database] = "#{base_dir}/pages.db"
 
       self
     end
 
+    # components
+
+    def page_cache
+      @page_cache ||= PageDb.new(self[:database])
+    end
+
+    def spider
+      @spider ||= Spider.new(page_cache, verbose: self[:verbose], load_from_cache: self[:load_from_cache])
+    end
+
     def run
       make_directory_structure
-      pages = PageDb.new(options[:database])
-      spider = Spider.new(pages, { verbose: options[:verbose]})
-      spider.visit(options[:urls])
-
-      spider.run
+      pages = spider.visit(self[:urls]).run
     end
 
     def make_directory_structure

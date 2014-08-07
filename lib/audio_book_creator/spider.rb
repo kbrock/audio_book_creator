@@ -32,19 +32,22 @@ module AudioBookCreator
     # note: this is called by the block yielded by visit to properly spider
     def visit(urls)
       log { "queue url #{urls}" }
-      @outstanding += Array(urls).map {|url| url.split("#").first }.uniq.delete_if { |url| visited.include?(url) }
+      @outstanding += Array(urls).map { |url| url.split("#").first }.uniq.delete_if { |url| visited.include?(url) }
       raise "too many pages" if max && (visited.size + @outstanding.size) > max
     end
 
     def run(link = "a", &block)
       block = basic_spider(link) unless block_given?
-      while url = @outstanding.shift
-        unless visited.include? url
+      while (url = @outstanding.shift)
+        unless visited.include?(url)
           log { "visiting url #{url}" }
           visited << url
           visit_page(url, &block)
         end
       end
+
+      # currently returns array of blocks of html docs
+      visited.map { |visited_url| cache[visited_url] }
     end
 
     private
