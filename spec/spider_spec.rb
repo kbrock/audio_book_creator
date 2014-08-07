@@ -73,6 +73,23 @@ describe AudioBookCreator::Spider do
     expect { subject.visit(%w(url4 url5)) }.to raise_error("too many pages")
   end
 
+  it "should load page from cache if already present" do
+    subject.load_from_cache = true
+    subject.visit(%w(page1))
+
+    # this is in the cache, so it will not be "opened"
+    subject.cache["page2"] = page("page2", link("page1"), link("page3"))
+
+    expect(subject).to receive(:open).with("page1").and_return(page("page1", link("page2")))
+    expect(subject).to receive(:open).with("page3").and_return(page("page3", link("page2")))
+    subject.run
+
+    # correct order
+    expect(subject.visited).to eq(%w(page1 page2 page3))
+    # has contets from all pages
+    expect(subject.cache.keys).to match_array(%w(page1 page2 page3))
+  end
+
   private
 
   def link(url)

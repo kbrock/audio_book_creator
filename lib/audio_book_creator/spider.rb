@@ -15,12 +15,17 @@ module AudioBookCreator
     #   @return Numeric max number of pages to visit
     attr_accessor :max
 
+    # @!attribute load_from_cache
+    # first check if the url is in the cache
+    attr_accessor :load_from_cache
+
     def initialize(cache = {}, options = {})
-      @cache = cache
-      @outstanding = []
-      @visited = []
-      @verbose = options[:verbose]
+      @cache           = cache
+      @outstanding     = []
+      @visited         = []
+      @verbose         = options[:verbose]
       @max             = options[:max]
+      @load_from_cache = options[:load_from_cache]
     end
 
     # Add a url to visit
@@ -60,7 +65,8 @@ module AudioBookCreator
     end
 
     def visit_page(url)
-      contents = open(url)
+      contents = cache[url] if load_from_cache
+      contents ||= open(url)
       cache[url] = contents
       yield Nokogiri::HTML(contents), self if block_given?
     end
