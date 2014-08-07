@@ -17,6 +17,18 @@ module AudioBookCreator
       default(:load_from_cache, true)
     end
 
+    def set_args(argv, usage)
+      self[:title] = argv.shift
+      self[:urls] = argv
+      if self[:urls].empty?
+        puts "please provide title and url", usage
+        exit 1
+      else
+        self[:database] = "#{base_dir}/pages.db"
+      end
+    end
+
+
     def base_dir
       @base_dir ||= self[:title].gsub(" ", "-")
     end
@@ -32,20 +44,27 @@ module AudioBookCreator
     def parse(argv = [], _env = {})
       self.argv = argv.dup
 
-      OptionParser.new do |opts|
+      options = OptionParser.new do |opts|
         opts.program_name = File.basename($PROGRAM_NAME)
-        opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url"
+        opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url [url]"
         opts.on("-v", "--[no-]verbose", "Run verbosely") { |v| self[:verbose] = v }
         opts.on(      "--no-max", "Don't limit the number of pages to visit") { self[:max] = nil }
         opts.on(      "--max NUMBER", Integer, "Maximum number of pages to visit (default: #{self[:max]})") do |v|
           self[:max] = v
         end
-      end.parse!(argv)
 
-      self[:title] = argv.shift
-      self[:urls] = argv
-      self[:database] = "#{base_dir}/pages.db"
+        opts.on_tail("-h", "--help", "Show this message") do
+          puts opts.to_s
+          exit 0
+        end
 
+        opts.on_tail("--version", "Show version") do
+          puts "audio_book_creator #{::AudioBookCreator::VERSION}"
+          exit 0
+        end
+      end
+      options.parse!(argv)
+      set_args(argv, options.to_s)
       self
     end
 

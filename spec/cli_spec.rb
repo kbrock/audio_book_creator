@@ -10,6 +10,28 @@ describe AudioBookCreator::Cli do
     expect(subject[:urls]).to eq(%w(url1))
   end
 
+  it "should require 2 parameters" do
+    expect(subject).to receive(:puts).with(/url/, /Usage/)
+    expect(subject).to receive(:exit)
+    subject.parse(%w(title_only))
+  end
+
+  it "should provide version" do
+    expect(subject).to receive(:puts).with(/#{AudioBookCreator::VERSION}/)
+    expect(subject).to receive(:exit)
+    # NOTE: since we are catching exit, it is continuing through the rest of the loop
+    # we are passing in all required parameters to avoid those raising errors
+    subject.parse(%w(--version title url))
+  end
+
+  it "should provide help" do
+    expect(subject).to receive(:puts).with(/Usage/)
+    expect(subject).to receive(:exit)
+    # NOTE: since we are catching exit, it is continuing through the rest of the loop
+    # we are passing in all required parameters to avoid those raising errors
+    subject.parse(%w(--help title url))
+  end
+
   it "should know base directory" do
     subject.parse(%w(title url1))
     expect(subject.base_dir).to eq("title")
