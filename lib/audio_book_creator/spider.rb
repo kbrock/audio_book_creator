@@ -37,7 +37,7 @@ module AudioBookCreator
       Array(urls).each do |url|
         @starting_host ||= URI.parse(url).host
         if visited.include?(url) || @outstanding.include?(url)
-          log { "ignore #{url}" }
+          # log { "ignore #{url}" }
         else
           log { "queue  #{url}" }
           @outstanding << url
@@ -99,7 +99,7 @@ module AudioBookCreator
 
     def visit_page(url)
       if load_from_cache && (contents = cache[url])
-        log { "cache  #{url}" }
+        # log { "cache  #{url}" }
       else
         log { "fetch  #{url}" }
         contents ||= open(url).read
