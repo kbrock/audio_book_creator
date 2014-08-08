@@ -84,12 +84,17 @@ module AudioBookCreator
       @editor ||= Editor.new
     end
 
+    def speaker
+      @speaker ||= Speaker.new
     end
 
     def run
       make_directory_structure
       pages = spider.visit(self[:urls]).run(self[:follow])
-      chapters = editor.parse(pages)
+      chapters = editor.parse(base_dir, pages)
+      chapters.each do |chapter|
+        speaker.say(chapter)
+      end
     end
 
     def make_directory_structure

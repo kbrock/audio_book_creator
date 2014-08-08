@@ -3,16 +3,16 @@ module AudioBookCreator
   class Editor
     attr_accessor :max_lines
 
-    def initialize
-      @max_lines = 2
+    def initialize(options = {})
+      @max_lines = options[:max_lines]
     end
 
-    def parse(pages)
-      pages.first(1).map do |page|
+    def parse(book, pages)
+      pages.each_with_index.map do |page, i|
         dom = Nokogiri::HTML(page)
         title = dom.css('h1').first.text
-        body = dom.css('#story p').first(3).map { |n| n }.join("\n\n")
-        AudioBookCreator::Chapter.new(title, body)
+        body = limit(dom.css('#story p')).map { |n| n.text }
+        AudioBookCreator::Chapter.new(book, i + 1, title, body)
       end
     end
 

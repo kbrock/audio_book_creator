@@ -16,3 +16,9 @@ test/tmp
 test/version_tmp
 tmp
 coveage
+
+# audio files
+*.db
+*.txt
+*.m4a
+*.m4b

@@ -1,13 +1,25 @@
 module AudioBookCreator
   class Chapter
-    attr_accessor :title, :body
-    def initialize(title = nil, body = nil)
-      @title = title
-      @body  = body
+    attr_accessor :book, :number, :title, :body
+    def initialize(book = nil, number = nil, title = nil, body = nil)
+      @book   = book
+      @number = number
+      @title  = title
+      @body   = Array(body).join("\n\n")
+    end
+
+    def filename(ext = "")
+      "#{book}/chapter%02d%s" % [number, ext]
+    end
+
+    def to_s
+      "#{title}\n\n#{body}"
     end
 
     def ==(other)
-      other.is_a?(Chapter) && other.title == title && other.body == body
+      other.is_a?(Chapter) &&
+        other.book == book && other.number == number &&
+        other.title == title && other.body == body
     end
   end
 end
