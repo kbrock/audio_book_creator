@@ -27,6 +27,7 @@ module AudioBookCreator
       @verbose         = options[:verbose]
       @max             = options[:max]
       @load_from_cache = options[:load_from_cache]
+      @starting_host   = options[:multi_site]
     end
 
     # Add a url to visit
@@ -34,6 +35,7 @@ module AudioBookCreator
     # using loop to dedup urls
     def visit(urls)
       Array(urls).each do |url|
+        @starting_host ||= URI.parse(url).host
         if visited.include?(url) || @outstanding.include?(url)
           log { "ignore #{url}" }
         else
@@ -47,18 +49,26 @@ module AudioBookCreator
 
     def visit_relative_page(page_url, href)
       # alt: URI.parse(root).merge(URI.parse(href)).to_s
-      absolute_href = local_href(page_url, href)
-      visit(absolute_href) if absolute_href
+      if absolute_href = local_href(page_url, href)
+        visit(absolute_href)
+      else
+        log { "throwing away #{href}" }
+      end
     end
 
     def local_href(page_url, href)
-      ref = URI.join( page_url, href ).to_s
-      ref = ref.split("#").first
-      ref # TODO: determine if we want to visit this url via regex
+      if (ref = URI.join(page_url, href) rescue nil)
+        if (@starting_host == true || @starting_host == ref.host) &&
+          [nil, "", '.html', '.htm', '.php', '.jsp'].include?(File.extname(ref.path))
+           ref.fragment = nil # remove #x part of url
+           ref.to_s
+        end
+      end
     end
 
     def run(link = "a", &block)
       block = basic_spider(link) unless block_given?
+
       while (url = @outstanding.shift)
         if max && (visited.size >= max)
           raise "visited #{max} pages.\n  use --max to increase pages visited"
@@ -84,10 +94,7 @@ module AudioBookCreator
     end
 
     def log(str = nil)
-      if verbose
-        puts str if str
-        puts yield if block_given?
-      end
+      puts str || yield if verbose
     end
 
     def visit_page(url)

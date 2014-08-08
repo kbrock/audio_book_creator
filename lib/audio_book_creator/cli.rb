@@ -30,7 +30,6 @@ module AudioBookCreator
       end
     end
 
-
     def base_dir
       @base_dir ||= self[:title].gsub(" ", "-")
     end
@@ -50,12 +49,12 @@ module AudioBookCreator
         opts.program_name = File.basename($PROGRAM_NAME)
         opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url [url]"
         opts.on("-v", "--[no-]verbose", "Run verbosely") { |v| self[:verbose] = v }
-        opts.on("-a", "--follow STRING", "Follow css (e.g.: a.Next)") { |v| self[:follow] = v}
+        opts.on("-a", "--follow STRING", "Follow css (e.g.: a.Next)") { |v| self[:follow] = v }
         opts.on(      "--no-max", "Don't limit the number of pages to visit") { self[:max] = nil }
         opts.on(      "--max NUMBER", Integer, "Maximum number of pages to visit (default: #{self[:max]})") do |v|
           self[:max] = v
         end
-
+        opts.on("--multi-site", "Allow spider to visit multiple sites") { self[:multi_site] = true }
         opts.on_tail("-h", "--help", "Show this message") do
           puts opts.to_s
           exit 0
@@ -78,8 +77,7 @@ module AudioBookCreator
     end
 
     def spider
-      @spider ||= Spider.new(page_cache, verbose: self[:verbose],
-                             load_from_cache: self[:load_from_cache], max: self[:max])
+      @spider ||= Spider.new(page_cache, option_hash(:verbose, :load_from_cache, :max, :multi_site))
     end
 
     end
@@ -95,6 +93,14 @@ module AudioBookCreator
 
     def default(key, value)
       self[key] = value if self[key].nil?
+    end
+
+    def option_hash(*keys)
+      if keys.first.is_a?(Hash)
+        keys.first.each_with_object({}) { |(key, value), h| h[key] = self[value] }
+      else
+        keys.flatten.each_with_object({}) { |key, h| h[key] = self[key] }
+      end
     end
   end
 end

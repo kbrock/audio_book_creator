@@ -97,6 +97,29 @@ describe AudioBookCreator::Cli do
 
   # private method
 
+  context "#option_hash" do
+    it "should pull out params by array" do
+      subject[:a] = "a"
+      subject[:b] = "b"
+      subject[:c] = "c"
+      expect(subject.option_hash(:a, :b)).to eq({a: "a", b: "b"})
+    end
+
+    it "should pull out params by array" do
+      subject[:a] = "a"
+      subject[:b] = "b"
+      subject[:c] = "c"
+      expect(subject.option_hash([:a, :b])).to eq({a: "a", b: "b"})
+    end
+
+    it "should pull out params by array" do
+      subject[:a] = "a"
+      subject[:b] = "b"
+      subject[:c] = "c"
+      expect(subject.option_hash(a: :b, b: :c)).to eq({a: "b", b: "c"})
+    end
+  end
+
   context "#default" do
     it "should properly default values" do
       subject[:test] = nil

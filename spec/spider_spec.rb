@@ -3,7 +3,7 @@ require "spec_helper"
 describe AudioBookCreator::Spider do
   context "#visit" do
     it "visit pages" do
-      subject.visit(site(%w(page1 page2)))
+      visit %w(page1 page2)
       expect_visit_page "page1"
       expect_visit_page "page2"
       subject.run
@@ -12,7 +12,7 @@ describe AudioBookCreator::Spider do
     end
 
     it "should visit a page only once" do
-      subject.visit(site(%w(page1 page1 page1)))
+      visit %w(page1 page1 page1)
       expect_visit_page "page1"
       subject.run
       expect(subject.visited).to eq([site("page1")])
@@ -20,7 +20,7 @@ describe AudioBookCreator::Spider do
   end
 
   it "should spider pages" do
-    subject.visit(site(%w(page1)))
+    visit "page1"
     expect_visit_page("page1", link("page2"))
     expect_visit_page("page2", link("page1"), link("page3"))
     expect_visit_page("page3", link("page2"))
@@ -33,7 +33,7 @@ describe AudioBookCreator::Spider do
   end
 
   it "should only hit links in correct section" do
-    subject.visit(site(%w(page1)))
+    visit "page1"
     expect_visit_page("page1", "<div class='good'>", link("good"), "</div>", link("bad"))
     expect_visit_page("good")
     subject.run(".good a")
@@ -71,7 +71,7 @@ describe AudioBookCreator::Spider do
       expect_visit_page("url2")
       expect_visit_page("url3")
       expect_visit_page("url4")
-      subject.visit(site(%w(url1 url2 url3 url4)))
+      visit %w(url1 url2 url3 url4)
       subject.run
     end
 
@@ -79,14 +79,14 @@ describe AudioBookCreator::Spider do
       subject.max = 4
       subject.visited = site(%w(url1 url2 url3))
       expect_visit_page("url4")
-      subject.visit(site(%w(url1 url2 url3 url4 url5)))
+      visit %w(url1 url2 url3 url4 url5)
       expect { subject.run }.to raise_error(/visited 4 pages/)
     end
   end
 
   it "should load page from cache if already present" do
     subject.load_from_cache = true
-    subject.visit(site(%w(page1)))
+    visit "page1"
 
     # this is in the cache, so it will not be "opened"
     subject.cache[site("page2")] = page(site("page2"), link("page1"), link("page3"))
@@ -102,9 +102,26 @@ describe AudioBookCreator::Spider do
   end
 
   context "#local_href" do
+    let (:first_page) { "http://www.thesite.com/book/page1.html" }
+    before do
+      # establish base site (we can't venture to other sites)
+      subject.visit(first_page)
+    end
+
     it "should know local pages" do
-      expect(subject.local_href("http://www.thesite.com/book/page1.html", "page2.html")).to eq(
-        "http://www.thesite.com/book/page2.html")
+      expect(subject.local_href(first_page, "page2.html")).to eq("http://www.thesite.com/book/page2.html")
+    end
+
+    %w(/page / .html .php .jsp .htm).each do |ext|
+      it "should not visit #{ext}" do
+        expect(subject.local_href(first_page, "page2#{ext}")).not_to be_nil
+      end
+    end
+
+    %w(.jpg .png .js).each do |ext|
+      it "should not visit #{ext}" do
+        expect(subject.local_href(first_page, "page2#{ext}")).to be_nil
+      end
     end
   end
 
@@ -116,6 +133,10 @@ describe AudioBookCreator::Spider do
     else
       url.include?("http") ? url : "http://site.com/#{url}"
     end
+  end
+
+  def visit(urls)
+    Array(urls).flatten.each { |url| subject.visit(site(url)) }
   end
 
   def expect_visit_page(url, *args)
