@@ -31,10 +31,16 @@ module AudioBookCreator
 
     # Add a url to visit
     # note: this is called by the block yielded by visit to properly spider
+    # using loop to dedup urls
     def visit(urls)
-      urls = Array(urls)
-      log { "queue  #{urls.join(", ")}" }
-      @outstanding += urls
+      Array(urls).each do |url|
+        if visited.include?(url) || @outstanding.include?(url)
+          log { "ignore #{url}" }
+        else
+          log { "queue  #{url}" }
+          @outstanding << url
+        end
+      end
 
       self
     end
@@ -54,15 +60,13 @@ module AudioBookCreator
     def run(link = "a", &block)
       block = basic_spider(link) unless block_given?
       while (url = @outstanding.shift)
-        unless visited.include?(url)
-          if max && (visited.size >= max)
-            raise "visited #{max} pages.\n  use --max to increase pages visited"
-          end
-
-          log { "visit  #{url} [#{visited.size + 1}/#{max || "all"}]" }
-          visited << url
-          visit_page(url, &block)
+        if max && (visited.size >= max)
+          raise "visited #{max} pages.\n  use --max to increase pages visited"
         end
+
+        log { "visit  #{url} [#{visited.size + 1}/#{max || "all"}]" }
+        visited << url
+        visit_page(url, &block)
       end
 
       # currently returns array of blocks of html docs
