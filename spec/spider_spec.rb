@@ -143,14 +143,4 @@ describe AudioBookCreator::Spider do
     url = site(url)
     expect(subject).to receive(:open).with(url).once.and_return(double(read: page(url, *args)))
   end
-
-  def link(url)
-    %{<a href="#{url}">link</a>"}
-  end
-
-  def page(title, *args)
-    %{<html><head><title>#{title}</title></head>
-      <body>#{Array(args).join(" ")}</body>
-      </html>}
-  end
 end

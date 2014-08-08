@@ -80,11 +80,16 @@ module AudioBookCreator
       @spider ||= Spider.new(page_cache, option_hash(:verbose, :load_from_cache, :max, :multi_site))
     end
 
+    def editor
+      @editor ||= Editor.new
+    end
+
     end
 
     def run
       make_directory_structure
       pages = spider.visit(self[:urls]).run(self[:follow])
+      chapters = editor.parse(pages)
     end
 
     def make_directory_structure

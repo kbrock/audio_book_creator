@@ -1,6 +1,7 @@
 require 'spec_helper'
 
-# NOTE: cli class is only included by running the command
+# NOTE: cli class is not in the path by default
+#       it is only included by running the command
 require 'audio_book_creator/cli'
 
 describe AudioBookCreator::Cli do

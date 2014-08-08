@@ -1,6 +1,7 @@
 # AudioBookCreator
 
-TODO: Write a gem description
+This takes html files and creates a chapterized audiobook.
+  It leverages Apple's speak command and audio book binder
 
 ## Installation
 
@@ -18,7 +19,18 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+audio_book_creator the_great_book http://bookurl.com/greak_book/
+
+it will spider the files referenced by the url and create the following:
+
+the_great_book.mpa
+the_great_book/pages.db
+the_great_book/chapter1.txt
+the_great_book/chapter1.mpg
+the_great_book/chapter2.txt
+the_great_book/chapter2.mpg
+the_great_book/chapter3.txt
+the_great_book/chapter3.mpg
 
 ## Contributing
 
