@@ -13,6 +13,7 @@ module AudioBookCreator
     }
     # -f file
 
+    attr_accessor :force
     attr_accessor :command
 
     # currently like the following voices:
@@ -41,10 +42,11 @@ module AudioBookCreator
 
     def say(chapter)
       filename = chapter.filename()
-      puts "creating #{filename}"
-      File.write("#{filename}.txt", chapter.to_s) unless File.exist?("#{filename}.txt")
 
-      unless File.exist?("#{filename}.m4a")
+      raise "Empty chapter" if chapter.empty?
+      File.write("#{filename}.txt", chapter) if force || !File.exist?("#{filename}.txt")
+
+      if force || !File.exist?("#{filename}.m4a")
         # currently using a text filename
         cmd = build_command("-f #{filename}.txt -o #{filename}.m4a")
         puts ">> #{cmd}"
@@ -59,7 +61,7 @@ module AudioBookCreator
     private
 
     def build_command(extra)
-      extra + MAP.map { |n, v| "#{n} #{send(v)} " }.join
+      [command, extra, MAP.map { |n, v| "#{n} #{send(v)}" }].join " "
     end
 
 

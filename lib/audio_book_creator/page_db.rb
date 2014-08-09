@@ -7,9 +7,9 @@ module AudioBookCreator
     attr_accessor :filename
     attr_accessor :db
 
-    def initialize(filename = ":memory:")
+    def initialize(filename = ":memory:", options = {})
       @filename = filename
-      @db = create_database(filename)
+      @db = create_database(filename, options[:force])
     end
 
     def []=(key, value)
@@ -42,7 +42,8 @@ module AudioBookCreator
 
     private
 
-    def create_database(filename)
+    def create_database(filename, force = false)
+      File.rm(filename) if force && File.exist?(filename)
       db = SQLite3::Database.new(filename)
 
       db.execute <<-SQL

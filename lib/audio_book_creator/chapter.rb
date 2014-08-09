@@ -12,8 +12,12 @@ module AudioBookCreator
       "#{book}/chapter%02d%s" % [number, ext]
     end
 
+    def empty?
+      body.empty?
+    end
+
     def to_s
-      "#{title}\n\n#{body}"
+      "#{title}\n\n#{body}\n"
     end
 
     def ==(other)

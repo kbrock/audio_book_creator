@@ -24,6 +24,7 @@ module AudioBookCreator
         puts "please provide title and url", usage
         exit 1
       else
+        self[:base] = self[:title].to_s.gsub(" ", "-")
         self[:database] = "#{base_dir}/pages.db"
         # TODO: use self[:urls].first to guess :follow
         self[:follow] ||= "a"
@@ -31,7 +32,7 @@ module AudioBookCreator
     end
 
     def base_dir
-      @base_dir ||= self[:title].gsub(" ", "-")
+      self[:base]
     end
 
     def [](name)
@@ -54,6 +55,8 @@ module AudioBookCreator
         opts.on(      "--max NUMBER", Integer, "Maximum number of pages to visit (default: #{self[:max]})") do |v|
           self[:max] = v
         end
+        opts.on("--force-audio", "Regerate the audio") { |v| self[:regen_audio] = true }
+        opts.on("--force-html", "Regerate the audio") { |v| self[:regen_html] = true }
         opts.on("--multi-site", "Allow spider to visit multiple sites") { self[:multi_site] = true }
         opts.on_tail("-h", "--help", "Show this message") do
           puts opts.to_s
@@ -73,7 +76,7 @@ module AudioBookCreator
     # components
 
     def page_cache
-      @page_cache ||= PageDb.new(self[:database])
+      @page_cache ||= PageDb.new(self[:database], force: self[:regen_html])
     end
 
     def spider
@@ -85,7 +88,7 @@ module AudioBookCreator
     end
 
     def speaker
-      @speaker ||= Speaker.new
+      @speaker ||= Speaker.new(force: self[:regen_audio])
     end
 
     def run
@@ -100,6 +103,8 @@ module AudioBookCreator
     def make_directory_structure
       FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
     end
+
+    private
 
     def default(key, value)
       self[key] = value if self[key].nil?
