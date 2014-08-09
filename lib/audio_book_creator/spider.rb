@@ -7,6 +7,11 @@ module AudioBookCreator
     # @!attribute visited
     #   @return Hash cache of all pages visited
     attr_accessor :cache
+
+    # @!attribute outstanding
+    #   @return Array<String> the pages not visited yet
+    attr_accessor :outstanding
+
     # @!attribute visited
     #   @return Array<String> the pages visited
     attr_accessor :visited
@@ -16,18 +21,17 @@ module AudioBookCreator
     #   @return Numeric max number of pages to visit
     attr_accessor :max
 
-    # @!attribute load_from_cache
-    # first check if the url is in the cache
-    attr_accessor :load_from_cache
-
     def initialize(cache = {}, options = {})
       @cache           = cache
       @outstanding     = []
       @visited         = []
       @verbose         = options[:verbose]
       @max             = options[:max]
-      @load_from_cache = options[:load_from_cache]
       @starting_host   = options[:multi_site]
+    end
+
+    def multi_site?
+      @starting_host == true
     end
 
     # Add a url to visit
@@ -36,11 +40,11 @@ module AudioBookCreator
     def visit(urls)
       Array(urls).each do |url|
         @starting_host ||= URI.parse(url).host
-        if visited.include?(url) || @outstanding.include?(url)
+        if visited.include?(url) || outstanding.include?(url)
           # log { "ignore #{url}" }
         else
           log { "queue  #{url}" }
-          @outstanding << url
+          outstanding << url
         end
       end
 
@@ -58,7 +62,7 @@ module AudioBookCreator
 
     def local_href(page_url, href)
       if (ref = URI.join(page_url, href) rescue nil)
-        if (@starting_host == true || @starting_host == ref.host) &&
+        if (multi_site? || @starting_host == ref.host) &&
           [nil, "", '.html', '.htm', '.php', '.jsp'].include?(File.extname(ref.path))
            ref.fragment = nil # remove #x part of url
            ref.to_s
@@ -69,7 +73,7 @@ module AudioBookCreator
     def run(link = "a", &block)
       block = basic_spider(link) unless block_given?
 
-      while (url = @outstanding.shift)
+      while (url = outstanding.shift)
         if max && (visited.size >= max)
           raise "visited #{max} pages.\n  use --max to increase pages visited"
         end
@@ -98,7 +102,7 @@ module AudioBookCreator
     end
 
     def visit_page(url)
-      if load_from_cache && (contents = cache[url])
+      if contents = cache[url]
         # log { "cache  #{url}" }
       else
         log { "fetch  #{url}" }

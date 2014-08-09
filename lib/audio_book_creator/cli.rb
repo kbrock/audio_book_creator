@@ -11,10 +11,7 @@ module AudioBookCreator
     end
 
     def set_defaults
-      default(:database, ":memory:")
-      default(:verbose, false)
       default(:max, 10)
-      default(:load_from_cache, true)
     end
 
     def set_args(argv, usage)
@@ -80,7 +77,7 @@ module AudioBookCreator
     end
 
     def spider
-      @spider ||= Spider.new(page_cache, option_hash(:verbose, :load_from_cache, :max, :multi_site))
+      @spider ||= Spider.new(page_cache, option_hash(:verbose, :max, :multi_site))
     end
 
     def editor
@@ -93,6 +90,7 @@ module AudioBookCreator
 
     def run
       make_directory_structure
+      page_cache.create
       pages = spider.visit(self[:urls]).run(self[:follow])
       chapters = editor.parse(base_dir, pages)
       chapters.each do |chapter|

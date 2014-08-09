@@ -85,7 +85,6 @@ describe AudioBookCreator::Spider do
   end
 
   it "should load page from cache if already present" do
-    subject.load_from_cache = true
     visit "page1"
 
     # this is in the cache, so it will not be "opened"

@@ -4,7 +4,7 @@ module AudioBookCreator
     attr_accessor :max_lines
 
     def initialize(options = {})
-      @max_lines = options[:max_lines]
+      options.each { |n, v| self.public_send("#{n}=",v) }
     end
 
     def parse(book, pages)

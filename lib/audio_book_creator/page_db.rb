@@ -5,11 +5,12 @@ module AudioBookCreator
     include Enumerable
 
     attr_accessor :filename
+    attr_accessor :force
     attr_accessor :db
 
     def initialize(filename = ":memory:", options = {})
       @filename = filename
-      @db = create_database(filename, options[:force])
+      @force = options[:force]
     end
 
     def []=(key, value)
@@ -40,20 +41,17 @@ module AudioBookCreator
       @db.execute "delete from pages"
     end
 
-    private
-
-    def create_database(filename, force = false)
+    def create
       File.rm(filename) if force && File.exist?(filename)
-      db = SQLite3::Database.new(filename)
-
-      db.execute <<-SQL
+      @db ||= SQLite3::Database.new(filename)
+      @db.execute <<-SQL
         create table if not exists pages (
           name text,
           contents blob
         );
       SQL
 
-      db
+      self
     end
   end
 end
