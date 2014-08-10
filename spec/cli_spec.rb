@@ -111,8 +111,7 @@ describe AudioBookCreator::Cli do
 
     it "should support link" do
       subject.parse(%w(title http://www.site.com/ --link a.next_page))
-      # TODO: move --link to meta and to initializer
-      expect(subject[:link_path]).to eq("a.next_page")
+      expect(subject.spider.link_path).to eq("a.next_page")
     end
 
     it "should have no max" do

@@ -23,12 +23,15 @@ module AudioBookCreator
 
     attr_accessor :ignore_bogus
 
+    attr_accessor :link_path
+
     def initialize(cache = {}, options = {})
       @cache           = cache
       @outstanding     = []
       @visited         = []
       @verbose         = options[:verbose]
       @max             = options[:max]
+      @link_path       = options[:link_path]
       @starting_host   = options[:multi_site]
     end
 
@@ -75,9 +78,7 @@ module AudioBookCreator
       # join 2 relative urls
     end
 
-    def run(link = "a", &block)
-      block = basic_spider(link) unless block_given?
-
+    def run
       while (url = outstanding.shift)
         if max && (visited.size >= max)
           raise "visited #{max} pages.\n  use --max to increase pages visited"
@@ -85,7 +86,7 @@ module AudioBookCreator
 
         log { "visit  #{url} [#{visited.size + 1}/#{max || "all"}]" }
         visited << url
-        visit_page(url, &block)
+        visit_page(url)
       end
 
       # currently returns array of blocks of html docs
@@ -94,11 +95,9 @@ module AudioBookCreator
 
     private
 
-    def basic_spider(link)
-      lambda do |url, doc, spider|
-        doc.css(link).each do |a|
-          spider.visit_relative_page(url, a["href"])
-        end
+    def follow_links(url, doc)
+      doc.css(link_path).each do |a|
+        visit_relative_page(url, a["href"])
       end
     end
 
@@ -113,7 +112,7 @@ module AudioBookCreator
         cache[url] = contents
       end
 
-      yield url, Nokogiri::HTML(contents), self if block_given?
+      follow_links url, Nokogiri::HTML(contents)
     end
   end
 end

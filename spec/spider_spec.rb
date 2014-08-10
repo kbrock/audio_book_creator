@@ -1,6 +1,7 @@
 require "spec_helper"
 
 describe AudioBookCreator::Spider do
+  subject { described_class.new({}, link_path: "a") }
   context "#visit" do
     it "visit pages" do
       visit %w(page1 page2)
@@ -33,10 +34,11 @@ describe AudioBookCreator::Spider do
   end
 
   it "should only hit links in correct section" do
+    subject.link_path = ".good a"
     visit "page1"
     expect_visit_page("page1", "<div class='good'>", link("good"), "</div>", link("bad"))
     expect_visit_page("good")
-    subject.run(".good a")
+    subject.run
 
     expect(subject.visited).to eq(site(%w(page1 good)))
   end
@@ -44,7 +46,7 @@ describe AudioBookCreator::Spider do
   it "should freak if visiting a non local page" do
     visit "page1"
     expect_visit_page("page1", link("good"), link("http://anothersite.com/bad"))
-    expect { subject.run("a") }.to raise_error
+    expect { subject.run }.to raise_error
   end
 
   it "should only link to local pages" do
@@ -52,7 +54,7 @@ describe AudioBookCreator::Spider do
     visit "page1"
     expect_visit_page("page1", link("good"), link("http://anothersite.com/bad"))
     expect_visit_page("good")
-    subject.run("a")
+    subject.run
 
     expect(subject.visited).to eq(site(%w(page1 good)))
   end
