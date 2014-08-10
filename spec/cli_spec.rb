@@ -91,14 +91,16 @@ describe AudioBookCreator::Cli do
   context "#spider" do
     it "should set url" do
       subject.parse(%w(title http://www.site.com/))
-      # DARN:
-      # expect(subject.spider.outstanding).to eq(%w(http://www.site.com/))
-      # expect(subject.spider.host).to eq("www.site.com")
+      expect(subject.spider.cache).to eq(subject.page_cache)
+      # TODO: expect(subject.spider.outstanding).to eq(%w(http://www.site.com/))
+      # TODO: remove:
       expect(subject[:urls]).to eq(%w(http://www.site.com/))
       # defaults
       expect(subject.spider.verbose).not_to be_truthy
       expect(subject.spider.max).to eq(10)
+      # TODO: expect(subject.spider.starting_host).to eq("www.site.com")
       expect(subject.spider).not_to be_multi_site
+      # NOTE: not currently passed
       expect(subject.spider.ignore_bogus).not_to be_truthy
     end
 
@@ -107,10 +109,10 @@ describe AudioBookCreator::Cli do
       expect(subject.spider.verbose).to be_truthy
     end
 
-    it "should support follow" do
-      subject.parse(%w(title http://www.site.com/ --follow a.next_page --content p))
-      # DARN: (will be moote when moved into separate class)
-      expect(subject[:follow]).to eq("a.next_page")
+    it "should support link" do
+      subject.parse(%w(title http://www.site.com/ --link a.next_page))
+      # TODO: move --link to meta and to initializer
+      expect(subject[:link_path]).to eq("a.next_page")
     end
 
     it "should have no max" do
@@ -133,8 +135,9 @@ describe AudioBookCreator::Cli do
     it "should create editor" do
       subject.parse(%w(title http://site.com/))
       # defaults
+      expect(subject.editor.title_path).to eq("h1")
+      expect(subject.editor.body_path).to eq("p")
       expect(subject.editor.max_paragraphs).to be_nil
-      expect(subject.editor.content).to eq("p")
     end
 
     it "should support max paragraphs" do
@@ -142,9 +145,14 @@ describe AudioBookCreator::Cli do
       expect(subject.editor.max_paragraphs).to eq(5)
     end
 
-    it "should support content" do
-      subject.parse(%w(title http://www.site.com/ --follow a.next_page --content p.content))
-      expect(subject.editor.content).to eq("p.content")
+    it "should support title" do
+      subject.parse(%w(title http://www.site.com/ --title h1.big))
+      expect(subject.editor.title_path).to eq("h1.big")
+    end
+
+    it "should support body" do
+      subject.parse(%w(title http://www.site.com/ --body p.content))
+      expect(subject.editor.body_path).to eq("p.content")
     end
   end
 
@@ -152,11 +160,11 @@ describe AudioBookCreator::Cli do
     it "should create speaker" do
       subject.parse(%w(title http://site.com/))
       # defaults
-      expect(subject.speaker.force).not_to be_truthy
-      expect(subject.speaker.verbose).not_to be_truthy
       expect(subject.speaker.base_dir).to eq(subject.base_dir)
-      expect(subject.speaker.rate).to eq(320)
+      expect(subject.speaker.verbose).not_to be_truthy
+      expect(subject.speaker.force).not_to be_truthy
       expect(subject.speaker.voice).to eq("Vicki")
+      expect(subject.speaker.rate).to eq(320)
     end
 
     it "should set verbose" do
@@ -169,14 +177,53 @@ describe AudioBookCreator::Cli do
       expect(subject.speaker.force).to be_truthy
     end
 
+    it "should set voice" do
+      subject.parse(%w(title http://site.com/ --voice Serena))
+      expect(subject.speaker.voice).to eq("Serena")
+    end
+
     it "should set rate" do
       subject.parse(%w(title http://site.com/ --rate 200))
       expect(subject.speaker.rate).to eq(200)
     end
 
-    it "should set voice" do
-      subject.parse(%w(title http://site.com/ --voice Serena))
-      expect(subject.speaker.voice).to eq("Serena")
+  end
+
+  context "#binder" do
+    it "should create a binder" do
+      subject.parse(%w(title http://site.com/))
+      # defaults
+      expect(subject.binder.base_dir).to eq(subject.base_dir)
+      expect(subject.binder.title).to eq("title")
+      expect(subject.binder.verbose).not_to be_truthy
+      expect(subject.binder.force).not_to be_truthy
+      # NOTE: not currently passed
+      expect(subject.binder.author).to eq("Vicki")
+      expect(subject.binder.channels).to eq(1)
+      expect(subject.binder.max_hours).to eq(7)
+      expect(subject.binder.bit_rate).to eq(32)
+      expect(subject.binder.sample_rate).to eq(22050)
+    end
+
+    it "should set verbose" do
+      subject.parse(%w(title http://site.com/ --verbose))
+      expect(subject.binder.verbose).to be_truthy
+    end
+
+    it "should set force" do
+      subject.parse(%w(title http://site.com/ --force-audio))
+      expect(subject.binder.force).to be_truthy
+    end
+
+    it "should set author" do
+      subject.parse(%w(title http://site.com/ --force-audio))
+      expect(subject.binder.force).to be_truthy
+    end
+
+    it "should set force" do
+      subject.parse(%w(title http://site.com/ --force-audio))
+      expect(subject.binder.force).to be_truthy
     end
   end
+
 end

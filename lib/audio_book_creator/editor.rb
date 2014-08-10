@@ -2,7 +2,8 @@ require 'nokogiri'
 module AudioBookCreator
   class Editor
     attr_accessor :max_paragraphs
-    attr_accessor :content
+    attr_accessor :title_path
+    attr_accessor :body_path
 
     def initialize(options = {})
       options.each { |n, v| self.public_send("#{n}=",v) }
@@ -11,8 +12,8 @@ module AudioBookCreator
     def parse(pages)
       pages.each_with_index.map do |page, i|
         dom = Nokogiri::HTML(page)
-        title = dom.css('h1').first.text
-        body = limit(dom.css(content)).map { |n| n.text }.compact
+        title = dom.css(title_path).first.text || "Chapter #{i}"
+        body = limit(dom.css(body_path)).map { |n| n.text }.compact
         AudioBookCreator::Chapter.new(number: (i + 1), title: title, body: body)
       end
     end

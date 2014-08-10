@@ -1,4 +1,3 @@
-require 'open3'
 module AudioBookCreator
   class Speaker
     attr_accessor :base_dir
@@ -40,28 +39,10 @@ module AudioBookCreator
 
       if force || !File.exist?(sound_filename)
         # -f text_filename VS. options = { :stdin_data => input}
-        cmd = build_command("say",
-          "-v" => voice, "-r" => rate, "-f" => text_filename, "-o" => sound_filename)
-        puts "run: #{cmd}" if verbose
-        o, e, s = run(cmd, chapter, {})
-        if verbose
-          puts s == 0 ? "success" : "issue (return code #{s})"
-          puts *[o, e].compact
-        end
+        Runner.new.run!("say", verbose: verbose, params: {
+                       "-v" => voice, "-r" => rate,
+                       "-f" => text_filename, "-o" => sound_filename})
       end
-    end
-
-    private
-
-    def build_command(cmd, params)
-      [cmd, params.map { |n, v| "#{n} #{v}" }].join " "
-    end
-
-    # basically AwesomeSpawn
-    def run(command, input, options)
-      output, error, status = Open3.capture3(command, options)
-      status &&= status.exitstatus
-      [ output, error, status ]
     end
   end
 end

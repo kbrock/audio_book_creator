@@ -12,8 +12,9 @@ module AudioBookCreator
 
     def set_defaults
       default(:max, 10)
-      default(:content, "p")
-      default(:follow, "a")
+      default(:title_path, "h1")
+      default(:body_path, "p")
+      default(:link_path, "a")
     end
 
     def set_args(argv, usage)
@@ -45,8 +46,9 @@ module AudioBookCreator
         opts.program_name = File.basename($PROGRAM_NAME)
         opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url [url]"
         opts.on("-v", "--[no-]verbose", "Run verbosely") { |v| self[:verbose] = v }
-        opts.on("-a", "--follow STRING", "Follow css (e.g.: a.Next)") { |v| self[:follow] = v }
-        opts.on("-c", "--content STRING", "Content css (e.g.: p)") { |v| self[:content] = v }
+        opts.on(      "--title STRING", "Content css (e.g.: h1)") { |v| self[:title_path] = v }
+        opts.on(      "--body STRING", "Content css (e.g.: p)") { |v| self[:body_path] = v }
+        opts.on(      "--link STRING", "Follow css (e.g.: a.Next)") { |v| self[:link_path] = v }
         opts.on(      "--no-max", "Don't limit the number of pages to visit") { self[:max] = nil }
         opts.on(      "--max NUMBER", Integer, "Maximum number of pages to visit (default: #{self[:max]})") do |v|
           self[:max] = v
@@ -85,22 +87,28 @@ module AudioBookCreator
     end
 
     def editor
-      @editor ||= Editor.new(option_hash(:content, :max_paragraphs))
+      @editor ||= Editor.new(option_hash(:title_path, :body_path, :max_paragraphs))
     end
 
     def speaker
       @speaker ||= Speaker.new({base_dir: base_dir, force: self[:regen_audio]}
-        .merge(option_hash(:verbose, :voice, :rate)))
+                                 .merge(option_hash(:verbose, :voice, :rate)))
+    end
+
+    def binder
+      @binder ||= Binder.new({base_dir: base_dir, force: self[:regen_audio]}
+                               .merge(option_hash(:verbose, :title)))
     end
 
     def run
       make_directory_structure
       page_cache.create
-      pages = spider.visit(self[:urls]).run(self[:follow])
+      pages = spider.visit(self[:urls]).run(self[:link_path])
       chapters = editor.parse(pages)
       chapters.each do |chapter|
         speaker.say(chapter)
       end
+      binder.create(chapters)
     end
 
     def make_directory_structure
