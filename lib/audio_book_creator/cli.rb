@@ -22,16 +22,12 @@ module AudioBookCreator
       if self[:urls].empty?
         puts "please provide title and url", usage
         exit 1
-      else
-        self[:base] = self[:title].to_s.gsub(" ", "-")
-        self[:database] = "#{base_dir}/pages.db"
-        # TODO: use self[:urls].first to guess :follow
-        self[:follow] ||= "a"
       end
     end
 
     def base_dir
-      self[:base]
+      @base_dir ||= [self[:title], self[:max_paragraphs]].compact.join("-")
+       .gsub(/\W/,"-").gsub(/--*/,"-").gsub(/-$/,"").downcase
     end
 
     def [](name)
@@ -79,7 +75,7 @@ module AudioBookCreator
     # components
 
     def page_cache
-      @page_cache ||= PageDb.new(self[:database], force: self[:regen_html])
+      @page_cache ||= PageDb.new("#{base_dir}/pages.db", force: self[:regen_html])
     end
 
     def spider
@@ -87,18 +83,18 @@ module AudioBookCreator
     end
 
     def editor
-      @editor ||= Editor.new(content: self[:content], max_paragraphs: self[:max_paragraphs])
+      @editor ||= Editor.new(option_hash(:content, :max_paragraphs))
     end
 
     def speaker
-      @speaker ||= Speaker.new(force: self[:regen_audio])
+      @speaker ||= Speaker.new(base_dir: base_dir, force: self[:regen_audio])
     end
 
     def run
       make_directory_structure
       page_cache.create
       pages = spider.visit(self[:urls]).run(self[:follow])
-      chapters = editor.parse(base_dir, pages)
+      chapters = editor.parse(pages)
       chapters.each do |chapter|
         speaker.say(chapter)
       end
@@ -115,11 +111,7 @@ module AudioBookCreator
     end
 
     def option_hash(*keys)
-      if keys.first.is_a?(Hash)
-        keys.first.each_with_object({}) { |(key, value), h| h[key] = self[value] }
-      else
-        keys.flatten.each_with_object({}) { |key, h| h[key] = self[key] }
-      end
+      keys.flatten.each_with_object({}) { |key, h| h[key] = self[key] }
     end
   end
 end

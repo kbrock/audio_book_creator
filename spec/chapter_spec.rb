@@ -1,30 +1,26 @@
 require "spec_helper"
 
 describe AudioBookCreator::Chapter do
-  subject { described_class.new(book: "book1", number: 1, title: "title", body: "body") }
-
-  it "should set book" do
-    expect(subject.book).to   eq("book1")
-  end
+  subject { described_class.new(number: 1, title: "title1", body: "body1") }
 
   it "should set number" do
     expect(subject.number).to eq(1)
   end
 
   it "should set title" do
-    expect(subject.title).to eq("title")
+    expect(subject.title).to eq("title1")
   end
 
   it "should set body" do
-    expect(subject.body).to eq("body")
+    expect(subject.body).to eq("body1")
   end
 
   it "should set filename" do
-    expect(subject.filename).to eq("book1/chapter01")
+    expect(subject.filename).to eq("chapter01")
   end
 
   it "should provide to_s" do
-    expect(subject.to_s).to eq("title\n\nbody\n")
+    expect(subject.to_s).to eq("title1\n\nbody1\n")
   end
 
   it { expect(subject).not_to be_empty }
@@ -34,10 +30,10 @@ describe AudioBookCreator::Chapter do
   end
 
   it "should understand ==" do
-    expect(subject).to eq(described_class.new(book: "book1", number: 1, title: "title", body: "body"))
+    expect(subject).to eq(described_class.new(number: 1, title: "title1", body: "body1"))
   end
 
   it "should understand !=" do
-    expect(subject).not_to eq(described_class.new(book: "book2", number: 1, title: "title", body: "body"))
+    expect(subject).not_to eq(described_class.new(number: 2, title: "title1", body: "body1"))
   end
 end

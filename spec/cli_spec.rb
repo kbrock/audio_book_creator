@@ -17,6 +17,28 @@ describe AudioBookCreator::Cli do
     subject.parse(%w(title_only))
   end
 
+  context "#base_dir" do
+    it "should derive base_dir from title" do
+      subject.parse(%w(title http://www.site.com/))
+      expect(subject.base_dir).to eq("title")
+    end
+
+    it "should support titles with spaces" do
+      subject.parse(["title !for", "http://www.site.com/"])
+      expect(subject.base_dir).to eq("title-for")
+    end
+
+    it "should support titles with extra stuff" do
+      subject.parse(["title,for!", "http://www.site.com/"])
+      expect(subject.base_dir).to eq("title-for")
+    end
+
+    it "should append truncation into the title" do
+      subject.parse(%w(title http://www.site.com/ --max-p 22))
+      expect(subject.base_dir).to eq("title-22")
+    end
+  end
+
   # NOTE: these tests are a little wonky since they call exit
   # keep title and url in there for now
   context "#informational" do
@@ -45,9 +67,9 @@ describe AudioBookCreator::Cli do
 
   context "#make_directory_structure" do
     it "should create base directory" do
-      expect(File).to receive(:exist?).with("title").and_return(false)
-      expect(FileUtils).to receive(:mkdir)
       subject.parse(%w(title http://site.com/))
+      expect(File).to receive(:exist?).with(subject.base_dir).and_return(false)
+      expect(FileUtils).to receive(:mkdir)
       subject.make_directory_structure
     end
   end
@@ -55,7 +77,7 @@ describe AudioBookCreator::Cli do
   context "#page_cache" do
     it "should have databse based upon title" do
       subject.parse(%w(title http://site.com/))
-      expect(subject.page_cache.filename).to eq("title/pages.db")
+      expect(subject.page_cache.filename).to eq("#{subject.base_dir}/pages.db")
       # defaults
       expect(subject.page_cache.force).not_to be_truthy
     end
@@ -106,7 +128,7 @@ describe AudioBookCreator::Cli do
   end
 
   context "#editor" do
-    it "should create speaker" do
+    it "should create editor" do
       subject.parse(%w(title http://site.com/))
       # defaults
       expect(subject.editor.max_paragraphs).to be_nil
@@ -129,6 +151,7 @@ describe AudioBookCreator::Cli do
       subject.parse(%w(title http://site.com/))
       # defaults
       expect(subject.speaker.force).not_to be_truthy
+      expect(subject.speaker.base_dir).to eq(subject.base_dir)
     end
 
     # opts.on("-v", "--[no-]verbose", "Run verbosely")

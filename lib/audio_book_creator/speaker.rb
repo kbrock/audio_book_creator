@@ -2,7 +2,6 @@ require 'open3'
 module AudioBookCreator
   class Speaker
     MAP = {
-      ""  => :command,
       "-v" => :voice,
       "-r" => :rate,
 #      #--file-format=m4af,m4bf
@@ -13,6 +12,7 @@ module AudioBookCreator
     }
     # -f file
 
+    attr_accessor :base_dir
     attr_accessor :force
     attr_accessor :command
 
@@ -41,14 +41,14 @@ module AudioBookCreator
     end
 
     def say(chapter)
-      filename = chapter.filename()
-
       raise "Empty chapter" if chapter.empty?
-      File.write("#{filename}.txt", chapter) if force || !File.exist?("#{filename}.txt")
 
-      if force || !File.exist?("#{filename}.m4a")
-        # currently using a text filename
-        cmd = build_command("-f #{filename}.txt -o #{filename}.m4a")
+      sound_filename = "#{base_dir}/#{chapter.filename}.m4a"
+      text_filename = "#{base_dir}/#{chapter.filename}.txt"
+      File.write(text_filename, chapter.to_s) if force || !File.exist?(text_filename)
+
+      if force || !File.exist?(sound_filename)
+        cmd = build_command("-f" => text_filename, "-o" => sound_filename)
         puts ">> #{cmd}"
         o, e, s = run(cmd, chapter)
 
@@ -57,13 +57,11 @@ module AudioBookCreator
       end
     end
 
-
     private
 
     def build_command(extra)
-      [command, extra, MAP.map { |n, v| "#{n} #{send(v)}" }].join " "
+      [command, MAP.map { |n, v| "#{n} #{send(v)}" }, extra.map { |n, v| "#{n} #{v}" }].join " "
     end
-
 
     # basically AwesomeSpawn
     def run(command, input)

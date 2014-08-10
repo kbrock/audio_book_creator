@@ -3,7 +3,7 @@ require 'spec_helper'
 describe AudioBookCreator::Editor do
   it "should generate a page" do
     subject.content = "p"
-    chapters = subject.parse("book5", [page("page1", "<h1>the title</h1>",
+    chapters = subject.parse([page("page1", "<h1>the title</h1>",
                         "<div id='story'>","<p>first</p>", "<p>second</p>", "</div>"
                         )])
 
@@ -13,7 +13,7 @@ describe AudioBookCreator::Editor do
 
   it "should respect content path" do
     subject.content = "#story p"
-    chapters = subject.parse("book5", [page("page1", "<h1>the title</h1>",
+    chapters = subject.parse([page("page1", "<h1>the title</h1>",
                         "<div id='story'>","<p>first</p>", "<p>second</p>", "</div>", "<p>bad</p>"
                         )])
 
@@ -24,7 +24,7 @@ describe AudioBookCreator::Editor do
   it "should limit content" do
     subject.content = "p"
     subject.max_paragraphs = 2
-    chapters = subject.parse("book5", [page("page1", "<h1>the title</h1>",
+    chapters = subject.parse([page("page1", "<h1>the title</h1>",
                         "<div id='story'>","<p>first</p>", "<p>second</p>", "<p>third</p>", "</div>"
                         )])
 
@@ -33,6 +33,6 @@ describe AudioBookCreator::Editor do
   end
 
   def chapter(body)
-    AudioBookCreator::Chapter.new(book: "book5", number: 1, title: "the title", body: body)
+    AudioBookCreator::Chapter.new(number: 1, title: "the title", body: body)
   end
 end

@@ -1,6 +1,6 @@
 module AudioBookCreator
   class Chapter
-    attr_accessor :book, :number, :title, :body
+    attr_accessor :number, :title, :body
 
     def initialize(options = {})
       options.each { |n, v| self.send("#{n}=", v) }
@@ -8,7 +8,7 @@ module AudioBookCreator
     end
 
     def filename
-      "#{book}/chapter%02d" % number
+      "chapter%02d" % number
     end
 
     def empty?
@@ -21,7 +21,7 @@ module AudioBookCreator
 
     def ==(other)
       other.is_a?(Chapter) &&
-        other.book == book && other.number == number &&
+        other.number == number &&
         other.title == title && other.body == body
     end
   end
