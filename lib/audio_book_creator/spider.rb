@@ -21,6 +21,8 @@ module AudioBookCreator
     #   @return Numeric max number of pages to visit
     attr_accessor :max
 
+    attr_accessor :ignore_bogus
+
     def initialize(cache = {}, options = {})
       @cache           = cache
       @outstanding     = []
@@ -56,6 +58,7 @@ module AudioBookCreator
       if absolute_href = local_href(page_url, href)
         visit(absolute_href)
       else
+        raise "throwing away too much" unless ignore_bogus
         log { "throwing away #{href}" }
       end
     end

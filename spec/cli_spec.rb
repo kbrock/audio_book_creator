@@ -98,6 +98,7 @@ describe AudioBookCreator::Cli do
       expect(subject.spider.verbose).not_to be_truthy
       expect(subject.spider.max).to eq(10)
       expect(subject.spider).not_to be_multi_site
+      expect(subject.spider.ignore_bogus).not_to be_truthy
     end
 
     it "should be verbose" do

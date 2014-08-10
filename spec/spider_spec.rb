@@ -38,17 +38,22 @@ describe AudioBookCreator::Spider do
     expect_visit_page("good")
     subject.run(".good a")
 
-    # correct order
     expect(subject.visited).to eq(site(%w(page1 good)))
   end
 
+  it "should freak if visiting a non local page" do
+    visit "page1"
+    expect_visit_page("page1", link("good"), link("http://anothersite.com/bad"))
+    expect { subject.run("a") }.to raise_error
+  end
+
   it "should only link to local pages" do
+    subject.ignore_bogus = true
     visit "page1"
     expect_visit_page("page1", link("good"), link("http://anothersite.com/bad"))
     expect_visit_page("good")
     subject.run("a")
 
-    # correct order
     expect(subject.visited).to eq(site(%w(page1 good)))
   end
 
@@ -82,9 +87,7 @@ describe AudioBookCreator::Spider do
     expect_visit_page("page3", link("page2"))
     subject.run
 
-    # correct order
     expect(subject.visited).to eq(site(%w(page1 page2 page3)))
-    # has contets from all pages
     expect(subject.cache.keys).to match_array(site(%w(page1 page2 page3)))
   end
 
