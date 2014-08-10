@@ -12,6 +12,8 @@ module AudioBookCreator
 
     def set_defaults
       default(:max, 10)
+      default(:content, "p")
+      default(:follow, "a")
     end
 
     def set_args(argv, usage)
@@ -48,13 +50,17 @@ module AudioBookCreator
         opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url [url]"
         opts.on("-v", "--[no-]verbose", "Run verbosely") { |v| self[:verbose] = v }
         opts.on("-a", "--follow STRING", "Follow css (e.g.: a.Next)") { |v| self[:follow] = v }
+        opts.on("-c", "--content STRING", "Content css (e.g.: p)") { |v| self[:content] = v }
         opts.on(      "--no-max", "Don't limit the number of pages to visit") { self[:max] = nil }
         opts.on(      "--max NUMBER", Integer, "Maximum number of pages to visit (default: #{self[:max]})") do |v|
           self[:max] = v
         end
-        opts.on("--force-audio", "Regerate the audio") { |v| self[:regen_audio] = true }
-        opts.on("--force-html", "Regerate the audio") { |v| self[:regen_html] = true }
-        opts.on("--multi-site", "Allow spider to visit multiple sites") { self[:multi_site] = true }
+        opts.on("--max-p NUMBER", Integer, "Max paragraphs per chapter (testing only)") do |v|
+          self[:max_paragraphs] = v
+        end
+        opts.on("--force-audio", "Regerate the audio") { |v| self[:regen_audio] = v }
+        opts.on("--force-html", "Regerate the audio") { |v| self[:regen_html] = v }
+        opts.on("--multi-site", "Allow spider to visit multiple sites") { |v| self[:multi_site] = v }
         opts.on_tail("-h", "--help", "Show this message") do
           puts opts.to_s
           exit 0
@@ -81,7 +87,7 @@ module AudioBookCreator
     end
 
     def editor
-      @editor ||= Editor.new
+      @editor ||= Editor.new(content: self[:content], max_paragraphs: self[:max_paragraphs])
     end
 
     def speaker

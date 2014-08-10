@@ -84,7 +84,7 @@ describe AudioBookCreator::Cli do
     end
 
     it "should support follow" do
-      subject.parse(%w(title http://www.site.com/ --follow a.next_page))
+      subject.parse(%w(title http://www.site.com/ --follow a.next_page --content p))
       # DARN: (move into separate class)
       expect(subject[:follow]).to eq("a.next_page")
     end
@@ -108,8 +108,19 @@ describe AudioBookCreator::Cli do
   context "#editor" do
     it "should create speaker" do
       subject.parse(%w(title http://site.com/))
-      expect(subject.editor).not_to be_nil
       # defaults
+      expect(subject.editor.max_paragraphs).to be_nil
+      expect(subject.editor.content).to eq("p")
+    end
+
+    it "should support max paragraphs" do
+      subject.parse(%w(title http://www.site.com/ --max-p 5))
+      expect(subject.editor.max_paragraphs).to eq(5)
+    end
+
+    it "should support content" do
+      subject.parse(%w(title http://www.site.com/ --follow a.next_page --content p.content))
+      expect(subject.editor.content).to eq("p.content")
     end
   end
 

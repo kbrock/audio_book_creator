@@ -42,26 +42,14 @@ describe AudioBookCreator::Spider do
     expect(subject.visited).to eq(site(%w(page1 good)))
   end
 
-  # private methods
+  it "should only link to local pages" do
+    visit "page1"
+    expect_visit_page("page1", link("good"), link("http://anothersite.com/bad"))
+    expect_visit_page("good")
+    subject.run("a")
 
-  context "#log" do
-    it "should not log strings when verbose is off" do
-      subject.verbose = false
-      expect(subject).not_to receive(:puts)
-      subject.send(:log, "phrase")
-    end
-
-    it "should log strings" do
-      subject.verbose = true
-      expect(subject).to receive(:puts).with("phrase")
-      subject.send(:log, "phrase")
-    end
-
-    it "should log blocks" do
-      subject.verbose = true
-      expect(subject).to receive(:puts).with("phrase")
-      subject.send(:log) { "phrase" }
-    end
+    # correct order
+    expect(subject.visited).to eq(site(%w(page1 good)))
   end
 
   context "#max" do
@@ -98,6 +86,28 @@ describe AudioBookCreator::Spider do
     expect(subject.visited).to eq(site(%w(page1 page2 page3)))
     # has contets from all pages
     expect(subject.cache.keys).to match_array(site(%w(page1 page2 page3)))
+  end
+
+  # private methods
+
+  context "#log" do
+    it "should not log strings when verbose is off" do
+      subject.verbose = false
+      expect(subject).not_to receive(:puts)
+      subject.send(:log, "phrase")
+    end
+
+    it "should log strings" do
+      subject.verbose = true
+      expect(subject).to receive(:puts).with("phrase")
+      subject.send(:log, "phrase")
+    end
+
+    it "should log blocks" do
+      subject.verbose = true
+      expect(subject).to receive(:puts).with("phrase")
+      subject.send(:log) { "phrase" }
+    end
   end
 
   context "#local_href" do

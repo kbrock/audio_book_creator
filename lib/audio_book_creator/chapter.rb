@@ -1,15 +1,14 @@
 module AudioBookCreator
   class Chapter
     attr_accessor :book, :number, :title, :body
-    def initialize(book = nil, number = nil, title = nil, body = nil)
-      @book   = book
-      @number = number
-      @title  = title
-      @body   = Array(body).join("\n\n")
+
+    def initialize(options = {})
+      options.each { |n, v| self.send("#{n}=", v) }
+      @body = Array(@body).compact.join("\n\n")
     end
 
-    def filename(ext = "")
-      "#{book}/chapter%02d%s" % [number, ext]
+    def filename
+      "#{book}/chapter%02d" % number
     end
 
     def empty?
