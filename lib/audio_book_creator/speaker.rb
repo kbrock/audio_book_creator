@@ -18,14 +18,8 @@ module AudioBookCreator
     attr_accessor :voice
     attr_accessor :rate
 
-#      #--file-format=m4af,m4bf
-#      "--data-format" => :format, # or aac / aac@8000
-#      "--channels" => :channels, # doesn't seem to do anything. voices are 1 anyway
-#      "--bitrate" => :bitrate,  # doesn't do anything
-#      "--quality" => :quality,  # 0..127 - doesn't seem to do anything
-
     def initialize(options = {})
-      options.each { |n, v| self.send("#{n}=", v) }
+      options.each { |n, v| public_send("#{n}=", v) }
       @voice   ||= "Vicki"
       @rate    ||= 320
     end
@@ -39,9 +33,19 @@ module AudioBookCreator
 
       if force || !File.exist?(sound_filename)
         # -f text_filename VS. options = { :stdin_data => input}
-        Runner.new.run!("say", verbose: verbose, params: {
-                       "-v" => voice, "-r" => rate,
-                       "-f" => text_filename, "-o" => sound_filename})
+        Runner.new.run!("say",
+                        verbose: verbose,
+                        params:  {
+                          "-v" => voice,
+                          "-r" => rate,
+                          "-f" => text_filename,
+                          "-o" => sound_filename,
+                          # "--file-format" => m4af,m4bf
+                          # "--data-format" => :format, # or aac / aac@8000
+                          # "--channels" => 1, # doesn't seem to do anything. voices are 1 anyway
+                          # "--bitrate" => 20_500,  # doesn't do anything
+                          # "--quality" => 50,  # 0..127 - doesn't seem to do anything
+                        })
       end
     end
   end

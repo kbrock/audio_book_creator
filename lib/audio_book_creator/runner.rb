@@ -9,7 +9,7 @@ module AudioBookCreator
 
       log(verbose) { "run: #{cmd} #{params.join(" ")}" }
       log verbose, ""
-      status = system(cmd, *params.map {|x| x.to_s })
+      status = system(cmd, *params.map { |x| x.to_s })
       log verbose, ""
       log(verbose) { status == true ? "success" : "issue (return code #{status})" }
 

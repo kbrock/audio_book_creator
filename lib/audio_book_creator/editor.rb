@@ -6,7 +6,7 @@ module AudioBookCreator
     attr_accessor :body_path
 
     def initialize(options = {})
-      options.each { |n, v| self.public_send("#{n}=",v) }
+      options.each { |n, v| public_send("#{n}=", v) }
     end
 
     def parse(pages)

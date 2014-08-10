@@ -3,7 +3,7 @@ module AudioBookCreator
     attr_accessor :number, :title, :body
 
     def initialize(options = {})
-      options.each { |n, v| self.send("#{n}=", v) }
+      options.each { |n, v| public_send("#{n}=", v) }
       @body = Array(@body).compact.join("\n\n")
     end
 

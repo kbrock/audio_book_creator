@@ -55,7 +55,7 @@ module AudioBookCreator
 
     def visit_relative_page(page_url, href)
       # alt: URI.parse(root).merge(URI.parse(href)).to_s
-      if absolute_href = local_href(page_url, href)
+      if (absolute_href = local_href(page_url, href))
         visit(absolute_href)
       else
         raise "throwing away too much" unless ignore_bogus
@@ -64,13 +64,15 @@ module AudioBookCreator
     end
 
     def local_href(page_url, href)
-      if (ref = URI.join(page_url, href) rescue nil)
+      if (ref = URI.join(page_url, href))
         if (multi_site? || @starting_host == ref.host) &&
           [nil, "", '.html', '.htm', '.php', '.jsp'].include?(File.extname(ref.path))
-           ref.fragment = nil # remove #x part of url
-           ref.to_s
+          ref.fragment = nil # remove #x part of url
+          ref.to_s
         end
       end
+    rescue URI::BadURIError
+      # join 2 relative urls
     end
 
     def run(link = "a", &block)
@@ -105,9 +107,7 @@ module AudioBookCreator
     end
 
     def visit_page(url)
-      if contents = cache[url]
-        # log { "cache  #{url}" }
-      else
+      unless (contents = cache[url])
         log { "fetch  #{url}" }
         contents ||= open(url).read
         cache[url] = contents

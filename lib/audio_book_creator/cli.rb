@@ -28,7 +28,7 @@ module AudioBookCreator
 
     def base_dir
       @base_dir ||= [self[:title], self[:max_paragraphs]].compact.join("-")
-       .gsub(/\W/,"-").gsub(/--*/,"-").gsub(/-$/,"").downcase
+       .gsub(/\W/, "-").gsub(/--*/, "-").gsub(/-$/, "").downcase
     end
 
     def [](name)
