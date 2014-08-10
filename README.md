@@ -1,25 +1,44 @@
 # AudioBookCreator
 
+[![Gem Version][GV img]][Gem Version]
+[![Build Status][BS img]][Build Status]
+[![Dependency Status][DS img]][Dependency Status]
+[![Code Climate][CC img]][Code Climate]
+[![Coverage Status][CS img]][Coverage Status]
+
+[Gem Version]: https://rubygems.org/gems/audio_book_creator
+[Build Status]: https://travis-ci.org/kbrock/audio_book_creator
+[travis pull requests]: https://travis-ci.org/kbrock/audio_book_creator/pull_requests
+[Dependency Status]: https://gemnasium.com/kbrock/audio_book_creator
+[Code Climate]: https://codeclimate.com/github/kbrock/audio_book_creator
+[Coverage Status]: https://coveralls.io/r/kbrock/audio_book_creator
+
+[GV img]: https://badge.fury.io/rb/audio_book_creator.png
+[BS img]: https://travis-ci.org/kbrock/audio_book_creator.png
+[DS img]: https://gemnasium.com/kbrock/audio_book_creator.png
+[CC img]: https://codeclimate.com/github/kbrock/audio_book_creator.png
+[CS img]: https://coveralls.io/repos/kbrock/audio_book_creator/badge.png?branch=master
+
+
+## Description
+
 This takes html files and creates a chapterized audiobook.
   It leverages Apple's speak command and audio book binder
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Download [audio book binder][], link the executable into the path, and install gem. The current app store version of the application does not have the cli available.
 
-    gem 'audio_book_creator'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
+    $ ln -s /Applications/AudioBookBinder.app/Contents/MacOS/abbinder /usr/local/bin/
     $ gem install audio_book_creator
+
+[audio book binder]: http://bluezbox.com/audiobookbinder.html
 
 ## Usage
 
 audio_book_creator the_great_book http://bookurl.com/greak_book/
+
+# **TODO:** provide the command line flags
 
 it will spider the files referenced by the url and create the following:
 

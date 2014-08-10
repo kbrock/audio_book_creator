@@ -1,5 +1,15 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
+require "coveralls"
+require "simplecov"
+require "codeclimate-test-reporter"
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  Coveralls::SimpleCov::Formatter,
+  SimpleCov::Formatter::HTMLFormatter,
+  CodeClimate::TestReporter::Formatter
+]
+
 begin
   require "pry"
 rescue LoadError
@@ -23,15 +33,14 @@ module Factories
   end
 end
 
+SimpleCov.start
+
+require 'audio_book_creator'
+
 RSpec.configure do |c|
   c.include HtmlHelpers
   c.include Factories
+  c.run_all_when_everything_filtered = true
+  c.filter_run :focus
+  c.order = 'random'
 end
-
-begin
-  require 'simplecov'
-  SimpleCov.start
-rescue LoadError
-end
-
-require 'audio_book_creator'
