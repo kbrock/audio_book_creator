@@ -155,6 +155,6 @@ describe AudioBookCreator::Spider do
 
   def expect_visit_page(url, *args)
     url = site(url)
-    expect(subject).to receive(:open).with(url).once.and_return(double(read: page(url, *args)))
+    expect_spider_to_visit_page(subject, url, *args)
   end
 end

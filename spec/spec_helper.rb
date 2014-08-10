@@ -25,6 +25,12 @@ module HtmlHelpers
       <body>#{Array(args).join(" ")}</body>
       </html>}
   end
+
+  # site helpers
+
+  def expect_spider_to_visit_page(spider, url, *args)
+    expect(spider).to receive(:open).with(url).once.and_return(double(read: page(url, *args)))
+  end
 end
 
 module Factories

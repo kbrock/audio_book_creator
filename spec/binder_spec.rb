@@ -7,9 +7,15 @@ describe AudioBookCreator::Binder do
   end
 
   it "should do nothing if m4b exists" do
-    expect(File).to receive(:exist?).and_return(true)
+    expect(File).to receive(:exist?).with("title.m4b").and_return(true)
 
     expect_runner.not_to receive(:system)
+    subject.create([chapter("content")])
+  end
+
+  it "should base filename on title and sanitize it" do
+    subject.title = "the title"
+    expect(File).to receive(:exist?).with("the-title.m4b").and_return(true)
     subject.create([chapter("content")])
   end
 

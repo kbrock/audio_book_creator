@@ -83,6 +83,13 @@ describe AudioBookCreator::Cli do
       expect(FileUtils).to receive(:mkdir)
       subject.make_directory_structure
     end
+
+    it "should not create base directory if it exists" do
+      subject.parse(%w(title http://site.com/))
+      expect(File).to receive(:exist?).with(subject.base_dir).and_return(true)
+      expect(FileUtils).not_to receive(:mkdir)
+      subject.make_directory_structure
+    end
   end
 
   context "#page_cache" do
@@ -235,6 +242,24 @@ describe AudioBookCreator::Cli do
     it "should set force" do
       subject.parse(%w(title http://site.com/ --force-audio))
       expect(subject.binder.force).to be_truthy
+    end
+  end
+
+  # this is kinda testing the implementation
+  context "#run" do
+    it "should call all the constructors and components" do
+      subject.parse(%w(title http://site.com/))
+      # make_directory_structure:
+      expect(File).to receive(:exist?).with("title").and_return(true)
+      # spider:
+      expect_spider_to_visit_page(subject.spider, "http://site.com/", "<h1>title</h1>", "<p>contents</p>")
+      # speaker:
+      expect(File).to receive(:exist?).with("title/chapter01.txt").and_return(true)
+      expect(File).to receive(:exist?).with("title/chapter01.m4a").and_return(true)
+      # binder
+      expect(File).to receive(:exist?).with("title.m4b").and_return(true)
+
+      subject.run
     end
   end
 end

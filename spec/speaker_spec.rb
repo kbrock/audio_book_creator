@@ -6,7 +6,8 @@ describe AudioBookCreator::Speaker do
   end
 
   it "should do nothing if txt and mp4 file exist" do
-    expect(File).to receive(:exist?).twice.and_return(true)
+    expect(File).to receive(:exist?).with("/chapter01.txt").and_return(true)
+    expect(File).to receive(:exist?).with("/chapter01.m4a").and_return(true)
 
     expect(File).not_to receive(:write)
     expect_runner.not_to receive(:system)
