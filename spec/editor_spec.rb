@@ -31,8 +31,4 @@ describe AudioBookCreator::Editor do
     expect(chapters).to eq([chapter("first\n\nsecond")])
 
   end
-
-  def chapter(body)
-    AudioBookCreator::Chapter.new(number: 1, title: "the title", body: body)
-  end
 end

@@ -93,6 +93,7 @@ describe AudioBookCreator::Cli do
       subject.parse(%w(title http://www.site.com/))
       # DARN:
       # expect(subject.spider.outstanding).to eq(%w(http://www.site.com/))
+      # expect(subject.spider.host).to eq("www.site.com")
       expect(subject[:urls]).to eq(%w(http://www.site.com/))
       # defaults
       expect(subject.spider.verbose).not_to be_truthy
@@ -108,7 +109,7 @@ describe AudioBookCreator::Cli do
 
     it "should support follow" do
       subject.parse(%w(title http://www.site.com/ --follow a.next_page --content p))
-      # DARN: (move into separate class)
+      # DARN: (will be moote when moved into separate class)
       expect(subject[:follow]).to eq("a.next_page")
     end
 
@@ -152,15 +153,30 @@ describe AudioBookCreator::Cli do
       subject.parse(%w(title http://site.com/))
       # defaults
       expect(subject.speaker.force).not_to be_truthy
+      expect(subject.speaker.verbose).not_to be_truthy
       expect(subject.speaker.base_dir).to eq(subject.base_dir)
+      expect(subject.speaker.rate).to eq(320)
+      expect(subject.speaker.voice).to eq("Vicki")
     end
 
-    # opts.on("-v", "--[no-]verbose", "Run verbosely")
+    it "should set verbose" do
+      subject.parse(%w(title http://site.com/ --verbose))
+      expect(subject.speaker.verbose).to be_truthy
+    end
 
     it "should set force" do
       subject.parse(%w(title http://site.com/ --force-audio))
-      # defaults
       expect(subject.speaker.force).to be_truthy
+    end
+
+    it "should set rate" do
+      subject.parse(%w(title http://site.com/ --rate 200))
+      expect(subject.speaker.rate).to eq(200)
+    end
+
+    it "should set voice" do
+      subject.parse(%w(title http://site.com/ --voice Serena))
+      expect(subject.speaker.voice).to eq("Serena")
     end
   end
 end

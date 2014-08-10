@@ -17,8 +17,15 @@ module HtmlHelpers
   end
 end
 
+module Factories
+  def chapter(body, title = "the title", number = 1)
+    AudioBookCreator::Chapter.new(number: number, title: title, body: body)
+  end
+end
+
 RSpec.configure do |c|
   c.include HtmlHelpers
+  c.include Factories
 end
 
 begin

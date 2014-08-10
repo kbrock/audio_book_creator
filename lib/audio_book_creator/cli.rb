@@ -57,6 +57,8 @@ module AudioBookCreator
         opts.on("--force-audio", "Regerate the audio") { |v| self[:regen_audio] = v }
         opts.on("--force-html", "Regerate the audio") { |v| self[:regen_html] = v }
         opts.on("--multi-site", "Allow spider to visit multiple sites") { |v| self[:multi_site] = v }
+        opts.on("--rate NUMBER", Integer, "Set words per minute") { |v| self[:rate] = v }
+        opts.on("--voice STRING", "Set speaker voice") { |v| self[:voice] = v }
         opts.on_tail("-h", "--help", "Show this message") do
           puts opts.to_s
           exit 0
@@ -87,7 +89,8 @@ module AudioBookCreator
     end
 
     def speaker
-      @speaker ||= Speaker.new(base_dir: base_dir, force: self[:regen_audio])
+      @speaker ||= Speaker.new({base_dir: base_dir, force: self[:regen_audio]}
+        .merge(option_hash(:verbose, :voice, :rate)))
     end
 
     def run
