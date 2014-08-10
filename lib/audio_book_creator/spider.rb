@@ -23,12 +23,15 @@ module AudioBookCreator
 
     attr_accessor :ignore_bogus
 
+    attr_accessor :link_path
+
     def initialize(cache = {}, options = {})
       @cache           = cache
       @outstanding     = []
       @visited         = []
       @verbose         = options[:verbose]
       @max             = options[:max]
+      @link_path       = options[:link_path]
       @starting_host   = options[:multi_site]
     end
 
@@ -75,8 +78,8 @@ module AudioBookCreator
       # join 2 relative urls
     end
 
-    def run(link = "a", &block)
-      block = basic_spider(link) unless block_given?
+    def run
+      block = basic_spider(link_path) unless block_given?
 
       while (url = outstanding.shift)
         if max && (visited.size >= max)
