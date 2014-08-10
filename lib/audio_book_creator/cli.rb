@@ -3,12 +3,12 @@ require 'fileutils'
 
 module AudioBookCreator
   class Cli
-    attr_accessor :argv
-
     def initialize(options = {})
       @options = options
       set_defaults
     end
+
+    attr_reader :base_dir
 
     def set_defaults
       default(:max, 10)
@@ -24,11 +24,13 @@ module AudioBookCreator
         puts "please provide title and url", usage
         exit 1
       end
+      self[:database] ||= "#{base_dir}/pages.db"
     end
 
+    # set in parse (in set_args when setting database name)
+    # setting max_paragraphs later will not change the filename
     def base_dir
-      @base_dir ||= [self[:title], self[:max_paragraphs]].compact.join("-")
-       .gsub(/\W/, "-").gsub(/--*/, "-").gsub(/-$/, "").downcase
+      self[:base_dir] ||= AudioBookCreator.sanitize_filename(self[:title], self[:max_paragraphs])
     end
 
     def [](name)
@@ -40,8 +42,6 @@ module AudioBookCreator
     end
 
     def parse(argv = [], _env = {})
-      self.argv = argv.dup
-
       options = OptionParser.new do |opts|
         opts.program_name = File.basename($PROGRAM_NAME)
         opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url [url]"
@@ -61,6 +61,7 @@ module AudioBookCreator
         opts.on("--multi-site", "Allow spider to visit multiple sites") { |v| self[:multi_site] = v }
         opts.on("--rate NUMBER", Integer, "Set words per minute") { |v| self[:rate] = v }
         opts.on("--voice STRING", "Set speaker voice") { |v| self[:voice] = v }
+        opts.on("--cache STRONG", "Directory to hold files") { |v| self[:base_dir] = v }
         opts.on_tail("-h", "--help", "Show this message") do
           puts opts.to_s
           exit 0
@@ -79,11 +80,11 @@ module AudioBookCreator
     # components
 
     def page_cache
-      @page_cache ||= PageDb.new("#{base_dir}/pages.db", force: self[:regen_html])
+      @page_cache ||= PageDb.new(self[:database], force: self[:regen_html])
     end
 
     def spider
-      @spider ||= Spider.new(page_cache, option_hash(:verbose, :max, :multi_site, :link_path))
+      @spider ||= Spider.new(page_cache, option_hash(:verbose, :max, :multi_site, :link_path)).visit(self[:urls])
     end
 
     def editor
@@ -102,8 +103,7 @@ module AudioBookCreator
 
     def run
       make_directory_structure
-      page_cache.create
-      pages = spider.visit(self[:urls]).run
+      pages = spider.run
       chapters = editor.parse(pages)
       chapters.each do |chapter|
         speaker.say(chapter)
@@ -111,6 +111,7 @@ module AudioBookCreator
       binder.create(chapters)
     end
 
+    # create the directory that will house the cache and temporary files
     def make_directory_structure
       FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
     end

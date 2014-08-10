@@ -5,6 +5,9 @@ require 'spec_helper'
 require 'audio_book_creator/cli'
 
 describe AudioBookCreator::Cli do
+  # this sidesteps creating a database file
+  subject { described_class.new(database: ":memory:") }
+
   it "should treat first arguments as a url" do
     subject.parse(%w(title http://site.com/))
     expect(subject[:title]).to eq("title")
@@ -17,6 +20,14 @@ describe AudioBookCreator::Cli do
     subject.parse(%w(title_only))
   end
 
+  # in tests, we are stubbing this with ":memory:" so we don't create files
+  it "should base database name upon title" do
+    subject[:database] = nil
+    subject.parse(%w(title http://site.com/))
+    expect(subject[:database]).to eq("#{subject.base_dir}/pages.db")
+  end
+
+  # file sanitization is tested in audio_book_creator.spec
   context "#base_dir" do
     it "should derive base_dir from title" do
       subject.parse(%w(title http://www.site.com/))
@@ -35,7 +46,7 @@ describe AudioBookCreator::Cli do
 
     it "should append truncation into the title" do
       subject.parse(%w(title http://www.site.com/ --max-p 22))
-      expect(subject.base_dir).to eq("title-22")
+      expect(subject.base_dir).to eq("title.22")
     end
   end
 
@@ -77,7 +88,8 @@ describe AudioBookCreator::Cli do
   context "#page_cache" do
     it "should have databse based upon title" do
       subject.parse(%w(title http://site.com/))
-      expect(subject.page_cache.filename).to eq("#{subject.base_dir}/pages.db")
+      # NOTE: testing actual database filename calculation at top of spec
+      expect(subject.page_cache.filename).to eq(subject[:database])
       # defaults
       expect(subject.page_cache.force).not_to be_truthy
     end
@@ -92,13 +104,11 @@ describe AudioBookCreator::Cli do
     it "should set url" do
       subject.parse(%w(title http://www.site.com/))
       expect(subject.spider.cache).to eq(subject.page_cache)
-      # TODO: expect(subject.spider.outstanding).to eq(%w(http://www.site.com/))
-      # TODO: remove:
-      expect(subject[:urls]).to eq(%w(http://www.site.com/))
+      expect(subject.spider.outstanding).to eq(%w(http://www.site.com/))
       # defaults
       expect(subject.spider.verbose).not_to be_truthy
       expect(subject.spider.max).to eq(10)
-      # TODO: expect(subject.spider.starting_host).to eq("www.site.com")
+      expect(subject.spider.host_limit).to eq("www.site.com")
       expect(subject.spider).not_to be_multi_site
       # NOTE: not currently passed
       expect(subject.spider.ignore_bogus).not_to be_truthy
@@ -106,6 +116,8 @@ describe AudioBookCreator::Cli do
 
     it "should be verbose" do
       subject.parse(%w(title http://www.site.com/ -v))
+      # logging a url was added to the queue
+      expect_any_instance_of(AudioBookCreator::Spider).to receive(:puts)
       expect(subject.spider.verbose).to be_truthy
     end
 
@@ -127,6 +139,7 @@ describe AudioBookCreator::Cli do
     it "should support multiple sites" do
       subject.parse(%w(title http://www.site.com/ --multi-site))
       expect(subject.spider).to be_multi_site
+      expect(subject.spider.host_limit).to be_nil
     end
   end
 
@@ -224,5 +237,4 @@ describe AudioBookCreator::Cli do
       expect(subject.binder.force).to be_truthy
     end
   end
-
 end

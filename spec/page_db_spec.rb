@@ -1,7 +1,7 @@
 require_relative "spec_helper"
 
 describe AudioBookCreator::PageDb do
-  subject { described_class.new(":memory:").create }
+  subject { described_class.new(":memory:")}
 
   it "should not create a file" do
     expect(File).not_to be_exist(":memory:")
@@ -22,6 +22,13 @@ describe AudioBookCreator::PageDb do
     subject.clear
 
     expect(subject["key"]).to be_nil
+  end
+
+  it "should truncate database with force" do
+    subject["key"] = "value"
+
+    later = described_class.new(":memory:", truncate: true)
+    expect(later["key"]).to be_nil
   end
 
   it "should handle url keys" do

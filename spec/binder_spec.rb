@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe AudioBookCreator::Binder do
-  subject { described_class.new(title: "title", base_dir: "title")}
+  subject { described_class.new(title: "title", base_dir: "dir")}
   it "should require a chapter" do
     expect { subject.create([]) }.to raise_error
   end
@@ -19,7 +19,7 @@ describe AudioBookCreator::Binder do
     expect_runner.to receive(:system)
       .with("abbinder", "-a", "Vicki", "-t", "\"title\"", "-b", "32", "-c", "1",
             "-r", "22050", "-g", "Audiobook", "-l", "7", "-o", "title.m4b",
-            "@\"the title\"@", "title/chapter01.m4a").and_return(true)
+            "@\"the title\"@", "dir/chapter01.m4a").and_return(true)
     subject.create([chapter("content")])
   end
 

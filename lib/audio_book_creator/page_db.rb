@@ -11,6 +11,8 @@ module AudioBookCreator
     def initialize(filename = ":memory:", options = {})
       @filename = filename
       @force = options[:force]
+      @db = create
+      clear if force
     end
 
     def []=(key, value)
@@ -42,16 +44,9 @@ module AudioBookCreator
     end
 
     def create
-      File.rm(filename) if force && File.exist?(filename)
-      @db ||= SQLite3::Database.new(filename)
-      @db.execute <<-SQL
-        create table if not exists pages (
-          name text,
-          contents blob
-        );
-      SQL
-
-      self
+      SQLite3::Database.new(filename).tap do |db|
+        db.execute("create table if not exists pages (name text, contents blob)")
+      end
     end
   end
 end

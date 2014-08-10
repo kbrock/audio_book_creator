@@ -35,6 +35,14 @@ module AudioBookCreator
       @starting_host   = options[:multi_site]
     end
 
+    def over_limit?
+      max && (visited.size >= max)
+    end
+
+    def host_limit
+      @starting_host == true ? nil : @starting_host
+    end
+
     def multi_site?
       @starting_host == true
     end
@@ -80,10 +88,7 @@ module AudioBookCreator
 
     def run
       while (url = outstanding.shift)
-        if max && (visited.size >= max)
-          raise "visited #{max} pages.\n  use --max to increase pages visited"
-        end
-
+        raise "visited #{max} pages.\n  use --max to increase pages visited" if over_limit?
         log { "visit  #{url} [#{visited.size + 1}/#{max || "all"}]" }
         visited << url
         visit_page(url)
@@ -102,7 +107,7 @@ module AudioBookCreator
     end
 
     def log(str = nil)
-      puts str || yield if verbose
+      puts(str || yield) if verbose
     end
 
     def visit_page(url)

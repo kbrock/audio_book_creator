@@ -48,7 +48,7 @@ module AudioBookCreator
     private
 
     def filename
-      "#{base_dir}.m4b"
+      AudioBookCreator.sanitize_filename(title,"m4b")
     end
 
     def ctitle(chapter)
