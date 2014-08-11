@@ -1,18 +1,20 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
-require "coveralls"
-require "simplecov"
-require "codeclimate-test-reporter"
+unless ENV['MUTANT']
+  require "coveralls"
+  require "simplecov"
+  require "codeclimate-test-reporter"
 
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
-  Coveralls::SimpleCov::Formatter,
-  SimpleCov::Formatter::HTMLFormatter,
-  CodeClimate::TestReporter::Formatter
-]
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+    Coveralls::SimpleCov::Formatter,
+    SimpleCov::Formatter::HTMLFormatter,
+    CodeClimate::TestReporter::Formatter
+  ]
 
-begin
-  require "pry"
-rescue LoadError
+  begin
+    require "pry"
+  rescue LoadError
+  end
 end
 
 module HtmlHelpers
@@ -39,14 +41,16 @@ module Factories
   end
 end
 
-SimpleCov.start
+SimpleCov.start unless ENV['MUTANT']
 
 require 'audio_book_creator'
 
 RSpec.configure do |c|
   c.include HtmlHelpers
   c.include Factories
-  c.run_all_when_everything_filtered = true
-  c.filter_run :focus
-  c.order = 'random'
+  unless ENV['MUTANT']
+    c.run_all_when_everything_filtered = true
+    c.filter_run :focus
+    c.order = 'random'
+  end
 end
