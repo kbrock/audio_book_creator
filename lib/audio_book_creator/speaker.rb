@@ -26,27 +26,29 @@ module AudioBookCreator
 
     def say(chapter)
       raise "Empty chapter" if chapter.empty?
-
-      sound_filename = "#{base_dir}/#{chapter.filename}.m4a"
-      text_filename = "#{base_dir}/#{chapter.filename}.txt"
-      File.write(text_filename, chapter.to_s) if force || !File.exist?(text_filename)
-
-      if force || !File.exist?(sound_filename)
-        # -f text_filename VS. options = { :stdin_data => input}
-        Runner.new.run!("say",
-                        verbose: verbose,
-                        params:  {
-                          "-v" => voice,
-                          "-r" => rate,
-                          "-f" => text_filename,
-                          "-o" => sound_filename,
-                          # "--file-format" => m4af,m4bf
-                          # "--data-format" => :format, # or aac / aac@8000
-                          # "--channels" => 1, # doesn't seem to do anything. voices are 1 anyway
-                          # "--bitrate" => 20_500,  # doesn't do anything
-                          # "--quality" => 50,  # 0..127 - doesn't seem to do anything
-                        })
+      File.write(text_filename(chapter), chapter.to_s) if AudioBookCreator.should_write?(text_filename(chapter), force)
+      if AudioBookCreator.should_write?(sound_filename(chapter), force)
+        Runner.new.run!("say", verbose: verbose, params: params(chapter))
       end
+    end
+
+    private
+
+    def params(chapter)
+      {
+        "-v" => voice,
+        "-r" => rate,
+        "-f" => text_filename(chapter),
+        "-o" => sound_filename(chapter),
+      }
+    end
+
+    def sound_filename(chapter)
+      "#{base_dir}/#{chapter.filename}.m4a"
+    end
+
+    def text_filename(chapter)
+      "#{base_dir}/#{chapter.filename}.txt"
     end
   end
 end

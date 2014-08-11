@@ -17,13 +17,13 @@ end
 
 module HtmlHelpers
   def link(url)
-    %{<a href="#{url}">link</a>"}
+    %(<a href="#{url}">link</a>")
   end
 
   def page(title, *args)
-    %{<html><head><title>#{title}</title></head>
+    %(<html><head><title>#{title}</title></head>
       <body>#{Array(args).join(" ")}</body>
-      </html>}
+      </html>)
   end
 
   # site helpers

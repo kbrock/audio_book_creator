@@ -26,6 +26,27 @@ describe AudioBookCreator do
     it "should support titles with extra stuff" do
       expect(subject.sanitize_filename("title,for!")).to eq("title-for")
     end
+  end
 
+  context ".should_write" do
+    it "should know file does not exist" do
+      expect(File).to receive(:exist?).with("x").and_return(false)
+      expect(subject.should_write?("x", false)).to be_truthy
+    end
+
+    it "should respect force" do
+      expect(File).not_to receive(:exist?)
+      expect(subject.should_write?("x", true)).to be_truthy
+    end
+
+    it "should know file exists" do
+      expect(File).to receive(:exist?).with("x").and_return(true)
+      expect(subject.should_write?("x", false)).not_to be_truthy
+    end
+
+    it "should assume force is false" do
+      expect(File).to receive(:exist?).with("x").and_return(true)
+      expect(subject.should_write?("x")).not_to be_truthy
+    end
   end
 end

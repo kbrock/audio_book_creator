@@ -1,7 +1,7 @@
 require_relative "spec_helper"
 
 describe AudioBookCreator::PageDb do
-  subject { described_class.new(":memory:")}
+  subject { described_class.new(":memory:") }
 
   it "should not create a file" do
     expect(File).not_to be_exist(":memory:")

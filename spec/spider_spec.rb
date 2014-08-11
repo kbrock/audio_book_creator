@@ -116,7 +116,7 @@ describe AudioBookCreator::Spider do
   end
 
   context "#local_href" do
-    let (:first_page) { "http://www.thesite.com/book/page1.html" }
+    let(:first_page) { "http://www.thesite.com/book/page1.html" }
     before do
       # establish base site (we can't venture to other sites)
       subject.visit(first_page)

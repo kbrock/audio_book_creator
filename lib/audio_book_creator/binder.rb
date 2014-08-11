@@ -24,31 +24,40 @@ module AudioBookCreator
     def create(chapters)
       raise "No Chapters" if chapters.empty?
 
-      if force || !File.exist?(filename)
-        puts "creating #{filename}" if verbose
-        Runner.new.run!("abbinder",
-                        verbose: verbose,
-                        params:  {
-                          "-a" => author,
-                          "-t" => "\"#{title || base_dir}\"",
-                          "-b" => bit_rate,
-                          "-c" => channels,
-                          "-r" => sample_rate,
-                          "-g" => "Audiobook",
-                          "-l" => max_hours,
-                          "-o" => filename,
-                          # "-v" => verbose,
-                          # "-A" => nil, #    add audiobook to iTunes
-                          # -C file.png cover image
-                          nil  => chapters.map { |ch| [ctitle(ch), cfilename(ch)] },
-                        })
+      if AudioBookCreator.should_write?(filename, force)
+        Runner.new.run!("abbinder", verbose: verbose, params: params(chapters))
       end
     end
 
     private
 
+    def params(chapters)
+      {
+        "-a" => author,
+        "-t" => book_title,
+        "-b" => bit_rate,
+        "-c" => channels,
+        "-r" => sample_rate,
+        "-g" => "Audiobook",
+        "-l" => max_hours,
+        "-o" => filename,
+        # "-v" => verbose,
+        # "-A" => nil, #    add audiobook to iTunes
+        # "-C" => "file.png" cover image
+        nil  => chapter_params(chapters),
+      }
+    end
+
+    def book_title
+      "\"#{@title || @base_dir}\""
+    end
+
     def filename
-      AudioBookCreator.sanitize_filename(title,"m4b")
+      AudioBookCreator.sanitize_filename(title, "m4b")
+    end
+
+    def chapter_params(chapters)
+      chapters.map { |ch| [ctitle(ch), cfilename(ch)] }
     end
 
     def ctitle(chapter)
