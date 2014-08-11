@@ -4,6 +4,10 @@ module AudioBookCreator
   def self.sanitize_filename(*filenames)
     filenames.flatten.compact.join(".").gsub(/[^-._a-z0-9A-Z]/, "-").gsub(/--*/, "-").gsub(/-$/, "").downcase
   end
+
+  def self.should_write?(filename, force = false)
+    force || !File.exist?(filename)
+  end
 end
 
 require "audio_book_creator/page_db"

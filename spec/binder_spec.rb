@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe AudioBookCreator::Binder do
-  subject { described_class.new(title: "title", base_dir: "dir")}
+  subject { described_class.new(title: "title", base_dir: "dir") }
   it "should require a chapter" do
     expect { subject.create([]) }.to raise_error
   end
@@ -34,7 +34,6 @@ describe AudioBookCreator::Binder do
     expect(File).to receive(:exist?).and_return(false)
 
     expect_runner.to receive(:system).and_return(true)
-    expect(subject).to receive(:puts).with(/^creating/)
     expect_runner.to receive(:puts).with(/^run:/)
     expect_runner.to receive(:puts).with("success")
     expect_runner.to receive(:puts).with("").twice

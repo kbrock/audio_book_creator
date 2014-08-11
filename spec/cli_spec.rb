@@ -135,7 +135,7 @@ describe AudioBookCreator::Cli do
 
     it "should have no max" do
       subject.parse(%w(title http://www.site.com/ --no-max))
-      expect(subject.spider.max).to be_nil
+      expect(subject.spider.max).not_to be_truthy
     end
 
     it "should have a max" do
@@ -221,7 +221,7 @@ describe AudioBookCreator::Cli do
       expect(subject.binder.channels).to eq(1)
       expect(subject.binder.max_hours).to eq(7)
       expect(subject.binder.bit_rate).to eq(32)
-      expect(subject.binder.sample_rate).to eq(22050)
+      expect(subject.binder.sample_rate).to eq(22_050)
     end
 
     it "should set verbose" do

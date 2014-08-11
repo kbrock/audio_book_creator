@@ -44,33 +44,22 @@ module AudioBookCreator
     def parse(argv = [], _env = {})
       options = OptionParser.new do |opts|
         opts.program_name = File.basename($PROGRAM_NAME)
-        opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url [url]"
-        opts.on("-v", "--[no-]verbose", "Run verbosely") { |v| self[:verbose] = v }
-        opts.on(      "--title STRING", "Content css (e.g.: h1)") { |v| self[:title_path] = v }
-        opts.on(      "--body STRING", "Content css (e.g.: p)") { |v| self[:body_path] = v }
-        opts.on(      "--link STRING", "Follow css (e.g.: a.Next)") { |v| self[:link_path] = v }
-        opts.on(      "--no-max", "Don't limit the number of pages to visit") { self[:max] = nil }
-        opts.on(      "--max NUMBER", Integer, "Maximum number of pages to visit (default: #{self[:max]})") do |v|
-          self[:max] = v
-        end
-        opts.on("--max-p NUMBER", Integer, "Max paragraphs per chapter (testing only)") do |v|
-          self[:max_paragraphs] = v
-        end
-        opts.on("--force-audio", "Regerate the audio") { |v| self[:regen_audio] = v }
-        opts.on("--force-html", "Regerate the audio") { |v| self[:regen_html] = v }
-        opts.on("--multi-site", "Allow spider to visit multiple sites") { |v| self[:multi_site] = v }
-        opts.on("--rate NUMBER", Integer, "Set words per minute") { |v| self[:rate] = v }
-        opts.on("--voice STRING", "Set speaker voice") { |v| self[:voice] = v }
-        opts.on("--cache STRONG", "Directory to hold files") { |v| self[:base_dir] = v }
-        opts.on_tail("-h", "--help", "Show this message") do
-          puts opts.to_s
-          exit 0
-        end
-
-        opts.on_tail("--version", "Show version") do
-          puts "audio_book_creator #{::AudioBookCreator::VERSION}"
-          exit 0
-        end
+        opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url [url] [...]"
+        option(opts, :verbose, "-v", "--verbose", "Run verbosely")
+        option(opts, :title_path, "--title STRING", "Content css (e.g.: h1)")
+        option(opts, :body_path, "--body STRING", String, "Content css (e.g.: p)")
+        option(opts, :link_path, "--link STRING", String, "Follow css (e.g.: a.Next)")
+        option(opts, :max, "--no-max", "Don't limit the number of pages to verbose")
+        option(opts, :max, "--max NUMBER", Integer, "Maximum number of pages to visit (default: 10)")
+        option(opts, :max_paragraphs, "--max-p NUMBER", Integer, "Max paragraphs per chapter (testing only)")
+        option(opts, :regen_audio, "--force-audio", "Regerate the audio")
+        option(opts, :regen_html, "--force-html", "Regerate the audio")
+        option(opts, :multi_site, "--multi-site", "Allow spider to visit multiple sites")
+        option(opts, :rate, "--rate NUMBER", Integer, "Set words per minute")
+        option(opts, :voice, "--voice STRING", "Set speaker voice")
+        option(opts, :base_dir, "--cache STRONG", "Directory to hold files")
+        tail_option(opts, "audio_book_creator #{::AudioBookCreator::VERSION}", "--version", "Show version")
+        tail_option(opts, opts.to_s, "-h", "--help", "Show this message")
       end
       options.parse!(argv)
       set_args(argv, options.to_s)
@@ -117,6 +106,17 @@ module AudioBookCreator
     end
 
     private
+
+    def option(opts, value, *args)
+      opts.on(*args) { |v| self[value] = v }
+    end
+
+    def tail_option(opts, message, *args)
+      opts.on_tail(*args) do
+        puts message
+        exit 1
+      end
+    end
 
     def default(key, value)
       self[key] = value if self[key].nil?
