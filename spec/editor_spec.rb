@@ -10,11 +10,13 @@ describe AudioBookCreator::Editor do
   end
 
   it "should respect content path" do
-    subject.body_path = "#story p"
-    expect(subject.parse([page("page1", "<h1>the title</h1>",
-                               "<div id='story'>", "<p>first</p>", "<p>second</p>", "</div>",
-                               "<p>bad</p>")
-                         ])).to eq([chapter1])
+    pristine = described_class.new
+    pristine.title_path = "h3"
+    pristine.body_path = "#story p"
+    expect(pristine.parse([page("page1", "<h3>the title</h3>",
+                                "<div id='story'>", "<p>first</p>", "<p>second</p>", "</div>",
+                                "<p>bad</p>")
+                          ])).to eq([chapter1])
   end
 
   it "should limit content" do
@@ -22,5 +24,23 @@ describe AudioBookCreator::Editor do
     expect(subject.parse([page("page1", "<h1>the title</h1>",
                                "<p>first</p>", "<p>second</p>", "<p>third</p>")
                          ])).to eq([chapter1])
+  end
+
+  it "should ignore body formatting" do
+    expect(subject.parse([page("page1", "<h1>the title</h1>",
+                               "<p><a href='#this'>first</a></p>", "<p><b>second</b></p>")
+                         ])).to eq([chapter1])
+  end
+
+  it "should parse multiple pages" do
+    expect(subject.parse([page("page1", "<h1>p1</h1>", "<p>first</p>"),
+                          page("page2", "<h1>p2</h1>", "<p>second</p>"),
+                         ])).to eq([chapter("first", "p1", 1), chapter("second", "p2", 2)])
+  end
+
+  it "should default the title if none found" do
+    expect(subject.parse([page("page1", "<p>first</p>"),
+                          page("page2", "<p>second</p>"),
+                         ])).to eq([chapter("first", "Chapter 1", 1), chapter("second", "Chapter 2", 2)])
   end
 end

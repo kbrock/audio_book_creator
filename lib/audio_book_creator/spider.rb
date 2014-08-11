@@ -39,11 +39,7 @@ module AudioBookCreator
     end
 
     def host_limit
-      @starting_host unless multi_site?
-    end
-
-    def multi_site?
-      @multi_site
+      @starting_host unless multi_site
     end
 
     # Add a url to visit
@@ -51,7 +47,7 @@ module AudioBookCreator
     # using loop to dedup urls
     def visit(urls)
       Array(urls).each do |url|
-        @starting_host ||= URI.parse(url).host unless multi_site?
+        @starting_host ||= URI.parse(url).host unless multi_site
         if visited.include?(url) || outstanding.include?(url)
           # log { "ignore #{url}" }
         else
@@ -75,7 +71,7 @@ module AudioBookCreator
 
     def local_href(page_url, href)
       if (ref = URI.join(page_url, href))
-        if (multi_site? || @starting_host == ref.host) &&
+        if (multi_site || @starting_host == ref.host) &&
           [nil, "", '.html', '.htm', '.php', '.jsp'].include?(File.extname(ref.path))
           ref.fragment = nil # remove #x part of url
           ref.to_s

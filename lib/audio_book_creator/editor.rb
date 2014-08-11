@@ -12,9 +12,11 @@ module AudioBookCreator
     def parse(pages)
       pages.each_with_index.map do |page, i|
         dom = Nokogiri::HTML(page)
-        title = dom.css(title_path).first.text || "Chapter #{i}"
-        body = limit(dom.css(body_path)).map { |n| n.text }.compact
-        AudioBookCreator::Chapter.new(number: (i + 1), title: title, body: body)
+        title = dom.css(title_path).first
+        title = title ? title.text : "Chapter #{i + 1}"
+        # map is not necessary, join will do the right thing, but this feels better...
+        body = limit(dom.css(body_path)).map { |n| n.text }
+        Chapter.new(number: (i + 1), title: title, body: body)
       end
     end
 

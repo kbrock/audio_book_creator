@@ -5,7 +5,7 @@ module AudioBookCreator
     filenames.compact.join(".").gsub(/[^-._a-z0-9A-Z]/, "-").gsub(/--*/, "-").sub(/-$/, "")
   end
 
-  def self.should_write?(filename, force = false)
+  def self.should_write?(filename, force = nil)
     force || !File.exist?(filename)
   end
 end
