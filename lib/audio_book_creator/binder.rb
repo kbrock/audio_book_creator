@@ -22,7 +22,7 @@ module AudioBookCreator
     end
 
     def create(chapters)
-      raise "No Chapters" if chapters.empty?
+      raise "No Chapters" if chapters.nil? || chapters.empty?
 
       if AudioBookCreator.should_write?(filename, force)
         Runner.new.run!("abbinder", verbose: verbose, params: params(chapters))
@@ -34,7 +34,7 @@ module AudioBookCreator
     def params(chapters)
       {
         "-a" => author,
-        "-t" => book_title,
+        "-t" => "\"#{book_title}\"",
         "-b" => bit_rate,
         "-c" => channels,
         "-r" => sample_rate,
@@ -49,11 +49,11 @@ module AudioBookCreator
     end
 
     def book_title
-      "\"#{@title || @base_dir}\""
+      title || base_dir
     end
 
     def filename
-      AudioBookCreator.sanitize_filename(title, "m4b")
+      AudioBookCreator.sanitize_filename(book_title, "m4b")
     end
 
     def chapter_params(chapters)

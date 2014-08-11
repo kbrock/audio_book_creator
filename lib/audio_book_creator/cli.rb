@@ -24,7 +24,7 @@ module AudioBookCreator
         puts "please provide title and url", usage
         exit 1
       end
-      self[:database] ||= "#{base_dir}/pages.db"
+      default(:database, "#{base_dir}/pages.db")
     end
 
     # set in parse (in set_args when setting database name)
@@ -41,10 +41,9 @@ module AudioBookCreator
       @options[name] = value
     end
 
-    def parse(argv = [], _env = {})
+    def parse(argv)
       options = OptionParser.new do |opts|
-        opts.program_name = File.basename($PROGRAM_NAME)
-        opts.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options] title url [url] [...]"
+        opts.banner = "Usage: audio_book_creator [options] title url [url] [...]"
         option(opts, :verbose, "-v", "--verbose", "Run verbosely")
         option(opts, :title_path, "--title STRING", "Content css (e.g.: h1)")
         option(opts, :body_path, "--body STRING", String, "Content css (e.g.: p)")
@@ -57,8 +56,8 @@ module AudioBookCreator
         option(opts, :multi_site, "--multi-site", "Allow spider to visit multiple sites")
         option(opts, :rate, "--rate NUMBER", Integer, "Set words per minute")
         option(opts, :voice, "--voice STRING", "Set speaker voice")
-        option(opts, :base_dir, "--cache STRONG", "Directory to hold files")
-        tail_option(opts, "audio_book_creator #{::AudioBookCreator::VERSION}", "--version", "Show version")
+        option(opts, :base_dir, "--base-dir STRONG", "Directory to hold files")
+        tail_option(opts, "audio_book_creator #{VERSION}", "--version", "Show version")
         tail_option(opts, opts.to_s, "-h", "--help", "Show this message")
       end
       options.parse!(argv)

@@ -33,6 +33,12 @@ module HtmlHelpers
   def expect_spider_to_visit_page(spider, url, *args)
     expect(spider).to receive(:open).with(url).once.and_return(double(read: page(url, *args)))
   end
+
+  # it is too bad, but at the time of expectations, the spider object is not yet created
+  def expect_any_spider_to_visit_page(url, *args)
+    expect_any_instance_of(AudioBookCreator::Spider).to receive(:open).with(url).once
+      .and_return(double(read: page(url, *args)))
+  end
 end
 
 module Factories

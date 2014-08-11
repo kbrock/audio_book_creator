@@ -2,7 +2,7 @@ require "audio_book_creator/version"
 
 module AudioBookCreator
   def self.sanitize_filename(*filenames)
-    filenames.flatten.compact.join(".").gsub(/[^-._a-z0-9A-Z]/, "-").gsub(/--*/, "-").gsub(/-$/, "").downcase
+    filenames.compact.join(".").gsub(/[^-._a-z0-9A-Z]/, "-").gsub(/--*/, "-").sub(/-$/, "")
   end
 
   def self.should_write?(filename, force = false)

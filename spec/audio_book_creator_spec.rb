@@ -20,7 +20,7 @@ describe AudioBookCreator do
     end
 
     it "should support titles with spaces" do
-      expect(subject.sanitize_filename("title !for")).to eq("title-for")
+      expect(subject.sanitize_filename(%{title ((for "you", "Amy", and "John"))})).to eq("title-for-you-Amy-and-John")
     end
 
     it "should support titles with extra stuff" do

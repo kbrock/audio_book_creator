@@ -25,14 +25,13 @@ module AudioBookCreator
 
     attr_accessor :link_path
 
+    attr_accessor :multi_site
+
     def initialize(cache = {}, options = {})
       @cache           = cache
       @outstanding     = []
       @visited         = []
-      @verbose         = options[:verbose]
-      @max             = options[:max]
-      @link_path       = options[:link_path]
-      @starting_host   = options[:multi_site]
+      options.each { |n, v| public_send("#{n}=", v) }
     end
 
     def over_limit?
@@ -40,11 +39,11 @@ module AudioBookCreator
     end
 
     def host_limit
-      @starting_host == true ? nil : @starting_host
+      @starting_host unless multi_site?
     end
 
     def multi_site?
-      @starting_host == true
+      @multi_site
     end
 
     # Add a url to visit
@@ -52,7 +51,7 @@ module AudioBookCreator
     # using loop to dedup urls
     def visit(urls)
       Array(urls).each do |url|
-        @starting_host ||= URI.parse(url).host
+        @starting_host ||= URI.parse(url).host unless multi_site?
         if visited.include?(url) || outstanding.include?(url)
           # log { "ignore #{url}" }
         else

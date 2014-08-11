@@ -15,9 +15,9 @@ describe AudioBookCreator::Cli do
   end
 
   it "should require 2 parameters" do
-    expect(subject).to receive(:puts).with(/url/, /Usage/)
-    expect(subject).to receive(:exit)
-    subject.parse(%w(title_only))
+    expect(subject).to receive(:puts).with(/url/, /Usage.*title/)
+    expect(subject).to receive(:exit).with(1).and_raise("exited")
+    expect { subject.parse(%w(title_only)) }.to raise_error("exited")
   end
 
   # in tests, we are stubbing this with ":memory:" so we don't create files
@@ -25,6 +25,22 @@ describe AudioBookCreator::Cli do
     subject[:database] = nil
     subject.parse(%w(title http://site.com/))
     expect(subject[:database]).to eq("#{subject.base_dir}/pages.db")
+  end
+
+  context "#defaults" do
+    it "should default values" do
+      # NOTE: calling with no constructor
+      pristine = described_class.new
+      expect(pristine[:max]).to eq(10)
+      expect(pristine[:max]).to eq(10)
+      expect(pristine[:title_path]).to eq("h1")
+      expect(pristine[:body_path]).to eq("p")
+      expect(pristine[:link_path]).to eq("a")
+    end
+
+    it "should not overwrite constructor values with defaults" do
+      expect(described_class.new(max: 20)[:max]).to eq(20)
+    end
   end
 
   # file sanitization is tested in audio_book_creator.spec
@@ -48,31 +64,30 @@ describe AudioBookCreator::Cli do
       subject.parse(%w(title http://www.site.com/ --max-p 22))
       expect(subject.base_dir).to eq("title.22")
     end
+
+    it "should override basedir" do
+      subject.parse(%w(title http://www.site.com/ --base-dir dir))
+      expect(subject.base_dir).to eq("dir")
+    end
   end
 
-  # NOTE: these tests are a little wonky since they call exit
-  # keep title and url in there for now
   context "#informational" do
     it "should provide version" do
       expect(subject).to receive(:puts).with(/#{AudioBookCreator::VERSION}/)
-      expect(subject).to receive(:exit)
-      subject.parse(%w(--version title http://site.com/))
+      expect(subject).to receive(:exit).with(1).and_raise("exited")
+      expect { subject.parse(%w(--version)) }.to raise_error("exited")
     end
 
     it "should provide help" do
       expect(subject).to receive(:puts).with(/Usage/)
-      expect(subject).to receive(:exit)
-      # NOTE: since we are catching exit, it is continuing through the rest of the loop
-      # we are passing in all required parameters to avoid those raising errors
-      subject.parse(%w(--help title http://site.com/))
+      expect(subject).to receive(:exit).with(1).and_raise("exited")
+      expect { subject.parse(%w(--help)) }.to raise_error("exited")
     end
 
-    it "should provide help" do
+    it "should provide help (with short option)" do
       expect(subject).to receive(:puts).with(/Usage/)
-      expect(subject).to receive(:exit)
-      # NOTE: since we are catching exit, it is continuing through the rest of the loop
-      # we are passing in all required parameters to avoid those raising errors
-      subject.parse(%w(-h title http://site.com/))
+      expect(subject).to receive(:exit).with(1).and_raise("exited")
+      expect { subject.parse(%w(-h)) }.to raise_error("exited")
     end
   end
 
@@ -80,7 +95,7 @@ describe AudioBookCreator::Cli do
     it "should create base directory" do
       subject.parse(%w(title http://site.com/))
       expect(File).to receive(:exist?).with(subject.base_dir).and_return(false)
-      expect(FileUtils).to receive(:mkdir)
+      expect(FileUtils).to receive(:mkdir).with(subject.base_dir)
       subject.make_directory_structure
     end
 
@@ -248,18 +263,17 @@ describe AudioBookCreator::Cli do
   # this is kinda testing the implementation
   context "#run" do
     it "should call all the constructors and components" do
-      subject.parse(%w(title http://site.com/))
       # make_directory_structure:
       expect(File).to receive(:exist?).with("title").and_return(true)
       # spider:
-      expect_spider_to_visit_page(subject.spider, "http://site.com/", "<h1>title</h1>", "<p>contents</p>")
+      expect_any_spider_to_visit_page("http://site.com/", "<h1>title</h1>", "<p>contents</p>")
       # speaker:
       expect(File).to receive(:exist?).with("title/chapter01.txt").and_return(true)
       expect(File).to receive(:exist?).with("title/chapter01.m4a").and_return(true)
       # binder
       expect(File).to receive(:exist?).with("title.m4b").and_return(true)
-
-      subject.run
+      # chain parse and run to mimic bin/audio_book_creator
+      subject.parse(%w(title http://site.com/)).run
     end
   end
 end
