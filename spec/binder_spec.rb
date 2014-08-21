@@ -2,6 +2,11 @@ require "spec_helper"
 
 describe AudioBookCreator::Binder do
   subject { described_class.new(title: "title", base_dir: "dir") }
+
+  it "should work with no parameters" do
+    expect(described_class.new.author).to eq("Vicki")
+  end
+
   it "should require a chapter" do
     expect { subject.create([]) }.to raise_error
   end
@@ -40,7 +45,7 @@ describe AudioBookCreator::Binder do
     subject.create([chapter("content")])
   end
 
-  it "should output messages if set to verbose" do
+  it "outputs messages if set to verbose" do
     subject.verbose = true
     expect(File).to receive(:exist?).and_return(false)
 
@@ -52,12 +57,26 @@ describe AudioBookCreator::Binder do
     subject.create([chapter("content")])
   end
 
+  it "outputs no messages if set to non verbose" do
+    subject.verbose = false
+    expect(File).to receive(:exist?).and_return(false)
+
+    expect_runner.to receive(:system).and_return(true)
+    expect_runner.not_to receive(:puts)
+    subject.create([chapter("content")])
+  end
+
   it "should create m4a if exists but are set to force" do
     subject.force = true
     expect(File).not_to receive(:exist?)
 
     expect_runner.to receive(:system).and_return(true)
     subject.create([chapter("content")])
+  end
+
+  it "requires chapters to be passed in" do
+    expect { subject.create(nil) }.to raise_error("No Chapters")
+    expect { subject.create([]) }.to raise_error("No Chapters")
   end
 
   private
