@@ -123,7 +123,7 @@ describe AudioBookCreator::Spider do
     end
 
     it "should know local pages" do
-      expect(subject.local_href(first_page, "page2.html")).to eq("http://www.thesite.com/book/page2.html")
+      expect(subject.local_href(first_page, "page2.html").to_s).to eq("http://www.thesite.com/book/page2.html")
     end
 
     %w(/page / .html .php .jsp .htm).each do |ext|

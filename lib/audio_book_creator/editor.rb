@@ -14,8 +14,8 @@ module AudioBookCreator
         dom = Nokogiri::HTML(page)
         title = dom.css(title_path).first
         title = title ? title.text : "Chapter #{i + 1}"
-        # map is not necessary, join will do the right thing, but this feels better...
-        body = limit(dom.css(body_path)).map { |n| n.text }
+        # feels like I need .map { |n| n.text }
+        body = limit(dom.css(body_path))
         Chapter.new(number: (i + 1), title: title, body: body)
       end
     end
