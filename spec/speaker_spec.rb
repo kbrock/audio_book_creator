@@ -1,13 +1,14 @@
 require "spec_helper"
 
 describe AudioBookCreator::Speaker do
+  subject { described_class.new(base_dir: "dir")}
   it "should require a non empty chapter" do
     expect { subject.say(chapter(nil)) }.to raise_error
   end
 
   it "should do nothing if txt and mp4 file exist" do
-    expect(File).to receive(:exist?).with("/chapter01.txt").and_return(true)
-    expect(File).to receive(:exist?).with("/chapter01.m4a").and_return(true)
+    expect(File).to receive(:exist?).with("dir/chapter01.txt").and_return(true)
+    expect(File).to receive(:exist?).with("dir/chapter01.m4a").and_return(true)
 
     expect(File).not_to receive(:write)
     expect_runner.not_to receive(:system)
@@ -16,11 +17,21 @@ describe AudioBookCreator::Speaker do
 
   it "should create text and mp4 file" do
     expect(File).to receive(:exist?).twice.and_return(false)
-    expect(File).to receive(:write)
+    expect(File).to receive(:write).with("dir/chapter01.txt", "the title\n\ncontent\n")
 
     expect_runner.to receive(:system)
-      .with("say", "-v", "Vicki", "-r", "320", "-f", "/chapter01.txt", "-o", "/chapter01.m4a").and_return(true)
+      .with("say", "-v", "Vicki", "-r", "320", "-f", "dir/chapter01.txt", "-o", "dir/chapter01.m4a").and_return(true)
     subject.say(chapter("content"))
+  end
+
+  it "doesnt print if not verbose" do
+    subject.verbose = false
+    expect(File).to receive(:exist?).twice.and_return(false)
+    expect(File).to receive(:write)
+
+    expect_runner.to receive(:system).and_return(true)
+    expect_runner.not_to receive(:puts)
+    subject.say(chapter("content"))    
   end
 
   it "should output messages if set to verbose" do
@@ -43,6 +54,14 @@ describe AudioBookCreator::Speaker do
 
     expect_runner.to receive(:system).and_return(true)
     subject.say(chapter("content"))
+  end
+
+  it "should create a speaker with no args" do
+    expect { described_class.new }.not_to raise_error
+  end
+
+  it "should freak if no chapters are passed in" do
+    expect { subject.say([]) }.to raise_error("Empty chapter")
   end
 
   private
