@@ -9,11 +9,11 @@ module AudioBookCreator
     attr_accessor :cache
 
     # @!attribute outstanding
-    #   @return Array<String> the pages not visited yet
+    #   @return Array<URI> the pages not visited yet
     attr_accessor :outstanding
 
     # @!attribute visited
-    #   @return Array<String> the pages visited
+    #   @return Array<URI> the pages visited
     attr_accessor :visited
 
     attr_accessor :verbose
@@ -39,8 +39,10 @@ module AudioBookCreator
     end
 
     # Add a url to the outstanding list of pages to visit
-    def visit(url)
-      @host_limit ||= URI.parse(url).host
+    def visit(url, alt = nil)
+      url = uri(url, alt)
+      url.fragment = nil # remove #x part of url
+      @host_limit ||= url.host
       if visited.include?(url) || outstanding.include?(url)
         # log { "ignore #{url}" }
       else
@@ -60,11 +62,11 @@ module AudioBookCreator
     end
 
     def local_href(page_url, href)
-      if (ref = URI.join(page_url, href))
+      if (ref = uri(page_url, href))
         if (host_limit == ref.host) &&
           valid_extensions.include?(File.extname(ref.path))
           ref.fragment = nil # remove #x part of url
-          ref.to_s
+          ref
         end
       end
     rescue URI::BadURIError
@@ -80,13 +82,18 @@ module AudioBookCreator
       end
 
       # currently returns array of blocks of html docs
-      visited.map { |visited_url| cache[visited_url] }
+      visited.map { |visited_url| cache[visited_url.to_s] }
     end
 
     private
 
     def valid_extensions
       [nil, "", '.html', '.htm', '.php', '.jsp']
+    end
+
+    def uri(url, alt = nil)
+      url = URI.parse(url) unless url.is_a?(URI)
+      alt && url ? url + alt : url
     end
 
     def follow_links(url, doc)
@@ -100,10 +107,11 @@ module AudioBookCreator
     end
 
     def visit_page(url)
-      unless (contents = cache[url])
+      url_str = url.to_s
+      unless (contents = cache[url_str])
         log { "fetch  #{url}" }
-        contents ||= open(url).read
-        cache[url] = contents
+        contents ||= open(url_str).read
+        cache[url_str] = contents
       end
 
       follow_links url, Nokogiri::HTML(contents)

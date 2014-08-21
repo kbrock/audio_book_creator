@@ -16,7 +16,7 @@ describe AudioBookCreator::Spider do
       visit %w(page1 page1 page1)
       expect_visit_page "page1"
       subject.run
-      expect(subject.visited).to eq([site("page1")])
+      expect(subject.visited).to eq([uri("page1")])
     end
   end
 
@@ -28,7 +28,7 @@ describe AudioBookCreator::Spider do
     subject.run
 
     # correct order
-    expect(subject.visited).to eq(site(%w(page1 page2 page3)))
+    expect(subject.visited).to eq(uri(%w(page1 page2 page3)))
     # has contets from all pages
     expect(subject.cache.keys).to match_array(site(%w(page1 page2 page3)))
   end
@@ -40,7 +40,7 @@ describe AudioBookCreator::Spider do
     expect_visit_page("good")
     subject.run
 
-    expect(subject.visited).to eq(site(%w(page1 good)))
+    expect(subject.visited).to eq(uri(%w(page1 good)))
   end
 
   it "should freak if visiting a non local page" do
@@ -56,7 +56,7 @@ describe AudioBookCreator::Spider do
     expect_visit_page("good")
     subject.run
 
-    expect(subject.visited).to eq(site(%w(page1 good)))
+    expect(subject.visited).to eq(uri(%w(page1 good)))
   end
 
   context "#max" do
@@ -72,7 +72,8 @@ describe AudioBookCreator::Spider do
 
     it "should notify user of visiting more than max pages" do
       subject.max = 4
-      subject.visited = site(%w(url1 url2 url3))
+      # visited is a private method
+      subject.visited = uri(%w(url1 url2 url3))
       expect_visit_page("url4")
       visit %w(url1 url2 url3 url4 url5)
       expect { subject.run }.to raise_error(/visited 4 pages/)
@@ -89,7 +90,7 @@ describe AudioBookCreator::Spider do
     expect_visit_page("page3", link("page2"))
     subject.run
 
-    expect(subject.visited).to eq(site(%w(page1 page2 page3)))
+    expect(subject.visited).to eq(uri(%w(page1 page2 page3)))
     expect(subject.cache.keys).to match_array(site(%w(page1 page2 page3)))
   end
 
@@ -146,6 +147,14 @@ describe AudioBookCreator::Spider do
       url.map { |u| site(u) }
     else
       url.include?("http") ? url : "http://site.com/#{url}"
+    end
+  end
+
+  def uri(url)
+    if url.is_a?(Array)
+      url.map { |u| uri(u) }
+    else
+      URI.parse(site(url))
     end
   end
 

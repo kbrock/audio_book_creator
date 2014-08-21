@@ -1,5 +1,5 @@
 require 'spec_helper'
-
+require 'uri'
 # NOTE: cli class is not in the path by default
 #       it is only included by running the command
 require 'audio_book_creator/cli'
@@ -126,7 +126,7 @@ describe AudioBookCreator::Cli do
     it "should set url" do
       subject.parse(%w(title http://www.site.com/))
       expect(subject.spider.cache).to eq(subject.page_cache)
-      expect(subject.spider.outstanding).to eq(%w(http://www.site.com/))
+      expect(subject.spider.outstanding).to eq([URI.parse("http://www.site.com/")])
       # defaults
       expect(subject.spider.verbose).not_to be_truthy
       expect(subject.spider.max).to eq(10)
