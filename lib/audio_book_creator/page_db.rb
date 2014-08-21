@@ -8,7 +8,7 @@ module AudioBookCreator
     attr_accessor :force
     attr_accessor :db
 
-    def initialize(filename = ":memory:", options = {})
+    def initialize(filename, options = {})
       @filename = filename
       @force = options[:force]
       @db = create
@@ -16,7 +16,7 @@ module AudioBookCreator
     end
 
     def []=(key, value)
-      @db.execute "insert into pages (name, contents) values ( ?, ?)", [key, SQLite3::Blob.new(value)]
+      @db.execute "insert into pages (name, contents) values ( ?, ?)", [key, value]
     end
 
     def [](key)

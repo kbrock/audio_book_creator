@@ -1,4 +1,5 @@
 require_relative "spec_helper"
+require 'tempfile'
 
 describe AudioBookCreator::PageDb do
   subject { described_class.new(":memory:") }
@@ -24,11 +25,29 @@ describe AudioBookCreator::PageDb do
     expect(subject["key"]).to be_nil
   end
 
-  it "should truncate database with force" do
-    subject["key"] = "value"
+  context "with prepopulated database" do
+    let(:tmp) { Tempfile.new("db") }
 
-    later = described_class.new(":memory:", truncate: true)
-    expect(later["key"]).to be_nil
+    before do
+      db = described_class.new(tmp.path)
+      db["key"] = "value"
+    end
+
+    after do
+      tmp.close
+      tmp.unlink
+    end
+
+    it "should find entry in database" do
+      db = described_class.new(tmp.path)
+      expect(db["key"]).to eq("value")
+    end
+
+    it "should not find entry in truncated database" do
+      db = described_class.new(tmp.path, force: true)
+      expect(db["key"]).to be_nil      
+    end
+
   end
 
   it "should handle url keys" do
