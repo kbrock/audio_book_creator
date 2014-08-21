@@ -25,7 +25,7 @@ module AudioBookCreator
 
     attr_accessor :link_path
 
-    attr_accessor :multi_site
+    attr_accessor :host_limit
 
     def initialize(cache = {}, options = {})
       @cache           = cache
@@ -38,25 +38,15 @@ module AudioBookCreator
       max && (visited.size >= max)
     end
 
-    def host_limit
-      @starting_host unless multi_site
-    end
-
-    # Add a url to visit
-    # note: this is called by the block yielded by visit to properly spider
-    # using loop to dedup urls
-    def visit(urls)
-      Array(urls).each do |url|
-        @starting_host ||= URI.parse(url).host unless multi_site
-        if visited.include?(url) || outstanding.include?(url)
-          # log { "ignore #{url}" }
-        else
-          log { "queue  #{url}" }
-          outstanding << url
-        end
+    # Add a url to the outstanding list of pages to visit
+    def visit(url)
+      @host_limit ||= URI.parse(url).host
+      if visited.include?(url) || outstanding.include?(url)
+        # log { "ignore #{url}" }
+      else
+        log { "queue  #{url}" }
+        outstanding << url
       end
-
-      self
     end
 
     def visit_relative_page(page_url, href)
@@ -71,8 +61,8 @@ module AudioBookCreator
 
     def local_href(page_url, href)
       if (ref = URI.join(page_url, href))
-        if (multi_site || @starting_host == ref.host) &&
-          [nil, "", '.html', '.htm', '.php', '.jsp'].include?(File.extname(ref.path))
+        if (host_limit == ref.host) &&
+          valid_extensions.include?(File.extname(ref.path))
           ref.fragment = nil # remove #x part of url
           ref.to_s
         end
@@ -94,6 +84,10 @@ module AudioBookCreator
     end
 
     private
+
+    def valid_extensions
+      [nil, "", '.html', '.htm', '.php', '.jsp']
+    end
 
     def follow_links(url, doc)
       doc.css(link_path).each do |a|

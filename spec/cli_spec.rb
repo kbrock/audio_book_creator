@@ -131,7 +131,6 @@ describe AudioBookCreator::Cli do
       expect(subject.spider.verbose).not_to be_truthy
       expect(subject.spider.max).to eq(10)
       expect(subject.spider.host_limit).to eq("www.site.com")
-      expect(subject.spider.multi_site).not_to be_truthy
       # NOTE: not currently passed
       expect(subject.spider.ignore_bogus).not_to be_truthy
     end
@@ -156,12 +155,6 @@ describe AudioBookCreator::Cli do
     it "should have a max" do
       subject.parse(%w(title http://www.site.com/ --max 20))
       expect(subject.spider.max).to eq(20)
-    end
-
-    it "should support multiple sites" do
-      subject.parse(%w(title http://www.site.com/ --multi-site))
-      expect(subject.spider.multi_site).to be_truthy
-      expect(subject.spider.host_limit).to be_nil
     end
   end
 

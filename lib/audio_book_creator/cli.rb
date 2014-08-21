@@ -53,7 +53,6 @@ module AudioBookCreator
         option(opts, :max_paragraphs, "--max-p NUMBER", Integer, "Max paragraphs per chapter (testing only)")
         option(opts, :regen_audio, "--force-audio", "Regerate the audio")
         option(opts, :regen_html, "--force-html", "Regerate the audio")
-        option(opts, :multi_site, "--multi-site", "Allow spider to visit multiple sites")
         option(opts, :rate, "--rate NUMBER", Integer, "Set words per minute")
         option(opts, :voice, "--voice STRING", "Set speaker voice")
         option(opts, :base_dir, "--base-dir STRONG", "Directory to hold files")
@@ -72,7 +71,9 @@ module AudioBookCreator
     end
 
     def spider
-      @spider ||= Spider.new(page_cache, option_hash(:verbose, :max, :multi_site, :link_path)).visit(self[:urls])
+      @spider ||= Spider.new(page_cache, option_hash(:verbose, :max, :link_path)).tap do |spider|
+        self[:urls].each { |url| spider.visit(url) }
+      end
     end
 
     def editor
