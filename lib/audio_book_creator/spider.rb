@@ -43,34 +43,10 @@ module AudioBookCreator
       url = uri(url, alt)
       url.fragment = nil # remove #x part of url
       @host_limit ||= url.host
-      if visited.include?(url) || outstanding.include?(url)
-        # log { "ignore #{url}" }
-      else
-        log { "queue  #{url}" }
+      if want_to_visit_url(url)
+        #log { "queue  #{url}" }
         outstanding << url
       end
-    end
-
-    def visit_relative_page(page_url, href)
-      # alt: URI.parse(root).merge(URI.parse(href)).to_s
-      if (absolute_href = local_href(page_url, href))
-        visit(absolute_href)
-      else
-        raise "throwing away too much" unless ignore_bogus
-        log { "throwing away #{href}" }
-      end
-    end
-
-    def local_href(page_url, href)
-      if (ref = uri(page_url, href))
-        if (host_limit == ref.host) &&
-          valid_extensions.include?(File.extname(ref.path))
-          ref.fragment = nil # remove #x part of url
-          ref
-        end
-      end
-    rescue URI::BadURIError
-      # join 2 relative urls
     end
 
     def run
@@ -87,10 +63,23 @@ module AudioBookCreator
 
     private
 
+    def want_to_visit_url(url)
+      if !valid_extensions.include?(File.extname(url.path))
+        raise "bad file extension" unless ignore_bogus
+        log { "ignoring bad extension #{url}" }
+      elsif (host_limit != url.host)
+        raise "remote url #{url}" unless ignore_bogus
+        log { "ignoring remote url #{url}" }
+      elsif !visited.include?(url) && !outstanding.include?(url)
+        true
+      end
+    end
+
     def valid_extensions
       [nil, "", '.html', '.htm', '.php', '.jsp']
     end
 
+    # raises URI::Error (BadURIError)
     def uri(url, alt = nil)
       url = URI.parse(url) unless url.is_a?(URI)
       alt && url ? url + alt : url
@@ -98,7 +87,7 @@ module AudioBookCreator
 
     def follow_links(url, doc)
       doc.css(link_path).each do |a|
-        visit_relative_page(url, a["href"])
+        visit(url, a["href"])
       end
     end
 

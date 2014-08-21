@@ -18,6 +18,12 @@ describe AudioBookCreator::Spider do
       subject.run
       expect(subject.visited).to eq([uri("page1")])
     end
+
+    it "visits relative pages" do
+      subject.visit(site("page1"), "page2")
+      expect_visit_page "page2"
+      subject.run
+    end
   end
 
   it "should spider pages" do
@@ -43,13 +49,23 @@ describe AudioBookCreator::Spider do
     expect(subject.visited).to eq(uri(%w(page1 good)))
   end
 
-  it "should freak if visiting a non local page" do
+  it "ignores #target in url" do
+    visit "page1"
+    visit "page1#target"
+
+    expect_visit_page("page1")
+    subject.run
+
+    expect(subject.visited).to eq(uri(%w(page1)))
+  end
+
+  it "spiders local pages only" do
     visit "page1"
     expect_visit_page("page1", link("good"), link("http://anothersite.com/bad"))
     expect { subject.run }.to raise_error
   end
 
-  it "should only link to local pages" do
+  it "forgives remote pages if ignore_bogus set" do
     subject.ignore_bogus = true
     visit "page1"
     expect_visit_page("page1", link("good"), link("http://anothersite.com/bad"))
@@ -57,6 +73,10 @@ describe AudioBookCreator::Spider do
     subject.run
 
     expect(subject.visited).to eq(uri(%w(page1 good)))
+  end
+
+  it "doesnt visit bad pages" do
+    expect { subject.visit("%@") }.to raise_error(/bad URI/)
   end
 
   context "#max" do
@@ -116,26 +136,16 @@ describe AudioBookCreator::Spider do
     end
   end
 
-  context "#local_href" do
-    let(:first_page) { "http://www.thesite.com/book/page1.html" }
-    before do
-      # establish base site (we can't venture to other sites)
-      subject.visit(first_page)
-    end
-
-    it "should know local pages" do
-      expect(subject.local_href(first_page, "page2.html").to_s).to eq("http://www.thesite.com/book/page2.html")
-    end
-
+  context "visit with #extensions" do
     %w(/page / .html .php .jsp .htm).each do |ext|
-      it "should not visit #{ext}" do
-        expect(subject.local_href(first_page, "page2#{ext}")).not_to be_nil
+      it "should visit #{ext}" do
+        expect{ visit("page2#{ext}") }.not_to raise_error
       end
     end
 
     %w(.jpg .png .js).each do |ext|
       it "should not visit #{ext}" do
-        expect(subject.local_href(first_page, "page2#{ext}")).to be_nil
+        expect{ visit("page2#{ext}") }.to raise_error
       end
     end
   end
