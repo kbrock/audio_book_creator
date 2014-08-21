@@ -1,19 +1,17 @@
-require 'open3'
 # migrate to awesome spawn
 module AudioBookCreator
   class Runner
     def run(cmd, options)
-      options = options.dup
-      verbose = options.delete(:verbose)
-      params = options.delete(:params).flatten.flatten.compact
+      verbose = options[:verbose]
+      params = options[:params].flatten.flatten.compact
 
       log(verbose) { "run: #{cmd} #{params.join(" ")}" }
       log verbose, ""
       status = system(cmd, *params.map { |x| x.to_s })
       log verbose, ""
-      log(verbose) { status == true ? "success" : "issue (return code #{status})" }
+      log(verbose) { status ? "success" : "issue" }
 
-      status == true
+      status
     end
 
     def run!(cmd, options)
