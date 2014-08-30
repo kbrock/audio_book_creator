@@ -34,26 +34,20 @@ module AudioBookCreator
       options.each { |n, v| public_send("#{n}=", v) }
     end
 
-    def over_limit?
-      max && (visited.size >= max)
-    end
-
     # Add a url to the outstanding list of pages to visit
     def visit(url, alt = nil)
       url = uri(url, alt)
       url.fragment = nil # remove #x part of url
       @host_limit ||= url.host
       if want_to_visit_url(url)
-        #log { "queue  #{url}" }
-        outstanding << url
+        enqueue_url(url)
       end
     end
 
     def run
-      while (url = outstanding.shift)
-        raise "visited #{max} pages.\n  use --max to increase pages visited" if over_limit?
+      while (url = next_item)
+        ensure_under_limit
         log { "visit  #{url} [#{visited.size + 1}/#{max || "all"}]" }
-        visited << url
         visit_page(url)
       end
 
@@ -63,6 +57,30 @@ module AudioBookCreator
 
     private
 
+    # limiter interface
+    def ensure_under_limit
+      raise "visited #{max} pages.\n  use --max to increase pages visited" if over_limit?
+    end
+
+    def over_limit?
+      max && (visited.size >= (max+1))
+    end
+
+    # work list interface
+
+    def enqueue_url(url) # call <<
+      outstanding << url if !known(url)
+    end
+
+    def next_item
+      outstanding.shift.tap { |url| visited << url if url }
+    end
+
+    # url is known, either visited or in the todo list
+    def known(url)
+      visited.include?(url) || outstanding.include?(url)
+    end
+
     def want_to_visit_url(url)
       if !valid_extensions.include?(File.extname(url.path))
         raise "bad file extension" unless ignore_bogus
@@ -70,7 +88,7 @@ module AudioBookCreator
       elsif (host_limit != url.host)
         raise "remote url #{url}" unless ignore_bogus
         log { "ignoring remote url #{url}" }
-      elsif !visited.include?(url) && !outstanding.include?(url)
+      else
         true
       end
     end

@@ -138,7 +138,6 @@ describe AudioBookCreator::Cli do
     it "should be verbose" do
       subject.parse(%w(title http://www.site.com/ -v))
       # logging a url was added to the queue
-      expect_any_instance_of(AudioBookCreator::Spider).to receive(:puts)
       expect(subject.spider.verbose).to be_truthy
     end
 
