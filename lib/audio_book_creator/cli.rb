@@ -22,7 +22,7 @@ module AudioBookCreator
       self[:urls] = argv
       if self[:urls].empty?
         puts "please provide title and url", usage
-        exit 1
+        exit 2
       end
       default(:database, "#{base_dir}/pages.db")
     end
@@ -45,9 +45,9 @@ module AudioBookCreator
       options = OptionParser.new do |opts|
         opts.banner = "Usage: audio_book_creator [options] title url [url] [...]"
         option(opts, :verbose, "-v", "--verbose", "Run verbosely")
-        option(opts, :title_path, "--title STRING", "Content css (e.g.: h1)")
-        option(opts, :body_path, "--body STRING", String, "Content css (e.g.: p)")
-        option(opts, :link_path, "--link STRING", String, "Follow css (e.g.: a.Next)")
+        option(opts, :title_path, "--title STRING", "Title css (e.g.: h1)")
+        option(opts, :body_path, "--body STRING", "Content css (e.g.: p)")
+        option(opts, :link_path, "--link STRING", "Follow css (e.g.: a.Next)")
         option(opts, :max, "--no-max", "Don't limit the number of pages to verbose")
         option(opts, :max, "--max NUMBER", Integer, "Maximum number of pages to visit (default: 10)")
         option(opts, :max_paragraphs, "--max-p NUMBER", Integer, "Max paragraphs per chapter (testing only)")
@@ -123,7 +123,7 @@ module AudioBookCreator
     end
 
     def option_hash(*keys)
-      keys.flatten.each_with_object({}) { |key, h| h[key] = self[key] }
+      keys.each_with_object({}) { |key, h| h[key] = self[key] }
     end
   end
 end

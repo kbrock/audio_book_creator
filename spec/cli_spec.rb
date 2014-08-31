@@ -16,7 +16,7 @@ describe AudioBookCreator::Cli do
 
   it "should require 2 parameters" do
     expect(subject).to receive(:puts).with(/url/, /Usage.*title/)
-    expect(subject).to receive(:exit).with(1).and_raise("exited")
+    expect(subject).to receive(:exit).with(2).and_raise("exited")
     expect { subject.parse(%w(title_only)) }.to raise_error("exited")
   end
 
