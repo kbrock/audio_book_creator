@@ -8,18 +8,9 @@ module AudioBookCreator
     #   @return Hash cache of all pages visited
     attr_accessor :cache
 
-    # @!attribute outstanding
-    #   @return Array<URI> the pages not visited yet
-    attr_accessor :outstanding
-
-    # @!attribute visited
-    #   @return Array<URI> the pages visited
-    attr_accessor :visited
+    attr_accessor :work_list
 
     attr_accessor :verbose
-    # @!attribute max
-    #   @return Numeric max number of pages to visit
-    attr_accessor :max
 
     attr_accessor :ignore_bogus
 
@@ -27,10 +18,9 @@ module AudioBookCreator
 
     attr_accessor :host_limit
 
-    def initialize(cache = {}, options = {})
+    def initialize(cache = {}, work_list = [], options = {})
       @cache           = cache
-      @outstanding     = []
-      @visited         = []
+      @work_list       = work_list
       options.each { |n, v| public_send("#{n}=", v) }
     end
 
@@ -40,46 +30,21 @@ module AudioBookCreator
       url.fragment = nil # remove #x part of url
       @host_limit ||= url.host
       if want_to_visit_url(url)
-        enqueue_url(url)
+        @work_list << url
       end
     end
 
     def run
-      while (url = next_item)
-        ensure_under_limit
-        log { "visit  #{url} [#{visited.size + 1}/#{max || "all"}]" }
+      while (url = @work_list.shift)
+        log { "visit  #{url} [#{@work_list.visited_counter}]" }
         visit_page(url)
       end
 
       # currently returns array of blocks of html docs
-      visited.map { |visited_url| cache[visited_url.to_s] }
+      #work_list.visited.map { |visited_url| cache[visited_url.to_s] }
     end
 
     private
-
-    # limiter interface
-    def ensure_under_limit
-      raise "visited #{max} pages.\n  use --max to increase pages visited" if over_limit?
-    end
-
-    def over_limit?
-      max && (visited.size >= (max+1))
-    end
-
-    # work list interface
-
-    def enqueue_url(url) # call <<
-      outstanding << url if !known(url)
-    end
-
-    def next_item
-      outstanding.shift.tap { |url| visited << url if url }
-    end
-
-    # url is known, either visited or in the todo list
-    def known(url)
-      visited.include?(url) || outstanding.include?(url)
-    end
 
     def want_to_visit_url(url)
       if !valid_extensions.include?(File.extname(url.path))
@@ -115,10 +80,10 @@ module AudioBookCreator
 
     def visit_page(url)
       url_str = url.to_s
-      unless (contents = cache[url_str])
+      unless (contents = @cache[url_str])
         log { "fetch  #{url}" }
         contents ||= open(url_str).read
-        cache[url_str] = contents
+        @cache[url_str] = contents
       end
 
       follow_links url, Nokogiri::HTML(contents)

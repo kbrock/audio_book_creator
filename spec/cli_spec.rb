@@ -32,7 +32,6 @@ describe AudioBookCreator::Cli do
       # NOTE: calling with no constructor
       pristine = described_class.new
       expect(pristine[:max]).to eq(10)
-      expect(pristine[:max]).to eq(10)
       expect(pristine[:title_path]).to eq("h1")
       expect(pristine[:body_path]).to eq("p")
       expect(pristine[:link_path]).to eq("a")
@@ -147,14 +146,36 @@ describe AudioBookCreator::Cli do
     end
   end
 
+  context "#work_list" do
+    it "should default" do
+      subject.parse(%w(title http://site.com/))
+      expect(subject.work_list.max).to eq(10)
+    end
+
+    it "should have a max" do
+      subject.parse(%w(title http://www.site.com/ --max 20))
+      expect(subject.work_list.max).to eq(20)
+    end
+
+    it "should have no max" do
+      subject.parse(%w(title http://www.site.com/ --no-max))
+      expect(subject.work_list.max).not_to be_truthy
+    end
+
+    it "should set url" do
+      subject.parse(%w(title http://www.site.com/))
+      subject.spider #currently is setting the outstanding
+      expect(subject.work_list.outstanding).to eq([URI.parse("http://www.site.com/")])
+    end
+  end
+
   context "#spider" do
     it "should set url" do
       subject.parse(%w(title http://www.site.com/))
       expect(subject.spider.cache).to eq(subject.page_cache)
-      expect(subject.spider.outstanding).to eq([URI.parse("http://www.site.com/")])
+      expect(subject.spider.work_list).to eq(subject.work_list)
       # defaults
       expect(subject.spider.verbose).not_to be_truthy
-      expect(subject.spider.max).to eq(10)
       expect(subject.spider.host_limit).to eq("www.site.com")
       # NOTE: not currently passed
       expect(subject.spider.ignore_bogus).not_to be_truthy
@@ -169,16 +190,6 @@ describe AudioBookCreator::Cli do
     it "should support link" do
       subject.parse(%w(title http://www.site.com/ --link a.next_page))
       expect(subject.spider.link_path).to eq("a.next_page")
-    end
-
-    it "should have no max" do
-      subject.parse(%w(title http://www.site.com/ --no-max))
-      expect(subject.spider.max).not_to be_truthy
-    end
-
-    it "should have a max" do
-      subject.parse(%w(title http://www.site.com/ --max 20))
-      expect(subject.spider.max).to eq(20)
     end
   end
 
@@ -292,5 +303,13 @@ describe AudioBookCreator::Cli do
       # chain parse and run to mimic bin/audio_book_creator
       subject.parse(%w(title http://site.com/)).run
     end
+  end
+
+  private
+
+  # it is too bad, but at the time of expectations, the spider object is not yet created
+  def expect_any_spider_to_visit_page(url, *args)
+    expect_any_instance_of(AudioBookCreator::Spider).to receive(:open).with(url)
+      .and_return(double(read: page(url, *args)))
   end
 end

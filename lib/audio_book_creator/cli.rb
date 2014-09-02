@@ -70,8 +70,12 @@ module AudioBookCreator
       @page_cache ||= PageDb.new(self[:database], force: self[:regen_html])
     end
 
+    def work_list
+      @work_list ||= WorkList.new(max: self[:max])
+    end
+
     def spider
-      @spider ||= Spider.new(page_cache, option_hash(:verbose, :max, :link_path)).tap do |spider|
+      @spider ||= Spider.new(page_cache, work_list, option_hash(:verbose, :link_path)).tap do |spider|
         self[:urls].each { |url| spider.visit(url) }
       end
     end
@@ -92,7 +96,8 @@ module AudioBookCreator
 
     def run
       make_directory_structure
-      pages = spider.run
+      spider.run
+      pages = work_list.visited.map { |visited_url| page_cache[visited_url.to_s] }
       chapters = editor.parse(pages)
       chapters.each do |chapter|
         speaker.say(chapter)
