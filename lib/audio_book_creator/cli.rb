@@ -55,9 +55,9 @@ module AudioBookCreator
         option(opts, :regen_html, "--force-html", "Regerate the audio")
         option(opts, :rate, "--rate NUMBER", Integer, "Set words per minute")
         option(opts, :voice, "--voice STRING", "Set speaker voice")
-        option(opts, :base_dir, "--base-dir STRONG", "Directory to hold files")
+        option(opts, :base_dir, "--base-dir STRING", "Directory to hold files")
         tail_option(opts, "audio_book_creator #{VERSION}", "--version", "Show version")
-        tail_option(opts, opts.to_s, "-h", "--help", "Show this message")
+        tail_option(opts, opts.to_s, "-h", "--help")
       end
       options.parse!(argv)
       set_args(argv, options.to_s)

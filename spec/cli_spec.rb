@@ -71,11 +71,36 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#informational" do
+  context "#version" do
     it "should provide version" do
-      expect(subject).to receive(:puts).with(/#{AudioBookCreator::VERSION}/)
+      expect(subject).to receive(:puts).with(/audio_book_creator #{AudioBookCreator::VERSION}/)
       expect(subject).to receive(:exit).with(1).and_raise("exited")
       expect { subject.parse(%w(--version)) }.to raise_error("exited")
+    end
+  end
+
+  context "#help" do
+    {
+      "-v" => "Run verbosely",
+      "--verbose" => "Run verbosely",
+      "--title" => "Title css",
+      "--body" => "Content css",
+      "--link" => "Follow css",
+      "--no-max" => "Don't limit the number of pages to verbose",
+      "--max" => "Maximum number of pages to visit",
+      "--max-p" => "Max paragraphs per chapter",
+      "--force-audio" => "Regerate the audio",
+      "--force-html" => "Regerate the audio",
+      "--rate" => "Set words per minute",
+      "--voice" => "Set speaker voice",
+      "--base-dir" => "Directory to hold files",
+      "--version" => "Show version",
+    }.each do |switch, text|
+      it "should display #{text} for #{switch} option" do
+        expect(subject).to receive(:puts).with(/#{switch}.*#{text}/)
+        expect(subject).to receive(:exit).with(1).and_raise("exited")
+        expect { subject.parse(%w(--help)) }.to raise_error("exited")
+      end
     end
 
     it "should provide help" do
