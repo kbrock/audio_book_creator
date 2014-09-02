@@ -43,6 +43,8 @@ module AudioBookCreator
 
     def parse(argv)
       options = OptionParser.new do |opts|
+        opts.program_name = "audio_book_creator"
+        opts.version = VERSION
         opts.banner = "Usage: audio_book_creator [options] title url [url] [...]"
         option(opts, :verbose, "-v", "--verbose", "Run verbosely")
         option(opts, :title_path, "--title STRING", "Title css (e.g.: h1)")
@@ -56,8 +58,6 @@ module AudioBookCreator
         option(opts, :rate, "--rate NUMBER", Integer, "Set words per minute")
         option(opts, :voice, "--voice STRING", "Set speaker voice")
         option(opts, :base_dir, "--base-dir STRING", "Directory to hold files")
-        tail_option(opts, "audio_book_creator #{VERSION}", "--version", "Show version")
-        tail_option(opts, opts.to_s, "-h", "--help")
       end
       options.parse!(argv)
       set_args(argv, options.to_s)
@@ -114,13 +114,6 @@ module AudioBookCreator
 
     def option(opts, value, *args)
       opts.on(*args) { |v| self[value] = v }
-    end
-
-    def tail_option(opts, message, *args)
-      opts.on_tail(*args) do
-        puts message
-        exit 1
-      end
     end
 
     def default(key, value)

@@ -15,7 +15,7 @@ describe AudioBookCreator::Cli do
   end
 
   it "should require 2 parameters" do
-    expect(subject).to receive(:puts).with(/url/, /Usage.*title/)
+    expect($stdout).to receive(:puts).with(/url/, /Usage.*title/)
     expect(subject).to receive(:exit).with(2).and_raise("exited")
     expect { subject.parse(%w(title_only)) }.to raise_error("exited")
   end
@@ -72,9 +72,8 @@ describe AudioBookCreator::Cli do
 
   context "#version" do
     it "should provide version" do
-      expect(subject).to receive(:puts).with(/audio_book_creator #{AudioBookCreator::VERSION}/)
-      expect(subject).to receive(:exit).with(1).and_raise("exited")
-      expect { subject.parse(%w(--version)) }.to raise_error("exited")
+      expect($stdout).to receive(:puts).with(/audio_book_creator #{AudioBookCreator::VERSION}/)
+      expect { subject.parse(%w(--version)) }.to raise_error(SystemExit)
     end
   end
 
@@ -93,25 +92,22 @@ describe AudioBookCreator::Cli do
       "--rate" => "Set words per minute",
       "--voice" => "Set speaker voice",
       "--base-dir" => "Directory to hold files",
-      "--version" => "Show version",
     }.each do |switch, text|
       it "should display #{text} for #{switch} option" do
-        expect(subject).to receive(:puts).with(/#{switch}.*#{text}/)
-        expect(subject).to receive(:exit).with(1).and_raise("exited")
-        expect { subject.parse(%w(--help)) }.to raise_error("exited")
+        expect($stdout).to receive(:puts).with(/#{switch}.*#{text}/)
+        expect { subject.parse(%w(--help)) }.to raise_error(SystemExit)
       end
     end
 
     it "should provide help" do
-      expect(subject).to receive(:puts).with(/Usage/)
-      expect(subject).to receive(:exit).with(1).and_raise("exited")
-      expect { subject.parse(%w(--help)) }.to raise_error("exited")
+      expect($stdout).to receive(:puts).with(/Usage/)
+      #expect(subject).to receive(:exit).with(1).and_raise("exited")
+      expect { subject.parse(%w(--help)) }.to raise_error(SystemExit)
     end
 
     it "should provide help (with short option)" do
-      expect(subject).to receive(:puts).with(/Usage/)
-      expect(subject).to receive(:exit).with(1).and_raise("exited")
-      expect { subject.parse(%w(-h)) }.to raise_error("exited")
+      expect($stdout).to receive(:puts).with(/Usage/)
+      expect { subject.parse(%w(-h)) }.to raise_error(SystemExit)
     end
   end
 
