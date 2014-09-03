@@ -18,12 +18,12 @@ module AudioBookCreator
       options.each { |n, v| public_send("#{n}=", v) }
     end
 
-    def known?(url)
+    def include?(url)
       outstanding.include?(url) || visited.include?(url)
     end
 
     def <<(url)
-      outstanding << url if !known?(url)
+      outstanding << url if !include?(url)
       self
     end
 
