@@ -70,12 +70,16 @@ module AudioBookCreator
       @page_cache ||= PageDb.new(self[:database], force: self[:regen_html])
     end
 
+    def url_filter
+      @url_filter ||= UrlFilter.new(verbose: self[:verbose], host: self[:urls].first)
+    end
+
     def work_list
       @work_list ||= WorkList.new(max: self[:max])
     end
 
     def spider
-      @spider ||= Spider.new(page_cache, work_list, option_hash(:verbose, :link_path)).tap do |spider|
+      @spider ||= Spider.new(page_cache, work_list, url_filter, option_hash(:verbose, :link_path)).tap do |spider|
         self[:urls].each { |url| spider.visit(url) }
       end
     end

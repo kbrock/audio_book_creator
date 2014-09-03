@@ -165,6 +165,23 @@ describe AudioBookCreator::Cli do
     end
   end
 
+  context "#url_filter" do
+    it "sets defaults" do
+      subject.parse(%w(title http://www.site.com/))
+      # defaults
+      expect(subject.url_filter.verbose).not_to be_truthy
+      expect(subject.url_filter.host).to eq("www.site.com")
+      # NOTE: not currently passed
+      expect(subject.url_filter.ignore_bogus).not_to be_truthy
+    end
+
+    it "should be verbose" do
+      subject.parse(%w(title http://www.site.com/ -v))
+      # logging a url was added to the queue
+      expect(subject.url_filter.verbose).to be_truthy
+    end
+  end
+
   context "#spider" do
     it "should set url" do
       subject.parse(%w(title http://www.site.com/))
@@ -172,9 +189,8 @@ describe AudioBookCreator::Cli do
       expect(subject.spider.work_list).to eq(subject.work_list)
       # defaults
       expect(subject.spider.verbose).not_to be_truthy
-      expect(subject.spider.host_limit).to eq("www.site.com")
-      # NOTE: not currently passed
-      expect(subject.spider.ignore_bogus).not_to be_truthy
+      expect(subject.spider.invalid_urls).to eq(subject.url_filter)
+      expect(subject.spider.work_list).to be_include(uri("http://www.site.com"))
     end
 
     it "should be verbose" do

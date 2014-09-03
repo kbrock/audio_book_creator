@@ -4,7 +4,8 @@ describe AudioBookCreator::Spider do
   let(:cache) { {} }
   # NOTE: real work list would prevent dups / loops
   let(:work_list) { [] }
-  subject { described_class.new(cache, work_list, link_path: "a") }
+  let(:invalid_urls) { {} }
+  subject { described_class.new(cache, work_list, invalid_urls, link_path: "a") }
   context "#visit" do
     it "visit pages" do
       visit %w(page1 page2)
@@ -57,20 +58,6 @@ describe AudioBookCreator::Spider do
     subject.run
   end
 
-  it "spiders local pages only" do
-    visit "page1"
-    expect_visit_page("page1", link("good"), link("http://anothersite.com/bad"))
-    expect { subject.run }.to raise_error
-  end
-
-  it "forgives remote pages if ignore_bogus set" do
-    subject.ignore_bogus = true
-    visit "page1"
-    expect_visit_page("page1", link("good"), link("http://anothersite.com/bad"))
-    expect_visit_page("good")
-    subject.run
-  end
-
   it "doesnt visit bad pages" do
     expect { subject.visit("%@") }.to raise_error(/bad URI/)
   end
@@ -93,44 +80,23 @@ describe AudioBookCreator::Spider do
   context "#log" do
     it "should not log strings when verbose is off" do
       subject.verbose = false
-      expect(subject).not_to receive(:puts)
+      expect($stdout).not_to receive(:puts)
       subject.send(:log, "phrase")
     end
 
     it "should log strings" do
       subject.verbose = true
-      expect(subject).to receive(:puts).with("phrase")
+      expect($stdout).to receive(:puts).with("phrase")
       subject.send(:log, "phrase")
     end
 
     it "should log blocks" do
       subject.verbose = true
-      expect(subject).to receive(:puts).with("phrase")
+      expect($stdout).to receive(:puts).with("phrase")
       subject.send(:log) { "phrase" }
     end
   end
 
-  context "visit with #extensions" do
-    %w(/page / .html .php .jsp .htm).each do |ext|
-      it "should visit #{ext}" do
-        expect{ visit("page2#{ext}") }.not_to raise_error
-      end
-    end
-
-    %w(.jpg .png .js).each do |ext|
-      it "should not visit #{ext}" do
-        expect{ visit("page2#{ext}") }.to raise_error
-      end
-    end
-
-    it "should log bad extensions" do
-      subject.verbose = true
-      subject.ignore_bogus = true
-      url = site("page.abc")
-      expect(subject).to receive(:puts).with("ignoring bad extension #{url}")
-      visit url
-    end
-  end
 
   private
 

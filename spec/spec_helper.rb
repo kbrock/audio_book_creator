@@ -28,6 +28,14 @@ module HtmlHelpers
       </html>)
   end
 
+  def uri(url)
+    if url.is_a?(Array)
+      url.map { |u| uri(u) }
+    else
+      URI.parse(site(url))
+    end
+  end
+
   def site(url)
     if url.is_a?(Array)
       url.map { |u| site(u) }

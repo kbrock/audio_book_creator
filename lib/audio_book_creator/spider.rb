@@ -7,36 +7,34 @@ module AudioBookCreator
     # @!attribute visited
     #   @return Hash cache of all pages visited
     attr_accessor :cache
-
-    attr_accessor :work_list
-
     attr_accessor :verbose
 
-    attr_accessor :ignore_bogus
+    attr_accessor :work_list
+    attr_accessor :invalid_urls
 
     attr_accessor :link_path
 
-    attr_accessor :host_limit
-
-    def initialize(cache = {}, work_list = [], options = {})
+    def initialize(cache = {}, work_list = [], invalid_urls = {}, options = {})
       @cache           = cache
       @work_list       = work_list
+      @invalid_urls    = invalid_urls
       options.each { |n, v| public_send("#{n}=", v) }
     end
 
     # Add a url to the outstanding list of pages to visit
     def visit(url, alt = nil)
       url = uri(url, alt)
-      url.fragment = nil # remove #x part of url
-      @host_limit ||= url.host
-      if want_to_visit_url(url)
-        @work_list << url
-      end
+      self << url
+    end
+
+    def <<(url)
+      @work_list << url unless @invalid_urls[url]
+      self
     end
 
     def run
       while (url = @work_list.shift)
-        log { "visit  #{url} [#{@work_list.visited_counter}]" }
+        log { "visit  #{url} "} #[#{@work_list.visited_counter}]" }
         visit_page(url)
       end
 
@@ -46,26 +44,12 @@ module AudioBookCreator
 
     private
 
-    def want_to_visit_url(url)
-      if !valid_extensions.include?(File.extname(url.path))
-        raise "bad file extension" unless ignore_bogus
-        log { "ignoring bad extension #{url}" }
-      elsif (host_limit != url.host)
-        raise "remote url #{url}" unless ignore_bogus
-        log { "ignoring remote url #{url}" }
-      else
-        true
-      end
-    end
-
-    def valid_extensions
-      [nil, "", '.html', '.htm', '.php', '.jsp']
-    end
-
     # raises URI::Error (BadURIError)
     def uri(url, alt = nil)
       url = URI.parse(url) unless url.is_a?(URI)
-      alt && url ? url + alt : url
+      url = url + alt if alt
+      url.fragment = nil # remove #x part of url
+      url
     end
 
     def follow_links(url, doc)
