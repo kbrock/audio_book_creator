@@ -134,15 +134,6 @@ describe AudioBookCreator::Spider do
 
   private
 
-  def site(url)
-    if url.is_a?(Array)
-      url.map { |u| site(u) }
-    else
-      url.include?("http") ? url : "http://site.com/#{url}"
-    end
-  end
-
-
   def visit(urls)
     Array(urls).flatten.each { |url| subject.visit site(url) }
   end

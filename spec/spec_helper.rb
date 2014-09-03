@@ -28,7 +28,13 @@ module HtmlHelpers
       </html>)
   end
 
-  # site helpers
+  def site(url)
+    if url.is_a?(Array)
+      url.map { |u| site(u) }
+    else
+      url.include?("http") ? url : "http://site.com/#{url}"
+    end
+  end
 end
 
 module Factories
