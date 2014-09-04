@@ -27,18 +27,19 @@ describe AudioBookCreator::Runner do
     context "without verbose" do
       it "doesnt log when non verbose" do
         expect(subject).to receive(:system).and_return(true)
-        expect(subject).not_to receive(:puts)
+        expect($stdout).not_to receive(:puts)
         subject.run!("cmd", :params => %w(arg1 arg2))
       end
     end
 
     context "with verbose" do
+      subject { described_class.new(verbose: true)}
       it "logs messages" do
         expect(subject).to receive(:system).and_return(true)
-        expect(subject).to receive(:puts).with(/run: cmd arg1 arg2/)
-        expect(subject).to receive(:puts).with("").twice
-        expect(subject).to receive(:puts).with("success")
-        expect(subject.run!("cmd", :verbose => true, :params => %w(arg1 arg2))).to be_truthy
+        expect($stdout).to receive(:puts).with(/run: cmd arg1 arg2/)
+        expect($stdout).to receive(:puts).with("").twice
+        expect($stdout).to receive(:puts).with("success")
+        expect(subject.run!("cmd", :params => %w(arg1 arg2))).to be_truthy
       end      
     end
   end
@@ -55,12 +56,13 @@ describe AudioBookCreator::Runner do
     end
 
     context "with verbose" do
+      subject { described_class.new(verbose: true)}
       it "logs messages" do
         expect(subject).to receive(:system).and_return(false)
-        expect(subject).to receive(:puts).with(/run.*cmd.*arg1 arg2/)
-        expect(subject).to receive(:puts).with("").twice
-        expect(subject).to receive(:puts).with("issue")
-        expect { subject.run!("cmd", :verbose => true, :params => %w(arg1 arg2)) }.to raise_error(/trouble/)
+        expect($stdout).to receive(:puts).with(/run.*cmd.*arg1 arg2/)
+        expect($stdout).to receive(:puts).with("").twice
+        expect($stdout).to receive(:puts).with("issue")
+        expect { subject.run!("cmd", :params => %w(arg1 arg2)) }.to raise_error(/trouble/)
       end
     end
   end

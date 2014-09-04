@@ -2,9 +2,9 @@ require 'uri'
 
 module AudioBookCreator
   class UrlFilter
+    include Logging
     attr_accessor :host
     attr_accessor :ignore_bogus
-    attr_accessor :verbose
 
     def initialize(options = {})
       options.each { |n, v| public_send("#{n}=", v) }
@@ -42,10 +42,6 @@ module AudioBookCreator
 
     def valid_extensions
       ["", '.html', '.htm', '.php', '.jsp']
-    end
-
-    def log
-      puts(yield) if verbose
     end
   end
 end

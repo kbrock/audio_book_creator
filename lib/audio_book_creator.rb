@@ -10,6 +10,7 @@ module AudioBookCreator
   end
 end
 
+require "audio_book_creator/logging"
 require "audio_book_creator/page_db"
 require "audio_book_creator/chapter"
 require "audio_book_creator/editor"

@@ -75,28 +75,6 @@ describe AudioBookCreator::Spider do
     expect(cache.keys).to match_array(site(%w(page1 page2 page3)))
   end
 
-  # private methods
-
-  context "#log" do
-    it "should not log strings when verbose is off" do
-      subject.verbose = false
-      expect($stdout).not_to receive(:puts)
-      subject.send(:log, "phrase")
-    end
-
-    it "should log strings" do
-      subject.verbose = true
-      expect($stdout).to receive(:puts).with("phrase")
-      subject.send(:log, "phrase")
-    end
-
-    it "should log blocks" do
-      subject.verbose = true
-      expect($stdout).to receive(:puts).with("phrase")
-      subject.send(:log) { "phrase" }
-    end
-  end
-
 
   private
 

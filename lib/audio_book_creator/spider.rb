@@ -4,10 +4,11 @@ require 'uri'
 
 module AudioBookCreator
   class Spider
+    include Logging
+
     # @!attribute visited
     #   @return Hash cache of all pages visited
     attr_accessor :cache
-    attr_accessor :verbose
 
     attr_accessor :work_list
     attr_accessor :invalid_urls
@@ -56,10 +57,6 @@ module AudioBookCreator
       doc.css(link_path).each do |a|
         visit(url, a["href"])
       end
-    end
-
-    def log(str = nil)
-      puts(str || yield) if verbose
     end
 
     def visit_page(url)
