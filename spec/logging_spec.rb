@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe AudioBookCreator::Logging do
-  subject { Class.new.tap { |c| c.include described_class }.new}
+  subject { Class.new.tap { |c| c.send(:include, described_class) }.new}
   it "should not log strings when verbose is off" do
     subject.verbose = false
     expect($stdout).not_to receive(:puts)
