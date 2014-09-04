@@ -10,14 +10,16 @@ module AudioBookCreator
     #   @return Hash cache of all pages visited
     attr_accessor :cache
 
-    attr_accessor :work_list
+    attr_accessor :outstanding
+    attr_accessor :visited
     attr_accessor :invalid_urls
 
     attr_accessor :link_path
 
-    def initialize(cache = {}, work_list = [], invalid_urls = {}, options = {})
+    def initialize(cache = {}, outstanding = [], visited = [], invalid_urls = {}, options = {})
       @cache           = cache
-      @work_list       = work_list
+      @outstanding     = outstanding
+      @visited         = visited
       @invalid_urls    = invalid_urls
       options.each { |n, v| public_send("#{n}=", v) }
     end
@@ -29,18 +31,17 @@ module AudioBookCreator
     end
 
     def <<(url)
-      @work_list << url unless @invalid_urls[url]
+      @outstanding << url unless @invalid_urls.include?(url) || @visited.include?(url)
       self
     end
 
     def run
-      while (url = @work_list.shift)
-        log { "visit  #{url} "} #[#{@work_list.visited_counter}]" }
+      while (url = @outstanding.shift)
         visit_page(url)
       end
 
       # currently returns array of blocks of html docs
-      #work_list.visited.map { |visited_url| cache[visited_url.to_s] }
+      #outstanding.visited.map { |visited_url| cache[visited_url.to_s] }
     end
 
     private
@@ -60,6 +61,8 @@ module AudioBookCreator
     end
 
     def visit_page(url)
+      @visited << url
+
       url_str = url.to_s
       unless (contents = @cache[url_str])
         log { "fetch  #{url}" }

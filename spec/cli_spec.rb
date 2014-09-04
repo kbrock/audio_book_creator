@@ -142,55 +142,57 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#work_list" do
-    it "should default" do
-      subject.parse(%w(title http://site.com/))
-      expect(subject.work_list.max).to eq(10)
+  context "#outstanding" do
+    it "sets url" do
+      subject.parse(%w(title http://www.site.com/))
+      subject.spider #currently is setting the outstanding
+      expect(subject.outstanding.shift).to eq(URI.parse("http://www.site.com/"))
+      expect(subject.outstanding.shift).to be_nil
+    end
+  end
+
+  context "#visited" do
+    it "defaults" do
+      subject.parse(%w(title http://www.site.com/))
+      expect(subject.visited.max).to eq(10)
     end
 
     it "should have a max" do
       subject.parse(%w(title http://www.site.com/ --max 20))
-      expect(subject.work_list.max).to eq(20)
+      expect(subject.visited.max).to eq(20)
     end
 
     it "should have no max" do
       subject.parse(%w(title http://www.site.com/ --no-max))
-      expect(subject.work_list.max).not_to be_truthy
-    end
-
-    it "should set url" do
-      subject.parse(%w(title http://www.site.com/))
-      subject.spider #currently is setting the outstanding
-      expect(subject.work_list.outstanding).to eq([URI.parse("http://www.site.com/")])
+      expect(subject.visited.max).not_to be_truthy
     end
   end
 
-  context "#url_filter" do
+  context "#invalid_urls" do
     it "sets defaults" do
       subject.parse(%w(title http://www.site.com/))
       # defaults
-      expect(subject.url_filter.verbose).not_to be_truthy
-      expect(subject.url_filter.host).to eq("www.site.com")
+      expect(subject.invalid_urls.verbose).not_to be_truthy
+      expect(subject.invalid_urls.host).to eq("www.site.com")
       # NOTE: not currently passed
-      expect(subject.url_filter.ignore_bogus).not_to be_truthy
+      expect(subject.invalid_urls.ignore_bogus).not_to be_truthy
     end
 
     it "should be verbose" do
       subject.parse(%w(title http://www.site.com/ -v))
       # logging a url was added to the queue
-      expect(subject.url_filter.verbose).to be_truthy
+      expect(subject.invalid_urls.verbose).to be_truthy
     end
   end
 
   context "#spider" do
-    it "should set url" do
+    it "sets references" do
       subject.parse(%w(title http://www.site.com/))
       expect(subject.spider.cache).to eq(subject.page_cache)
-      expect(subject.spider.work_list).to eq(subject.work_list)
+      expect(subject.spider.outstanding).to eq(subject.outstanding)
       # defaults
-      expect(subject.spider.verbose).not_to be_truthy
-      expect(subject.spider.invalid_urls).to eq(subject.url_filter)
-      expect(subject.spider.work_list).to be_include(uri("http://www.site.com"))
+      expect(subject.spider.visited).to eq(subject.visited)
+      expect(subject.spider.invalid_urls).to eq(subject.invalid_urls)
     end
 
     it "should be verbose" do
