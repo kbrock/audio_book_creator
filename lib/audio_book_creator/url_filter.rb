@@ -23,7 +23,7 @@ module AudioBookCreator
     end
 
     # return true if this is invalid
-    def [](url)
+    def include?(url)
       if !valid_extensions.include?(File.extname(url.path))
         raise "bad file extension" unless ignore_bogus
         log { "ignoring bad file extension #{url}" }
@@ -36,6 +36,7 @@ module AudioBookCreator
       #   true
       end
     end
+    alias_method :[], :include?
 
     private
 

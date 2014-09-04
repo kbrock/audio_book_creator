@@ -24,6 +24,7 @@ describe AudioBookCreator::UrlFilter do
     subject.host = nil
     expect(subject[uri("good")]).not_to be_truthy
     expect(subject[uri("http://anothersite.com/bad")]).not_to be_truthy
+    expect(subject.include?(uri("http://anothersite.com/bad"))).not_to be_truthy
   end
 
   it "spiders local pages only" do
