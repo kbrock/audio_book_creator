@@ -65,7 +65,7 @@ module AudioBookCreator
 
       url_str = url.to_s
       unless (contents = @cache[url_str])
-        log { "fetch  #{url}" }
+        logger.info { "fetch  #{url}" }
         contents ||= open(url_str).read
         @cache[url_str] = contents
       end

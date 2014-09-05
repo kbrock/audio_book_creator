@@ -11,13 +11,16 @@ unless ENV['MUTANT']
     CodeClimate::TestReporter::Formatter
   ]
 
-  begin
-    require "pry"
-  rescue LoadError
-  end
 end
 
-module HtmlHelpers
+require_relative "support/test_logger"
+
+begin
+  require "pry"
+rescue LoadError
+end
+
+module SpecHelpers
   def link(url)
     %(<a href="#{url}">link</a>")
   end
@@ -43,11 +46,19 @@ module HtmlHelpers
       url.include?("http") ? url : "http://site.com/#{url}"
     end
   end
-end
 
-module Factories
   def chapter(body, title = "the title", number = 1)
     AudioBookCreator::Chapter.new(number: number, title: title, body: body)
+  end
+
+  def verbose_logging
+    AudioBookCreator.logger.level = Logger::INFO
+  end
+
+  def expect_to_log(*val)
+    TestLogger.results(AudioBookCreator.logger).zip(Array(val).flatten) do |rslt, exp|
+      expect(rslt).to match(exp)
+    end
   end
 end
 
@@ -56,8 +67,11 @@ SimpleCov.start unless ENV['MUTANT']
 require 'audio_book_creator'
 
 RSpec.configure do |c|
-  c.include HtmlHelpers
-  c.include Factories
+  c.include SpecHelpers
+  c.before do
+    AudioBookCreator.logger = TestLogger.gen
+  end
+
   unless ENV['MUTANT']
     c.run_all_when_everything_filtered = true
     c.filter_run :focus

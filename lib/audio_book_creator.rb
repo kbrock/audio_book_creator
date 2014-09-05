@@ -1,4 +1,5 @@
 require "audio_book_creator/version"
+require "logger"
 
 module AudioBookCreator
   def self.sanitize_filename(*filenames)
@@ -7,6 +8,14 @@ module AudioBookCreator
 
   def self.should_write?(filename, force = nil)
     force || !File.exist?(filename)
+  end
+
+  def self.logger=(val)
+    @log = val
+  end
+
+  def self.logger
+    @log ||= Logger.new(STDOUT).tap { |log| log.level = Logger::WARN }
   end
 end
 

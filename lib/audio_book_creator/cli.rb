@@ -1,5 +1,6 @@
 require 'optparse'
 require 'fileutils'
+require 'logger'
 
 module AudioBookCreator
   class Cli
@@ -50,7 +51,7 @@ module AudioBookCreator
         option(opts, :title_path, "--title STRING", "Title css (e.g.: h1)")
         option(opts, :body_path, "--body STRING", "Content css (e.g.: p)")
         option(opts, :link_path, "--link STRING", "Follow css (e.g.: a.Next)")
-        option(opts, :max, "--no-max", "Don't limit the number of pages to verbose")
+        option(opts, :max, "--no-max", "Don't limit the number of pages to visit")
         option(opts, :max, "--max NUMBER", Integer, "Maximum number of pages to visit (default: 10)")
         option(opts, :max_paragraphs, "--max-p NUMBER", Integer, "Max paragraphs per chapter (testing only)")
         option(opts, :regen_audio, "--force-audio", "Regerate the audio")
@@ -66,16 +67,20 @@ module AudioBookCreator
 
     # components
 
+    def set_logger
+      AudioBookCreator.logger.level = self[:verbose] ? Logger::INFO : Logger::WARN
+    end
+
     def page_cache
       @page_cache ||= PageDb.new(self[:database], force: self[:regen_html])
     end
 
     def invalid_urls
-      @invalid_urls ||= UrlFilter.new(verbose: self[:verbose], host: self[:urls].first)
+      @invalid_urls ||= UrlFilter.new(host: self[:urls].first)
     end
 
     def visited
-      @visited ||= ArrayWithMaxFeedback.new(verbose: self[:verbose], max: self[:max])
+      @visited ||= ArrayWithMaxFeedback.new(max: self[:max])
     end
 
     def outstanding
@@ -83,7 +88,7 @@ module AudioBookCreator
     end
 
     def spider
-      @spider ||= Spider.new(page_cache, outstanding, visited, invalid_urls, option_hash(:verbose, :link_path)).tap do |spider|
+      @spider ||= Spider.new(page_cache, outstanding, visited, invalid_urls, option_hash(:link_path)).tap do |spider|
         self[:urls].each { |url| spider.visit(url) }
       end
     end
@@ -94,15 +99,16 @@ module AudioBookCreator
 
     def speaker
       @speaker ||= Speaker.new({base_dir: base_dir, force: self[:regen_audio]}
-                                 .merge(option_hash(:verbose, :voice, :rate)))
+                                 .merge(option_hash(:voice, :rate)))
     end
 
     def binder
       @binder ||= Binder.new({base_dir: base_dir, force: self[:regen_audio]}
-                               .merge(option_hash(:verbose, :title)))
+                               .merge(option_hash(:title)))
     end
 
     def run
+      set_logger
       make_directory_structure
       spider.run
       pages = visited.map { |visited_url| page_cache[visited_url.to_s] }

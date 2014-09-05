@@ -30,20 +30,17 @@ describe AudioBookCreator::Speaker do
     expect(File).to receive(:write)
 
     expect_runner.to receive(:system).and_return(true)
-    expect_runner.not_to receive(:puts)
+    expect_to_log("")
     subject.say(chapter("content"))    
   end
 
   it "should output messages if set to verbose" do
-    subject.verbose = true
+    verbose_logging
     expect(File).to receive(:exist?).twice.and_return(false)
     expect(File).to receive(:write)
 
     expect_runner.to receive(:system).and_return(true)
-    expect_runner.to receive(:puts).with(/^run:/)
-    expect_runner.to receive(:puts).with("success")
-    expect_runner.to receive(:puts).with("").twice
-
+    expect_to_log(/^run:/, "", "success", "")
     subject.say(chapter("content"))
   end
 

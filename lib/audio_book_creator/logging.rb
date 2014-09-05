@@ -1,7 +1,7 @@
 module AudioBookCreator
   module Logging
-    def log(str = nil)
-      puts(str || yield) if verbose
+    def logger
+      AudioBookCreator.logger
     end
     
     def self.included(base)

@@ -10,11 +10,11 @@ module AudioBookCreator
     def run(cmd, options)
       params = options[:params].flatten.flatten.compact
 
-      log { "run: #{cmd} #{params.join(" ")}" }
-      log ""
+      logger.info { "run: #{cmd} #{params.join(" ")}" }
+      logger.info ""
       status = system(cmd, *params.map { |x| x.to_s })
-      log ""
-      log { status ? "success" : "issue" }
+      logger.info ""
+      logger.info { status ? "success" : "issue" }
 
       status
     end

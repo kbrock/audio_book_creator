@@ -19,7 +19,7 @@ module AudioBookCreator
     def <<(url)
       if url && !include?(url)
         ensure_under_limit
-        log { "visit #{url} [#{visited_counter}]" }
+        logger.info { "visit #{url} [#{visited_counter}]" }
         @contents << url
       end
       self
