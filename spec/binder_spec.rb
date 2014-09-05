@@ -50,9 +50,7 @@ describe AudioBookCreator::Binder do
     expect(File).to receive(:exist?).and_return(false)
 
     expect_runner.to receive(:system).and_return(true)
-    expect_runner.to receive(:puts).with(/^run:/)
-    expect_runner.to receive(:puts).with("success")
-    expect_runner.to receive(:puts).with("").twice
+    expect_to_log(/^run:/, "", "success","")
 
     subject.create([chapter("content")])
   end
@@ -62,7 +60,7 @@ describe AudioBookCreator::Binder do
     expect(File).to receive(:exist?).and_return(false)
 
     expect_runner.to receive(:system).and_return(true)
-    expect_runner.not_to receive(:puts)
+    expect_to_log("")
     subject.create([chapter("content")])
   end
 

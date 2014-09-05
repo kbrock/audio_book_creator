@@ -8,6 +8,18 @@ module AudioBookCreator
   def self.should_write?(filename, force = nil)
     force || !File.exist?(filename)
   end
+
+  def self.verbose=(val)
+    logger.level = val ? Logger::WARN : Logger::ERROR
+  end
+
+  def self.logger=(val)
+    @log = val
+  end
+
+  def self.logger
+    @log ||= Logger.new(STDOUT).tap { |log| log.level = Logger::WARN }
+  end
 end
 
 require "audio_book_creator/logging"

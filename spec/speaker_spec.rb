@@ -30,7 +30,7 @@ describe AudioBookCreator::Speaker do
     expect(File).to receive(:write)
 
     expect_runner.to receive(:system).and_return(true)
-    expect_runner.not_to receive(:puts)
+    expect_to_log("")
     subject.say(chapter("content"))    
   end
 
@@ -40,10 +40,7 @@ describe AudioBookCreator::Speaker do
     expect(File).to receive(:write)
 
     expect_runner.to receive(:system).and_return(true)
-    expect_runner.to receive(:puts).with(/^run:/)
-    expect_runner.to receive(:puts).with("success")
-    expect_runner.to receive(:puts).with("").twice
-
+    expect_to_log(/^run:/, "", "success", "")
     subject.say(chapter("content"))
   end
 
