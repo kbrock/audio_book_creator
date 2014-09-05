@@ -25,12 +25,12 @@ module AudioBookCreator
     # return true if this is invalid
     def include?(url)
       if !valid_extensions.include?(File.extname(url.path))
+        logger.warn { "ignoring bad file extension #{url}" }
         raise "bad file extension" unless ignore_bogus
-        log { "ignoring bad file extension #{url}" }
         true
       elsif host && (host != url.host)
+        logger.warn { "ignoring remote url #{url}" }
         raise "remote url #{url}" unless ignore_bogus
-        log { "ignoring remote url #{url}" }
         true
       # elsif already_visited(url)
       #   true

@@ -5,18 +5,18 @@ describe AudioBookCreator::Logging do
   it "should not log strings when verbose is off" do
     subject.verbose = false
     expect_to_log("")
-    subject.send(:log, "phrase")
+    subject.logger.info "phrase"
   end
 
   it "should log strings" do
-    subject.verbose = true
+    verbose_logging
     expect_to_log("phrase")
-    subject.send(:log, "phrase")
+    subject.logger.info "phrase"
   end
 
   it "should log blocks" do
-    subject.verbose = true
+    verbose_logging
     expect_to_log("phrase")
-    subject.send(:log) { "phrase" }
+    subject.logger.info { "phrase" }
   end
 end

@@ -51,6 +51,10 @@ module SpecHelpers
     AudioBookCreator::Chapter.new(number: number, title: title, body: body)
   end
 
+  def verbose_logging
+    AudioBookCreator.logger.level = Logger::INFO
+  end
+
   def expect_to_log(*val)
     TestLogger.results(AudioBookCreator.logger).zip(Array(val).flatten) do |rslt, exp|
       expect(rslt).to match(exp)

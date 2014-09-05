@@ -46,7 +46,7 @@ describe AudioBookCreator::Binder do
   end
 
   it "outputs messages if set to verbose" do
-    subject.verbose = true
+    verbose_logging
     expect(File).to receive(:exist?).and_return(false)
 
     expect_runner.to receive(:system).and_return(true)

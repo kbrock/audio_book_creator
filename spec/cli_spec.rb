@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'uri'
+require 'logger'
 # NOTE: cli class is not in the path by default
 #       it is only included by running the command
 require 'audio_book_creator/cli'
@@ -84,7 +85,7 @@ describe AudioBookCreator::Cli do
       "--title" => "Title css",
       "--body" => "Content css",
       "--link" => "Follow css",
-      "--no-max" => "Don't limit the number of pages to verbose",
+      "--no-max" => "Don't limit the number of pages to visit",
       "--max" => "Maximum number of pages to visit",
       "--max-p" => "Max paragraphs per chapter",
       "--force-audio" => "Regerate the audio",
@@ -108,6 +109,20 @@ describe AudioBookCreator::Cli do
     it "should provide help (with short option)" do
       expect($stdout).to receive(:puts).with(/Usage/)
       expect { subject.parse(%w(-h)) }.to raise_error(SystemExit)
+    end
+  end
+
+  context "#set_logger" do
+    it "should default to error" do
+      subject.parse(%w(title http://site.com/))
+      subject.set_logger
+      expect(AudioBookCreator.logger.level).to eq(Logger::WARN)
+    end
+
+    it "should warn" do
+      subject.parse(%w(title http://site.com/ --verbose))
+      subject.set_logger
+      expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
     end
   end
 
@@ -172,16 +187,9 @@ describe AudioBookCreator::Cli do
     it "sets defaults" do
       subject.parse(%w(title http://www.site.com/))
       # defaults
-      expect(subject.invalid_urls.verbose).not_to be_truthy
       expect(subject.invalid_urls.host).to eq("www.site.com")
       # NOTE: not currently passed
       expect(subject.invalid_urls.ignore_bogus).not_to be_truthy
-    end
-
-    it "should be verbose" do
-      subject.parse(%w(title http://www.site.com/ -v))
-      # logging a url was added to the queue
-      expect(subject.invalid_urls.verbose).to be_truthy
     end
   end
 
@@ -193,12 +201,6 @@ describe AudioBookCreator::Cli do
       # defaults
       expect(subject.spider.visited).to eq(subject.visited)
       expect(subject.spider.invalid_urls).to eq(subject.invalid_urls)
-    end
-
-    it "should be verbose" do
-      subject.parse(%w(title http://www.site.com/ -v))
-      # logging a url was added to the queue
-      expect(subject.spider.verbose).to be_truthy
     end
 
     it "should support link" do
@@ -237,15 +239,9 @@ describe AudioBookCreator::Cli do
       subject.parse(%w(title http://site.com/))
       # defaults
       expect(subject.speaker.base_dir).to eq(subject.base_dir)
-      expect(subject.speaker.verbose).not_to be_truthy
       expect(subject.speaker.force).not_to be_truthy
       expect(subject.speaker.voice).to eq("Vicki")
       expect(subject.speaker.rate).to eq(320)
-    end
-
-    it "should set verbose" do
-      subject.parse(%w(title http://site.com/ --verbose))
-      expect(subject.speaker.verbose).to be_truthy
     end
 
     it "should set force" do
@@ -271,7 +267,6 @@ describe AudioBookCreator::Cli do
       # defaults
       expect(subject.binder.base_dir).to eq(subject.base_dir)
       expect(subject.binder.title).to eq("title")
-      expect(subject.binder.verbose).not_to be_truthy
       expect(subject.binder.force).not_to be_truthy
       # NOTE: not currently passed
       expect(subject.binder.author).to eq("Vicki")
@@ -279,11 +274,6 @@ describe AudioBookCreator::Cli do
       expect(subject.binder.max_hours).to eq(7)
       expect(subject.binder.bit_rate).to eq(32)
       expect(subject.binder.sample_rate).to eq(22_050)
-    end
-
-    it "should set verbose" do
-      subject.parse(%w(title http://site.com/ --verbose))
-      expect(subject.binder.verbose).to be_truthy
     end
 
     it "should set force" do

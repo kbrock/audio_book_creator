@@ -47,7 +47,7 @@ describe AudioBookCreator::ArrayWithMaxFeedback do
     end
 
     context "and verbose" do
-      before { subject.verbose = true }
+      before { verbose_logging }
 
       it "logs" do
         expect_to_log("visit url1 [1/2]", "visit url2 [2/2]")
@@ -58,7 +58,7 @@ describe AudioBookCreator::ArrayWithMaxFeedback do
   end
 
   context "when verbose" do
-    before { subject.verbose = true }
+    before { verbose_logging }
 
     it "logs" do
       expect_to_log("visit url1 [1]", "visit url2 [2]")
