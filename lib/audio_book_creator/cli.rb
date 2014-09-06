@@ -4,6 +4,7 @@ require 'logger'
 
 module AudioBookCreator
   class Cli
+    include Logging
     def initialize(options = {})
       @options = options
       set_defaults
@@ -68,7 +69,7 @@ module AudioBookCreator
     # components
 
     def set_logger
-      AudioBookCreator.logger.level = self[:verbose] ? Logger::INFO : Logger::WARN
+      logger.level = self[:verbose] ? Logger::INFO : Logger::WARN
     end
 
     def page_cache

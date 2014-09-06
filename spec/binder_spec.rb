@@ -56,7 +56,6 @@ describe AudioBookCreator::Binder do
   end
 
   it "outputs no messages if set to non verbose" do
-    subject.verbose = false
     expect(File).to receive(:exist?).and_return(false)
 
     expect_runner.to receive(:system).and_return(true)

@@ -25,7 +25,6 @@ describe AudioBookCreator::Speaker do
   end
 
   it "doesnt print if not verbose" do
-    subject.verbose = false
     expect(File).to receive(:exist?).twice.and_return(false)
     expect(File).to receive(:write)
 

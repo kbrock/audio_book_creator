@@ -3,10 +3,6 @@ module AudioBookCreator
   class Runner
     include Logging
 
-    def initialize(options = {})
-      options.each { |n, v| public_send("#{n}=", v) }
-    end
-
     def run(cmd, options)
       params = options[:params].flatten.flatten.compact
 

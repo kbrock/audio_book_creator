@@ -2,7 +2,6 @@ module AudioBookCreator
   class Speaker
     attr_accessor :base_dir
     attr_accessor :force
-    attr_accessor :verbose
 
     # currently like the following voices:
     # Vicki             # 10
@@ -28,7 +27,7 @@ module AudioBookCreator
       raise "Empty chapter" if chapter.empty?
       File.write(text_filename(chapter), chapter.to_s) if AudioBookCreator.should_write?(text_filename(chapter), force)
       if AudioBookCreator.should_write?(sound_filename(chapter), force)
-        Runner.new(verbose: verbose).run!("say", params: params(chapter))
+        Runner.new.run!("say", params: params(chapter))
       end
     end
 
