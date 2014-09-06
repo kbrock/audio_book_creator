@@ -34,7 +34,7 @@ module AudioBookCreator
     def params(chapters)
       {
         "-a" => author,
-        "-t" => "\"#{book_title}\"",
+        "-t" => book_title,
         "-b" => bit_rate,
         "-c" => channels,
         "-r" => sample_rate,
@@ -61,7 +61,7 @@ module AudioBookCreator
     end
 
     def ctitle(chapter)
-      "@\"#{chapter.title}\"@"
+      "@#{chapter.title}@"
     end
 
     def cfilename(chapter)
