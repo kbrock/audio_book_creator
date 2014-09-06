@@ -80,7 +80,7 @@ module AudioBookCreator
     end
 
     def visited
-      @visited ||= ArrayWithMaxFeedback.new(max: self[:max])
+      @visited ||= ArrayWithCap.new(self[:max])
     end
 
     def outstanding
