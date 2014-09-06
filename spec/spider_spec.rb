@@ -8,6 +8,14 @@ describe AudioBookCreator::Spider do
   let(:invalid_urls) { {} }
   subject { described_class.new(cache, outstanding, visited, invalid_urls, link_path: "a") }
 
+  it "handles empty initializer" do
+    pristine = described_class.new
+    expect(pristine.cache).to be_a(Hash)
+    expect(pristine.outstanding).to be_a(Array)
+    expect(pristine.visited).to be_a(Array)
+    expect(pristine.invalid_urls).to be_a(Hash)
+  end
+
   context "#visit" do
     it "visit pages" do
       visit %w(page1 page2)
@@ -19,9 +27,19 @@ describe AudioBookCreator::Spider do
       expect(visited).to eq(uri(%w(page1 page2)))
     end
 
-    it "visit a page only once" do
+    it "visit unique list of pages" do
       visit %w(page1 page1 page1)
       expect_visit_page "page1"
+      subject.run
+    end
+
+    # this double checks that visited is checked before deciding to visit another page
+    it "dont visit a page that was already visited" do
+      visited << uri("page1")
+      expect_visit_no_pages
+
+      visit "page1"
+      expect(outstanding).to eq([])
       subject.run
     end
 
@@ -31,11 +49,35 @@ describe AudioBookCreator::Spider do
       subject.run
     end
 
-    it "visits relative pages" do
-      subject.visit(site("page1"), "page2")
-      expect_visit_page "page2"
+    it "also accepts alias visit" do
+      subject.visit site("page1")
+      expect_visit_page "page1"
       subject.run
     end
+
+    it "chains <<" do
+      expect(subject << site("page1")).to eq(subject)
+    end
+
+    it "also accepts real urls" do
+      subject << uri("page1")
+      expect_visit_page "page1"
+      subject.run
+    end
+  end
+
+  it "follows relative links" do
+    visit "page1"
+    expect_visit_page("page1", link("page2"))
+    expect_visit_page("page2")
+    subject.run
+  end
+
+  it "follows absolute links" do
+    visit "page1"
+    expect_visit_page("page1", link(site("page2")))
+    expect_visit_page("page2")
+    subject.run
   end
 
   it "visits all pages once" do
@@ -44,9 +86,6 @@ describe AudioBookCreator::Spider do
     expect_visit_page("page2", link("page1"), link("page3"))
     expect_visit_page("page3", link("page1"), link("page2"))
     subject.run
-
-    # has contets from all pages
-    expect(cache.keys).to match_array(site(%w(page1 page2 page3)))
   end
 
   it "respects link_path" do
@@ -94,10 +133,18 @@ describe AudioBookCreator::Spider do
     expect(cache.keys).to match_array(site(%w(page1 page2 page3)))
   end
 
+  it "stores pages in cache" do
+    visit "page1"
+    expect_visit_page("page1", "contents")
+    subject.run
+
+    expect(cache).to eq(site("page1") => page(site("page1"), "contents"))
+  end
+
   private
 
   def visit(urls)
-    Array(urls).flatten.each { |url| subject.visit site(url) }
+    Array(urls).flatten.each { |url| subject << site(url) }
   end
 
   def expect_visit_no_pages

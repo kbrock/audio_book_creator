@@ -25,15 +25,13 @@ module AudioBookCreator
     end
 
     # Add a url to the outstanding list of pages to visit
-    def visit(url, alt = nil)
-      url = uri(url, alt)
-      self << url
-    end
-
     def <<(url)
-      @outstanding << url unless @invalid_urls.include?(url) || @visited.include?(url)
+      if (url = uri(url)) && !@outstanding.include?(url) && !@invalid_urls.include?(url) && !@visited.include?(url)
+        @outstanding << url
+      end
       self
     end
+    alias_method :visit, :<<
 
     def run
       while (url = @outstanding.shift)
@@ -56,7 +54,7 @@ module AudioBookCreator
 
     def follow_links(url, doc)
       doc.css(link_path).each do |a|
-        visit(url, a["href"])
+        visit(uri(url, a["href"]))
       end
     end
 
