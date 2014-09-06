@@ -84,7 +84,7 @@ module AudioBookCreator
     end
 
     def outstanding
-      @outstanding ||= WorkList.new
+      @outstanding ||= []
     end
 
     def spider
