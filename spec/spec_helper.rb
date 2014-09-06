@@ -51,7 +51,7 @@ module SpecHelpers
     AudioBookCreator::Chapter.new(number: number, title: title, body: body)
   end
 
-  def verbose_logging
+  def enable_logging
     AudioBookCreator.logger.level = Logger::INFO
   end
 

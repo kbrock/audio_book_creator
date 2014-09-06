@@ -48,7 +48,7 @@ describe AudioBookCreator::UrlFilter do
     end
 
     context "#with verbose" do
-      before { verbose_logging }
+      before { enable_logging }
 
       it "logs remote pages" do
         url = uri("http://anothersite.com/bad")

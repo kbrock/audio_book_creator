@@ -35,7 +35,7 @@ describe AudioBookCreator::Speaker do
   end
 
   it "should output messages if set to verbose" do
-    verbose_logging
+    enable_logging
     expect(File).to receive(:exist?).twice.and_return(false)
     expect(File).to receive(:write)
 

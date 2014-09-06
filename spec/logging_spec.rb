@@ -9,13 +9,13 @@ describe AudioBookCreator::Logging do
   end
 
   it "should log strings" do
-    verbose_logging
+    enable_logging
     expect_to_log("phrase")
     subject.logger.info "phrase"
   end
 
   it "should log blocks" do
-    verbose_logging
+    enable_logging
     expect_to_log("phrase")
     subject.logger.info { "phrase" }
   end
