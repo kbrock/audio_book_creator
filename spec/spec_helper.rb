@@ -35,7 +35,7 @@ module SpecHelpers
     if url.is_a?(Array)
       url.map { |u| uri(u) }
     else
-      URI.parse(site(url))
+      url.is_a?(URI) ? url : URI.parse(site(url))
     end
   end
 
@@ -74,6 +74,15 @@ RSpec.configure do |c|
   c.include SpecHelpers
   c.before do
     AudioBookCreator.logger = TestLogger.gen
+  end
+
+  if ENV['MUTANT']
+    require 'timeout'
+    c.around do |example|
+      Timeout.timeout(1) do
+        example.run
+      end
+    end
   end
 
   unless ENV['MUTANT']

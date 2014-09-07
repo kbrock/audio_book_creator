@@ -22,16 +22,16 @@ describe AudioBookCreator::UrlFilter do
 
   it "spiders without a host" do
     subject.host = nil
-    expect(subject[uri("good")]).not_to be_truthy
-    expect(subject[uri("http://anothersite.com/bad")]).not_to be_truthy
+    expect(subject.include?(uri("good"))).not_to be_truthy
+    expect(subject.include?(uri("http://anothersite.com/bad"))).not_to be_truthy
     expect(subject.include?(uri("http://anothersite.com/bad"))).not_to be_truthy
   end
 
   it "spiders local pages only" do
-    expect(subject[uri("page1")]).not_to be_truthy
-    expect(subject[uri("good")]).not_to be_truthy
+    expect(subject.include?(uri("page1"))).not_to be_truthy
+    expect(subject.include?(uri("good"))).not_to be_truthy
     url = uri("http://anothersite.com/bad")
-    expect { subject[url] }.to raise_error("remote url #{url}")
+    expect { subject.include?(url) }.to raise_error("remote url #{url}")
   end
 
   context "#with ignore_bogus" do
@@ -39,14 +39,14 @@ describe AudioBookCreator::UrlFilter do
 
     it "logs remote pages" do
       url = uri("http://anothersite.com/bad")
-      expect(subject[url]).to be_truthy
+      expect(subject.include?(url)).to be_truthy
       # NOTE: warns logging
       expect_to_have_logged("ignoring remote url #{url}")
     end
 
     it "logs bad extensions" do
       url = uri("page.abc")
-      expect(subject[url]).to be_truthy
+      expect(subject.include?(url)).to be_truthy
       # NOTE: warns logging
       expect_to_have_logged("ignoring bad file extension #{url}")
     end
@@ -55,13 +55,13 @@ describe AudioBookCreator::UrlFilter do
   context "visit with #extensions" do
     %w(/page / .html .php .jsp .htm).each do |ext|
       it "visits #{ext}" do
-        expect(subject[uri("page2#{ext}")]).not_to be_truthy
+        expect(subject.include?(uri("page2#{ext}"))).not_to be_truthy
       end
     end
 
     %w(.jpg .png .js).each do |ext|
       it "doesnt visit #{ext}" do
-        expect { subject[uri("page2#{ext}")] }.to raise_error(/bad file extension/)
+        expect { subject.include?(uri("page2#{ext}")) }.to raise_error(/bad file extension/)
       end
     end
   end

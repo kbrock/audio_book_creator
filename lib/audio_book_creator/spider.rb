@@ -24,22 +24,35 @@ module AudioBookCreator
 
     # Add a url to the outstanding list of pages to visit
     def <<(url)
-      if (url = uri(url)) && !outstanding.include?(url) && !invalid_urls.include?(url) && !visited.include?(url)
+      if (url = uri(url)) && valid_link?(url)
         outstanding << url
       end
       self
     end
     alias_method :visit, :<<
 
+    def valid_link?(url)
+      !outstanding.include?(url) && !invalid_urls.include?(url) && !visited.include?(url)
+    end
+
     def run
       while (url = outstanding.shift)
-        visited << url
-        logger.info { "visit #{url}" } #" [#{visited_counter}]" }
-        follow_links url, Nokogiri::HTML(web[url.to_s])
+        visit_page(url)
       end
     end
 
     private
+
+    # this one hangs on mutations
+    def visit_page(url)
+      visited << url
+      logger.info { "visit #{url}" }
+      follow_url(url)
+    end
+
+    def follow_url(url)
+      follow_links url, Nokogiri::HTML(web[url.to_s])
+    end
 
     # raises URI::Error (BadURIError)
     def uri(url, alt = nil)
@@ -49,9 +62,10 @@ module AudioBookCreator
       url
     end
 
+    # possibly move valid_link? from <<() to follow_links()
     def follow_links(url, doc)
       doc.css(link_path).each do |a|
-        visit(uri(url, a["href"]))
+        self << uri(url, a["href"])
       end
     end
   end

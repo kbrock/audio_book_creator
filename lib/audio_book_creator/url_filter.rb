@@ -36,7 +36,6 @@ module AudioBookCreator
       #   true
       end
     end
-    alias_method :[], :include?
 
     private
 
