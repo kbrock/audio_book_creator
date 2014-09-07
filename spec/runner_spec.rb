@@ -27,8 +27,8 @@ describe AudioBookCreator::Runner do
     context "without verbose" do
       it "doesnt log" do
         expect(subject).to receive(:system).and_return(true)
-        expect_to_log("")
         subject.run!("cmd", :params => %w(arg1 arg2))
+        expect_to_have_logged()
       end
     end
 
@@ -36,8 +36,8 @@ describe AudioBookCreator::Runner do
       before { enable_logging }
       it "logs messages" do
         expect(subject).to receive(:system).and_return(true)
-        expect_to_log(/run: cmd arg1 arg2/, "", "suggess", "")
         expect(subject.run!("cmd", :params => %w(arg1 arg2))).to be_truthy
+        expect_to_have_logged(/run: cmd arg1 arg2/, "", "", "success")
       end      
     end
   end
@@ -57,8 +57,8 @@ describe AudioBookCreator::Runner do
       before { enable_logging }
       it "logs messages" do
         expect(subject).to receive(:system).and_return(false)
-        expect_to_log(/run.*cmd.*arg1 arg2/, "", "issue", "")
         expect { subject.run!("cmd", :params => %w(arg1 arg2)) }.to raise_error(/trouble/)
+        expect_to_have_logged(/run.*cmd.*arg1 arg2/, "", "", "issue")
       end
     end
   end

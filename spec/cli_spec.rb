@@ -15,6 +15,12 @@ describe AudioBookCreator::Cli do
     expect(subject[:urls]).to eq(%w(http://site.com/))
   end
 
+  it "should support multiple urls" do
+    subject.parse(%w(title http://site.com/page1 http://site.com/page2))
+    expect(subject[:title]).to eq("title")
+    expect(subject[:urls]).to eq(%w(http://site.com/page1 http://site.com/page2))
+  end
+
   it "should require 2 parameters" do
     expect($stdout).to receive(:puts).with(/url/, /Usage.*title/)
     expect(subject).to receive(:exit).with(2).and_raise("exited")
@@ -124,6 +130,12 @@ describe AudioBookCreator::Cli do
       subject.set_logger
       expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
     end
+
+    it "should warn" do
+      subject.parse(%w(title http://site.com/ -v))
+      subject.set_logger
+      expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
+    end
   end
 
   context "#make_directory_structure" do
@@ -160,8 +172,14 @@ describe AudioBookCreator::Cli do
   context "#outstanding" do
     it "sets url" do
       subject.parse(%w(title http://www.site.com/))
-      subject.spider #currently is setting the outstanding
-      expect(subject.outstanding.shift).to eq(URI.parse("http://www.site.com/"))
+      expect(subject.outstanding.shift).to eq(uri("http://www.site.com/"))
+      expect(subject.outstanding.shift).to be_nil
+    end
+
+    it "should not visit same url twice" do
+      subject.parse(%w(title http://site.com/page1 http://site.com/page2 http://site.com/page1))
+      expect(subject.outstanding.shift).to eq(uri("http://site.com/page1"))
+      expect(subject.outstanding.shift).to eq(uri("http://site.com/page2"))
       expect(subject.outstanding.shift).to be_nil
     end
   end
@@ -196,7 +214,7 @@ describe AudioBookCreator::Cli do
   context "#spider" do
     it "sets references" do
       subject.parse(%w(title http://www.site.com/))
-      expect(subject.spider.cache).to eq(subject.page_cache)
+      expect(subject.spider.web).to eq(subject.cached_web)
       expect(subject.spider.outstanding).to eq(subject.outstanding)
       # defaults
       expect(subject.spider.visited).to eq(subject.visited)
@@ -298,22 +316,25 @@ describe AudioBookCreator::Cli do
       # make_directory_structure:
       expect(File).to receive(:exist?).with("title").and_return(true)
       # spider:
-      expect_any_spider_to_visit_page("http://site.com/", "<h1>title</h1>", "<p>contents</p>")
+      expect_visit_page("http://site.com/", "<h1>title</h1>", "<p>contents</p>")
       # speaker:
       expect(File).to receive(:exist?).with("title/chapter01.txt").and_return(true)
       expect(File).to receive(:exist?).with("title/chapter01.m4a").and_return(true)
       # binder
       expect(File).to receive(:exist?).with("title.m4b").and_return(true)
       # chain parse and run to mimic bin/audio_book_creator
-      subject.parse(%w(title http://site.com/)).run
+      subject.parse(%w(title http://site.com/ -v)).run
+      expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
     end
   end
 
   private
 
-  # it is too bad, but at the time of expectations, the spider object is not yet created
-  def expect_any_spider_to_visit_page(url, *args)
-    expect_any_instance_of(AudioBookCreator::Spider).to receive(:open).with(url)
-      .and_return(double(read: page(url, *args)))
+  # NOTE: this uses any_instance because we don't want to instantiate anything
+  # could assign web and use a double instead
+  def expect_visit_page(url, *args)
+    url = site(url)
+    expect_any_instance_of(AudioBookCreator::Web).to receive(:[])
+      .with(url).and_return(page(url, *args))
   end
 end

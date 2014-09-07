@@ -55,10 +55,14 @@ module SpecHelpers
     AudioBookCreator.logger.level = Logger::INFO
   end
 
-  def expect_to_log(*val)
-    TestLogger.results(AudioBookCreator.logger).zip(Array(val).flatten) do |rslt, exp|
+  def expect_to_have_logged(*expect)
+    actual = TestLogger.results(AudioBookCreator.logger)
+    expect = Array(expect).flatten
+
+    actual.zip(expect) do |rslt, exp|
       expect(rslt).to match(exp)
     end
+    expect(TestLogger.results(AudioBookCreator.logger).size).to eq(expect.size)
   end
 end
 

@@ -1,6 +1,7 @@
 require 'optparse'
 require 'fileutils'
 require 'logger'
+require 'uri'
 
 module AudioBookCreator
   class Cli
@@ -11,6 +12,9 @@ module AudioBookCreator
     end
 
     attr_reader :base_dir
+
+    # stub for testing
+    attr_writer :web
 
     def set_defaults
       default(:max, 10)
@@ -76,6 +80,14 @@ module AudioBookCreator
       @page_cache ||= PageDb.new(self[:database], force: self[:regen_html])
     end
 
+    def web
+      @web ||= Web.new
+    end
+
+    def cached_web
+      @cached_hash ||= CachedHash.new(page_cache, web)
+    end
+
     def invalid_urls
       @invalid_urls ||= UrlFilter.new(host: self[:urls].first)
     end
@@ -85,13 +97,11 @@ module AudioBookCreator
     end
 
     def outstanding
-      @outstanding ||= []
+      @outstanding ||= self[:urls].uniq.map { |url| URI.parse(url) }
     end
 
     def spider
-      @spider ||= Spider.new(page_cache, outstanding, visited, invalid_urls, option_hash(:link_path)).tap do |spider|
-        self[:urls].each { |url| spider.visit(url) }
-      end
+      @spider ||= Spider.new(cached_web, outstanding, visited, invalid_urls, option_hash(:link_path))
     end
 
     def editor

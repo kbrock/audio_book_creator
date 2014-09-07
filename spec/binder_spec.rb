@@ -50,17 +50,17 @@ describe AudioBookCreator::Binder do
     expect(File).to receive(:exist?).and_return(false)
 
     expect_runner.to receive(:system).and_return(true)
-    expect_to_log(/^run:/, "", "success","")
 
     subject.create([chapter("content")])
+    expect_to_have_logged(/^run:/, "", "","success")
   end
 
   it "outputs no messages if set to non verbose" do
     expect(File).to receive(:exist?).and_return(false)
 
     expect_runner.to receive(:system).and_return(true)
-    expect_to_log("")
     subject.create([chapter("content")])
+    expect_to_have_logged()
   end
 
   it "should create m4a if exists but are set to force" do

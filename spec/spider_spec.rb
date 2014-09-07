@@ -1,30 +1,47 @@
 require "spec_helper"
 
 describe AudioBookCreator::Spider do
-  let(:cache) { {} }
-  # NOTE: real work list would prevent dups / loops
   let(:outstanding) { [] }
   let(:visited) { [] }
+  let(:web) { {} }
+  # NOTE: could use arrays here, but put caps just in case there are bugs (and make mutants fail)
   let(:invalid_urls) { {} }
-  subject { described_class.new(cache, outstanding, visited, invalid_urls, link_path: "a") }
+  subject { described_class.new(web, outstanding, visited, invalid_urls, link_path: "a") }
 
   it "handles empty initializer" do
     pristine = described_class.new
-    expect(pristine.cache).to be_a(Hash)
+    expect(pristine.web).to be_a(Hash)
     expect(pristine.outstanding).to be_a(Array)
     expect(pristine.visited).to be_a(Array)
     expect(pristine.invalid_urls).to be_a(Hash)
   end
 
+  it "sets arguments" do
+    expect(subject.web).to eq(web)
+    expect(subject.outstanding).to eq(outstanding)
+    expect(subject.visited).to eq(visited)
+    expect(subject.invalid_urls).to eq(invalid_urls)
+    expect(subject.link_path).to eq("a")
+  end
+
   context "#visit" do
     it "visit pages" do
+      visit "page1"
+      expect_visit_page "page1"
+      subject.run
+
+      expect(visited).to eq([uri("page1")])
+      expect(outstanding).to eq([])
+    end
+
+    it "visit multiple pages" do
       visit %w(page1 page2)
       expect_visit_page "page1"
       expect_visit_page "page2"
       subject.run
-      expect(cache[site('page1')]).to eq(page(site("page1")))
-      expect(cache[site('page2')]).to eq(page(site("page2")))
+
       expect(visited).to eq(uri(%w(page1 page2)))
+      expect(outstanding).to eq([])
     end
 
     it "visit unique list of pages" do
@@ -94,8 +111,6 @@ describe AudioBookCreator::Spider do
     expect_visit_page("page1", "<div class='good'>", link("good"), "</div>", link("bad"))
     expect_visit_page("good")
     subject.run
-
-    expect(cache.keys).to eq(site(%w(page1 good)))
   end
 
   it "ignores #target in url" do
@@ -120,25 +135,21 @@ describe AudioBookCreator::Spider do
     end
   end
 
-  it "load pages from cache" do
-    visit "page1"
+  context "logging" do
+    it "logs page visits" do
+      enable_logging
+      visit "page1"
+      expect_visit_page("page1")
+      subject.run
+      expect_to_have_logged("visit #{uri("page1")}")
+    end
 
-    # this is in the cache, so it will not be "opened"
-    cache[site("page2")] = page(site("page2"), link("page3"))
-
-    expect_visit_page("page1", link("page2"))
-    expect_visit_page("page3")
-    subject.run
-
-    expect(cache.keys).to match_array(site(%w(page1 page2 page3)))
-  end
-
-  it "stores pages in cache" do
-    visit "page1"
-    expect_visit_page("page1", "contents")
-    subject.run
-
-    expect(cache).to eq(site("page1") => page(site("page1"), "contents"))
+    it "doesnt log page visits" do
+      visit "page1"
+      expect_visit_page("page1")
+      subject.run
+      expect_to_have_logged()
+    end
   end
 
   private
@@ -153,6 +164,6 @@ describe AudioBookCreator::Spider do
 
   def expect_visit_page(url, *args)
     url = site(url)
-    is_expected.to receive(:open).with(url).and_return(double(read: page(url, *args)))
+    expect(web).to receive(:[]).with(url).and_return(page(url, *args))
   end
 end

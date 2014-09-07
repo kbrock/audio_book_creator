@@ -29,8 +29,8 @@ describe AudioBookCreator::Speaker do
     expect(File).to receive(:write)
 
     expect_runner.to receive(:system).and_return(true)
-    expect_to_log("")
     subject.say(chapter("content"))    
+    expect_to_have_logged()
   end
 
   it "should output messages if set to verbose" do
@@ -39,8 +39,8 @@ describe AudioBookCreator::Speaker do
     expect(File).to receive(:write)
 
     expect_runner.to receive(:system).and_return(true)
-    expect_to_log(/^run:/, "", "success", "")
     subject.say(chapter("content"))
+    expect_to_have_logged(/^run:/, "", "", "success")
   end
 
   it "should create text and mp4 file if they exist but are set to force" do

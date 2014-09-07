@@ -37,30 +37,18 @@ describe AudioBookCreator::UrlFilter do
   context "#with ignore_bogus" do
     before { subject.ignore_bogus = true}
 
-    it "forgives remote pages" do
-      expect_to_log("")
-      expect(subject[uri("http://anothersite.com/bad")]).to be_truthy
+    it "logs remote pages" do
+      url = uri("http://anothersite.com/bad")
+      expect(subject[url]).to be_truthy
+      # NOTE: warns logging
+      expect_to_have_logged("ignoring remote url #{url}")
     end
 
-    it "forgives bad extensions" do
-      expect_to_log("")
-      expect(subject[uri("page.abc")]).to be_truthy
-    end
-
-    context "#with verbose" do
-      before { enable_logging }
-
-      it "logs remote pages" do
-        url = uri("http://anothersite.com/bad")
-        expect_to_log("ignoring remote url #{url}")
-        expect(subject[url]).to be_truthy
-      end      
-
-      it "logs bad extensions" do
-        url = uri("page.abc")
-        expect_to_log("ignoring bad file extension #{url}")
-        expect(subject[url]).to be_truthy
-      end      
+    it "logs bad extensions" do
+      url = uri("page.abc")
+      expect(subject[url]).to be_truthy
+      # NOTE: warns logging
+      expect_to_have_logged("ignoring bad file extension #{url}")
     end
   end
 

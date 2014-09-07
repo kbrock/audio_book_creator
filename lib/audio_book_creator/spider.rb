@@ -1,23 +1,21 @@
 require 'nokogiri'
-require 'open-uri'
 require 'uri'
 
 module AudioBookCreator
   class Spider
     include Logging
 
-    # @!attribute visited
-    #   @return Hash cache of all pages visited
-    attr_accessor :cache
-
+    # @!attribute web
+    #   @return Hash access to the world wide web
+    attr_accessor :web
     attr_accessor :outstanding
     attr_accessor :visited
     attr_accessor :invalid_urls
 
     attr_accessor :link_path
 
-    def initialize(cache = {}, outstanding = [], visited = [], invalid_urls = {}, options = {})
-      @cache           = cache
+    def initialize(web = {}, outstanding = [], visited = [], invalid_urls = {}, options = {})
+      @web             = web
       @outstanding     = outstanding
       @visited         = visited
       @invalid_urls    = invalid_urls
@@ -26,20 +24,19 @@ module AudioBookCreator
 
     # Add a url to the outstanding list of pages to visit
     def <<(url)
-      if (url = uri(url)) && !@outstanding.include?(url) && !@invalid_urls.include?(url) && !@visited.include?(url)
-        @outstanding << url
+      if (url = uri(url)) && !outstanding.include?(url) && !invalid_urls.include?(url) && !visited.include?(url)
+        outstanding << url
       end
       self
     end
     alias_method :visit, :<<
 
     def run
-      while (url = @outstanding.shift)
-        visit_page(url)
+      while (url = outstanding.shift)
+        visited << url
+        logger.info { "visit #{url}" } #" [#{visited_counter}]" }
+        follow_links url, Nokogiri::HTML(web[url.to_s])
       end
-
-      # currently returns array of blocks of html docs
-      #outstanding.visited.map { |visited_url| cache[visited_url.to_s] }
     end
 
     private
@@ -56,19 +53,6 @@ module AudioBookCreator
       doc.css(link_path).each do |a|
         visit(uri(url, a["href"]))
       end
-    end
-
-    def visit_page(url)
-      @visited << url
-
-      url_str = url.to_s
-      unless (contents = @cache[url_str])
-        logger.info { "fetch  #{url}" }
-        contents ||= open(url_str).read
-        @cache[url_str] = contents
-      end
-
-      follow_links url, Nokogiri::HTML(contents)
     end
   end
 end
