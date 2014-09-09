@@ -20,7 +20,7 @@ module AudioBookCreator
     def initialize(options = {})
       options.each { |n, v| public_send("#{n}=", v) }
       @voice   ||= "Vicki"
-      @rate    ||= 320
+      @rate    ||= 280
     end
 
     def say(chapter)

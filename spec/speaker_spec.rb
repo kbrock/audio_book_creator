@@ -20,7 +20,7 @@ describe AudioBookCreator::Speaker do
     expect(File).to receive(:write).with("dir/chapter01.txt", "the title\n\ncontent\n")
 
     expect_runner.to receive(:system)
-      .with("say", "-v", "Vicki", "-r", "320", "-f", "dir/chapter01.txt", "-o", "dir/chapter01.m4a").and_return(true)
+      .with("say", "-v", "Vicki", "-r", "280", "-f", "dir/chapter01.txt", "-o", "dir/chapter01.m4a").and_return(true)
     subject.say(chapter("content"))
   end
 

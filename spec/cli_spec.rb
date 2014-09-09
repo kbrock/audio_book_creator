@@ -259,7 +259,7 @@ describe AudioBookCreator::Cli do
       expect(subject.speaker.base_dir).to eq(subject.base_dir)
       expect(subject.speaker.force).not_to be_truthy
       expect(subject.speaker.voice).to eq("Vicki")
-      expect(subject.speaker.rate).to eq(320)
+      expect(subject.speaker.rate).to eq(280)
     end
 
     it "should set force" do
