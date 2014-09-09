@@ -97,7 +97,11 @@ module AudioBookCreator
     end
 
     def outstanding
-      @outstanding ||= self[:urls].uniq.map { |url| URI.parse(url) }
+      @outstanding ||= CascadingArray.new([], outstanding_chapters)
+    end
+
+    def outstanding_chapters
+      self[:urls].uniq.map { |url| URI.parse(url) }
     end
 
     def spider
@@ -118,12 +122,15 @@ module AudioBookCreator
                                .merge(option_hash(:title)))
     end
 
+    def visited_pages
+      visited.map { |visited_url| page_cache[visited_url.to_s] }
+    end
+
     def run
       set_logger
       make_directory_structure
       spider.run
-      pages = visited.map { |visited_url| page_cache[visited_url.to_s] }
-      chapters = editor.parse(pages)
+      chapters = editor.parse(visited_pages)
       chapters.each do |chapter|
         speaker.say(chapter)
       end

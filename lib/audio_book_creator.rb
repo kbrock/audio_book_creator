@@ -21,6 +21,7 @@ end
 
 require "audio_book_creator/logging"
 require "audio_book_creator/cached_hash"
+require "audio_book_creator/cascading_array"
 require "audio_book_creator/page_db"
 require "audio_book_creator/chapter"
 require "audio_book_creator/editor"
