@@ -227,28 +227,36 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#editor" do
-    it "should create editor" do
+  context "#page_def" do
+    it "should create page_def" do
       subject.parse(%w(title http://site.com/))
       # defaults
-      expect(subject.editor.title_path).to eq("h1")
-      expect(subject.editor.body_path).to eq("p")
-      expect(subject.editor.max_paragraphs).to be_nil
+      expect(subject.page_def.title_path).to eq("h1")
+      expect(subject.page_def.body_path).to eq("p")
+      expect(subject.page_def.max_paragraphs).to be_nil
     end
 
     it "should support max paragraphs" do
       subject.parse(%w(title http://www.site.com/ --max-p 5))
-      expect(subject.editor.max_paragraphs).to eq(5)
+      expect(subject.page_def.max_paragraphs).to eq(5)
     end
 
     it "should support title" do
       subject.parse(%w(title http://www.site.com/ --title h1.big))
-      expect(subject.editor.title_path).to eq("h1.big")
+      expect(subject.page_def.title_path).to eq("h1.big")
     end
 
     it "should support body" do
       subject.parse(%w(title http://www.site.com/ --body p.content))
-      expect(subject.editor.body_path).to eq("p.content")
+      expect(subject.page_def.body_path).to eq("p.content")
+    end
+  end
+
+  context "#editor" do
+    it "should create editor" do
+      subject.parse(%w(title http://site.com/))
+      # defaults
+      expect(subject.editor.page_def).to eq(subject.page_def)
     end
   end
 

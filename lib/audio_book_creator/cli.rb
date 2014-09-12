@@ -70,6 +70,10 @@ module AudioBookCreator
       self
     end
 
+    def page_def
+      @page_def ||= PageDef.new(self[:urls].first, self[:title_path],
+                                self[:body_path], self[:link_path], self[:max_paragraphs])
+    end
     # components
 
     def set_logger
@@ -109,7 +113,7 @@ module AudioBookCreator
     end
 
     def editor
-      @editor ||= Editor.new(option_hash(:title_path, :body_path, :max_paragraphs))
+      @editor ||= Editor.new(page_def)
     end
 
     def speaker
