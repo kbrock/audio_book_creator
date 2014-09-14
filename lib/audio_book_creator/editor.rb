@@ -2,9 +2,6 @@ require 'nokogiri'
 module AudioBookCreator
   class Editor
     attr_accessor :page_def
-    attr_accessor :max_paragraphs
-    attr_accessor :title_path
-    attr_accessor :body_path
 
     def initialize(page_def)
       @page_def = page_def

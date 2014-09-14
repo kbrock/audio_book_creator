@@ -20,7 +20,7 @@ module AudioBookCreator
       # feels like I need .map { |n| n.text }
     end
 
-    def links(dom, &block)
+    def page_links(dom, &block)
       dom.css(link_path).each(&block)
     end
 

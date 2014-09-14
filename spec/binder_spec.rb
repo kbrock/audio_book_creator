@@ -1,10 +1,11 @@
 require "spec_helper"
 
 describe AudioBookCreator::Binder do
-  subject { described_class.new(title: "title", base_dir: "dir") }
+  let(:book_def) { AudioBookCreator::BookDef.new("dir", "title") }
+  subject { described_class.new(book_def) }
 
-  it "should work with no parameters" do
-    expect(described_class.new.author).to eq("Vicki")
+  it "should work with no options" do
+    expect(described_class.new(book_def).channels).to eq(1)
   end
 
   it "should require a chapter" do
@@ -19,7 +20,7 @@ describe AudioBookCreator::Binder do
   end
 
   it "should base filename on title and sanitize it" do
-    subject.title = "the title"
+    book_def.title = "the title"
     expect(File).to receive(:exist?).with("the-title.m4b").and_return(true)
     subject.create([chapter("content")])
   end
@@ -35,7 +36,7 @@ describe AudioBookCreator::Binder do
   end
 
   it "should default book title to basedir if title does not exist" do
-    subject.title = nil
+    book_def.title = nil
     expect(File).to receive(:exist?).with("dir.m4b").and_return(false)
 
     expect_runner.to receive(:system)

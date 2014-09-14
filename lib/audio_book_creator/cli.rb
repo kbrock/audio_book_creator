@@ -74,6 +74,11 @@ module AudioBookCreator
       @page_def ||= PageDef.new(self[:urls].first, self[:title_path],
                                 self[:body_path], self[:link_path], self[:max_paragraphs])
     end
+
+    def book_def
+      @book_def ||= BookDef.new(self[:base_dir], self[:title], self[:author])
+    end
+
     # components
 
     def set_logger
@@ -117,13 +122,12 @@ module AudioBookCreator
     end
 
     def speaker
-      @speaker ||= Speaker.new({base_dir: base_dir, force: self[:regen_audio]}
+      @speaker ||= Speaker.new(book_def, {force: self[:regen_audio]}
                                  .merge(option_hash(:voice, :rate)))
     end
 
     def binder
-      @binder ||= Binder.new({base_dir: base_dir, force: self[:regen_audio]}
-                               .merge(option_hash(:title)))
+      @binder ||= Binder.new(book_def, force: self[:regen_audio])
     end
 
     def visited_pages
