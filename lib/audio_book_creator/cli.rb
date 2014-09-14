@@ -109,7 +109,7 @@ module AudioBookCreator
     end
 
     def spider
-      @spider ||= Spider.new(cached_web, outstanding, visited, invalid_urls, option_hash(:link_path))
+      @spider ||= Spider.new(cached_web, outstanding, visited, invalid_urls, page_def)
     end
 
     def editor

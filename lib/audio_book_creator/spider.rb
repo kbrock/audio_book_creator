@@ -12,14 +12,14 @@ module AudioBookCreator
     attr_accessor :visited
     attr_accessor :invalid_urls
 
-    attr_accessor :link_path
+    attr_accessor :page_def
 
-    def initialize(web = {}, outstanding = [], visited = [], invalid_urls = {}, options = {})
+    def initialize(web = {}, outstanding = [], visited = [], invalid_urls = {}, page_def)
       @web             = web
       @outstanding     = outstanding
       @visited         = visited
       @invalid_urls    = invalid_urls
-      options.each { |n, v| public_send("#{n}=", v) }
+      @page_def        = page_def
     end
 
     # Add a url to the outstanding list of pages to visit
@@ -64,7 +64,7 @@ module AudioBookCreator
 
     # possibly move valid_link? from <<() to follow_links()
     def follow_links(url, doc)
-      doc.css(link_path).each do |a|
+      page_def.links(doc) do |a|
         self << uri(url, a["href"])
       end
     end
