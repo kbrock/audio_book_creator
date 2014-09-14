@@ -14,7 +14,7 @@ module AudioBookCreator
 
     attr_accessor :page_def
 
-    def initialize(web = {}, outstanding = [], visited = [], invalid_urls = {}, page_def)
+    def initialize(web = {}, outstanding = [], visited = [], invalid_urls = {}, page_def = PageDef.new)
       @web             = web
       @outstanding     = outstanding
       @visited         = visited
@@ -64,7 +64,7 @@ module AudioBookCreator
 
     # possibly move valid_link? from <<() to follow_links()
     def follow_links(url, doc)
-      page_def.links(doc) do |a|
+      page_def.page_links(doc) do |a|
         self << uri(url, a["href"])
       end
     end

@@ -220,11 +220,6 @@ describe AudioBookCreator::Cli do
       expect(subject.spider.visited).to eq(subject.visited)
       expect(subject.spider.invalid_urls).to eq(subject.invalid_urls)
     end
-
-    it "should support link" do
-      subject.parse(%w(title http://www.site.com/ --link a.next_page))
-      expect(subject.spider.link_path).to eq("a.next_page")
-    end
   end
 
   context "#page_def" do
@@ -233,6 +228,7 @@ describe AudioBookCreator::Cli do
       # defaults
       expect(subject.page_def.title_path).to eq("h1")
       expect(subject.page_def.body_path).to eq("p")
+      expect(subject.page_def.link_path).to eq("a")
       expect(subject.page_def.max_paragraphs).to be_nil
     end
 
@@ -250,6 +246,28 @@ describe AudioBookCreator::Cli do
       subject.parse(%w(title http://www.site.com/ --body p.content))
       expect(subject.page_def.body_path).to eq("p.content")
     end
+
+    it "should support link" do
+      subject.parse(%w(title http://www.site.com/ --link a.next_page))
+      expect(subject.page_def.link_path).to eq("a.next_page")
+    end
+  end
+
+  context "#book_def" do
+    it "should create book_def" do
+      subject.parse(%w(title http://site.com/))
+      # defaults
+      expect(subject.book_def.base_dir).to eq(subject.base_dir)
+      expect(subject.book_def.title).to eq("title")
+      expect(subject.book_def.author).to eq("Vicki")
+    end
+
+    it "should support basedir" do
+      subject.parse(%w(title http://site.com/ --base-dir dir))
+      # defaults
+      expect(subject.book_def.base_dir).to eq("dir")
+      expect(subject.book_def.title).to eq("title")
+    end
   end
 
   context "#editor" do
@@ -264,7 +282,7 @@ describe AudioBookCreator::Cli do
     it "should create speaker" do
       subject.parse(%w(title http://site.com/))
       # defaults
-      expect(subject.speaker.base_dir).to eq(subject.base_dir)
+      expect(subject.speaker.book_def).to eq(subject.book_def)
       expect(subject.speaker.force).not_to be_truthy
       expect(subject.speaker.voice).to eq("Vicki")
       expect(subject.speaker.rate).to eq(280)
@@ -291,11 +309,8 @@ describe AudioBookCreator::Cli do
     it "should create a binder" do
       subject.parse(%w(title http://site.com/))
       # defaults
-      expect(subject.binder.base_dir).to eq(subject.base_dir)
-      expect(subject.binder.title).to eq("title")
       expect(subject.binder.force).not_to be_truthy
       # NOTE: not currently passed
-      expect(subject.binder.author).to eq("Vicki")
       expect(subject.binder.channels).to eq(1)
       expect(subject.binder.max_hours).to eq(7)
       expect(subject.binder.bit_rate).to eq(32)

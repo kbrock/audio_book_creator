@@ -1,12 +1,13 @@
 require "spec_helper"
 
 describe AudioBookCreator::Spider do
+  let(:page_def) { AudioBookCreator::PageDef.new(nil, "h1", "p") }
   let(:web) { {} }
   # NOTE: could use arrays here, but put caps to catch bugs
   let(:outstanding) { AudioBookCreator::ArrayWithCap.new(3) }
   let(:visited)     { AudioBookCreator::ArrayWithCap.new(3) }
   let(:invalid_urls) { {} }
-  subject { described_class.new(web, outstanding, visited, invalid_urls, link_path: "a") }
+  subject { described_class.new(web, outstanding, visited, invalid_urls, page_def) }
 
   it "handles empty initializer" do
     pristine = described_class.new
@@ -21,7 +22,7 @@ describe AudioBookCreator::Spider do
     expect(subject.outstanding).to eq(outstanding)
     expect(subject.visited).to eq(visited)
     expect(subject.invalid_urls).to eq(invalid_urls)
-    expect(subject.link_path).to eq("a")
+    expect(subject.page_def).to eq(page_def)
   end
 
   context "#visit" do
@@ -112,8 +113,8 @@ describe AudioBookCreator::Spider do
     subject.run
   end
 
-  it "respects link_path" do
-    subject.link_path = ".good a"
+  it "respects page_def" do
+    page_def.link_path = ".good a"
     expect_visit_page("page1", "<div class='good'>", link("good"), "</div>", link("bad"))
     expect_visit_page("good")
     visit "page1"
