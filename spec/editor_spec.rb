@@ -1,7 +1,8 @@
 require 'spec_helper'
 
 describe AudioBookCreator::Editor do
-  subject { described_class.new(title_path: "h1", body_path: "p") }
+  let(:page_def) { AudioBookCreator::PageDef.new(nil, "h1", "p") }
+  subject { described_class.new(page_def) }
   let(:chapter1) { chapter("first\n\nsecond", "the title") }
   it "should generate a page" do
     expect(subject.parse([page("page1", "<h1>the title</h1>",
@@ -10,17 +11,16 @@ describe AudioBookCreator::Editor do
   end
 
   it "should respect content path" do
-    pristine = described_class.new
-    pristine.title_path = "h3"
-    pristine.body_path = "#story p"
-    expect(pristine.parse([page("page1", "<h3>the title</h3>",
+    page_def.title_path = "h3"
+    page_def.body_path = "#story p"
+    expect(subject.parse([page("page1", "<h3>the title</h3>",
                                 "<div id='story'>", "<p>first</p>", "<p>second</p>", "</div>",
                                 "<p>bad</p>")
                           ])).to eq([chapter1])
   end
 
   it "should limit content" do
-    subject.max_paragraphs = 2
+    page_def.max_paragraphs = 2
     expect(subject.parse([page("page1", "<h1>the title</h1>",
                                "<p>first</p>", "<p>second</p>", "<p>third</p>")
                          ])).to eq([chapter1])
