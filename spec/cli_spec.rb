@@ -31,7 +31,7 @@ describe AudioBookCreator::Cli do
   it "should base database name upon title" do
     subject[:database] = nil
     subject.parse(%w(title http://site.com/))
-    expect(subject[:database]).to eq("#{subject.base_dir}/pages.db")
+    expect(subject.book_def.database_filename).to eq("#{subject.base_dir}/pages.db")
   end
 
   context "#defaults" do
@@ -260,6 +260,8 @@ describe AudioBookCreator::Cli do
       expect(subject.book_def.base_dir).to eq(subject.base_dir)
       expect(subject.book_def.title).to eq("title")
       expect(subject.book_def.author).to eq("Vicki")
+      expect(subject.book_def.voice).to eq("Vicki")
+      expect(subject.book_def.rate).to eq(280)
     end
 
     it "should support basedir" do
@@ -267,6 +269,16 @@ describe AudioBookCreator::Cli do
       # defaults
       expect(subject.book_def.base_dir).to eq("dir")
       expect(subject.book_def.title).to eq("title")
+    end
+
+    it "should set voice" do
+      subject.parse(%w(title http://site.com/ --voice Serena))
+      expect(subject.book_def.voice).to eq("Serena")
+    end
+
+    it "should set rate" do
+      subject.parse(%w(title http://site.com/ --rate 200))
+      expect(subject.book_def.rate).to eq(200)
     end
   end
 
@@ -284,25 +296,12 @@ describe AudioBookCreator::Cli do
       # defaults
       expect(subject.speaker.book_def).to eq(subject.book_def)
       expect(subject.speaker.force).not_to be_truthy
-      expect(subject.speaker.voice).to eq("Vicki")
-      expect(subject.speaker.rate).to eq(280)
     end
 
     it "should set force" do
       subject.parse(%w(title http://site.com/ --force-audio))
       expect(subject.speaker.force).to be_truthy
     end
-
-    it "should set voice" do
-      subject.parse(%w(title http://site.com/ --voice Serena))
-      expect(subject.speaker.voice).to eq("Serena")
-    end
-
-    it "should set rate" do
-      subject.parse(%w(title http://site.com/ --rate 200))
-      expect(subject.speaker.rate).to eq(200)
-    end
-
   end
 
   context "#binder" do

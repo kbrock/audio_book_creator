@@ -11,8 +11,6 @@ module AudioBookCreator
       set_defaults
     end
 
-    attr_reader :base_dir
-
     # stub for testing
     attr_writer :web
 
@@ -30,7 +28,6 @@ module AudioBookCreator
         puts "please provide title and url", usage
         exit 2
       end
-      default(:database, "#{base_dir}/pages.db")
     end
 
     # set in parse (in set_args when setting database name)
@@ -76,17 +73,17 @@ module AudioBookCreator
     end
 
     def book_def
-      @book_def ||= BookDef.new(self[:base_dir], self[:title], self[:author])
+      @book_def ||= BookDef.new(base_dir, self[:title], self[:author], self[:voice], self[:rate])
     end
-
-    # components
 
     def set_logger
       logger.level = self[:verbose] ? Logger::INFO : Logger::WARN
     end
 
+    # components
+
     def page_cache
-      @page_cache ||= PageDb.new(self[:database], force: self[:regen_html])
+      @page_cache ||= PageDb.new(self[:database] || book_def.database_filename, force: self[:regen_html])
     end
 
     def web
@@ -122,8 +119,7 @@ module AudioBookCreator
     end
 
     def speaker
-      @speaker ||= Speaker.new(book_def, {force: self[:regen_audio]}
-                                 .merge(option_hash(:voice, :rate)))
+      @speaker ||= Speaker.new(book_def, force: self[:regen_audio])
     end
 
     def binder

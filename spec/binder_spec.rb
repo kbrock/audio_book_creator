@@ -26,22 +26,11 @@ describe AudioBookCreator::Binder do
   end
 
   it "should create text and m4a file" do
-    expect(File).to receive(:exist?).and_return(false)
+    expect(File).to receive(:exist?).with("title.m4b").and_return(false)
 
     expect_runner.to receive(:system)
       .with("abbinder", "-a", "Vicki", "-t", "title", "-b", "32", "-c", "1",
             "-r", "22050", "-g", "Audiobook", "-l", "7", "-o", "title.m4b",
-            "@the title@", "dir/chapter01.m4a").and_return(true)
-    subject.create([chapter("content")])
-  end
-
-  it "should default book title to basedir if title does not exist" do
-    book_def.title = nil
-    expect(File).to receive(:exist?).with("dir.m4b").and_return(false)
-
-    expect_runner.to receive(:system)
-      .with("abbinder", "-a", "Vicki", "-t", "dir", "-b", "32", "-c", "1",
-            "-r", "22050", "-g", "Audiobook", "-l", "7", "-o", "dir.m4b",
             "@the title@", "dir/chapter01.m4a").and_return(true)
     subject.create([chapter("content")])
   end

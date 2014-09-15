@@ -4,16 +4,32 @@ module AudioBookCreator
     attr_accessor :title
     attr_accessor :author
 
-    #attr_accessor :force
+    # currently like the following voices:
+    # Vicki             # 10
+    # Serena            #  8 UK
+    # Allison           #  ? (ok)
+    # Moira             #  7 Irish
+    # Fiona             #  5 Scottish
+    # Kate              #  4 UK
+    # Susan             #  2
+    # Zosia             # 0 Poland
+    # Angelica          # 0 Mexican?
+    # Paulina           # 0 Mexican
+    attr_accessor :voice
+    attr_accessor :rate
 
-    def initialize(base_dir, title = nil, author = nil)
-      @base_dir = base_dir
-      @title = title
-      @author = author || "Vicki"
-    end
+    # only set for testing purposes (stubbed to :memory:)
+    attr_accessor :database_filename
 
-    def title
-      @title || base_dir
+    def initialize(base_dir, title = nil, author = nil, voice = nil, rate = nil)
+      @base_dir = base_dir 
+      # @base_dir ||= AudioBookCreator.sanitize_filename(title, self[:max_paragraphs])
+      @title    = title    || base_dir
+      @voice    = voice    || "Vicki"
+      @author   = author   || @voice
+      @rate     = rate     || 280
+
+      @database_filename = "#{base_dir}/pages.db"
     end
 
     def chapter_text_filename(chapter)

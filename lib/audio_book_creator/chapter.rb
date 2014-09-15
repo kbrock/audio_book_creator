@@ -8,7 +8,7 @@ module AudioBookCreator
     end
 
     def filename
-      "chapter%02d" % number
+      format("chapter%02d", number)
     end
 
     def empty?
