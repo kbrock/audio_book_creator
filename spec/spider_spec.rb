@@ -1,144 +1,106 @@
 require "spec_helper"
 
 describe AudioBookCreator::Spider do
-  let(:page_def) { AudioBookCreator::PageDef.new(nil, "h1", "p") }
+  # set a max to prevent errors from causing infinite loops
+  let(:page_def) { AudioBookCreator::PageDef.new("h1", "p", "a", nil, 3) }
   let(:web) { {} }
-  # NOTE: could use arrays here, but put caps to catch bugs
-  let(:outstanding) { AudioBookCreator::ArrayWithCap.new(3) }
-  let(:visited)     { AudioBookCreator::ArrayWithCap.new(3) }
   let(:invalid_urls) { {} }
-  subject { described_class.new(web, outstanding, visited, invalid_urls, page_def) }
+  # NOTE: could use arrays here, but put caps to catch bugs
+  subject { described_class.new(page_def, web, invalid_urls) }
 
   it "handles empty initializer" do
-    pristine = described_class.new
+    pristine = described_class.new(page_def)
     expect(pristine.web).to be_a(Hash)
-    expect(pristine.outstanding).to be_a(Array)
-    expect(pristine.visited).to be_a(Array)
     expect(pristine.invalid_urls).to be_a(Hash)
   end
 
   it "sets arguments" do
-    expect(subject.web).to eq(web)
-    expect(subject.outstanding).to eq(outstanding)
-    expect(subject.visited).to eq(visited)
-    expect(subject.invalid_urls).to eq(invalid_urls)
     expect(subject.page_def).to eq(page_def)
+    expect(subject.web).to eq(web)
+    expect(subject.invalid_urls).not_to be_nil
   end
 
   context "#visit" do
     it "visit pages" do
-      expect_visit_page "page1"
-      visit "page1"
-      subject.run
-
-      expect(visited).to eq([uri("page1")])
-      expect(outstanding).to eq([])
+      expect_visit_page "page1", "x"
+      expect(subject.run(uri(%w(page1)))).to eq([page(site("page1"),"x")])
     end
 
     it "visit multiple pages" do
       expect_visit_page "page1"
       expect_visit_page "page2"
-      visit %w(page1 page2)
-      subject.run
-
-      expect(visited).to eq(uri(%w(page1 page2)))
-      expect(outstanding).to eq([])
+      expect(subject.run(uri(%w(page1 page2))))
+        .to eq([page(site("page1")), page(site("page2"))])
     end
 
     it "visit unique list of pages" do
-      expect_visit_page "page1", link("page2"), link("page2"), link("page2")
+      expect_visit_page "page1", link("page2"), link("page2")
       expect_visit_page "page2"
-      visit "page1"
-      subject.run
-    end
-
-    # this double checks that visited is checked before deciding to visit another page
-    it "dont visit a page that was already visited" do
-      visited << uri("page2")
-      expect_visit_page "page1", link("page2")
-      visit "page1"
-      subject.run
+      expect(subject.run uri(%w(page1)))
+        .to eq([page(site("page1"),link("page2"), link("page2")), page(site("page2"))])
     end
 
     it "skips loops" do
       expect_visit_page "page1", link("page1")
-      visit "page1"
-      subject.run
+      subject.run uri(%w(page1))
     end
 
-    it "also accepts alias visit" do
-      expect_visit_page "page1"
-      subject.visit uri("page1")
-      subject.run
-    end
-
-    it "chains <<" do
-      expect(subject << uri("page1")).to eq(subject)
-    end
-    
     it "also accepts string urls" do
       expect_visit_page "page1"
-      subject << site("page1")
-      subject.run
-    end
-  end
-
-  context "when links already in outstanding" do
-    let(:outstanding) { [uri("page1")]}
-    it "visits outstanding links" do
-      expect_visit_page("page1")
-      subject.run
+      subject.run site(%w(page1))
     end
   end
 
   it "follows relative links" do
     expect_visit_page("page1", link("page2"))
     expect_visit_page("page2")
-    visit "page1"
-    subject.run
+    subject.run uri(%w(page1))
   end
 
   it "follows absolute links" do
     expect_visit_page("page1", link(site("page2")))
     expect_visit_page("page2")
-    visit "page1"
-    subject.run
+    subject.run uri(%w(page1))
+  end
+
+  # in the end of the day, these links reference the local page which is ignored, so no code necessary
+  it "skips empty, blank, and local ref links" do
+    p1_contents = "<a id='a1'>a1</a>", "<a href=''>a2</a>", "<a href='#a'>x</a>", link("page2")
+    expect_visit_page("page1", *p1_contents)
+    expect_visit_page("page2")
+    expect(subject.run uri(%w(page1))).to eq([page(site("page1"), *p1_contents), page(site("page2"))])
   end
 
   it "visits all pages once" do
     expect_visit_page("page1", link("page2"))
     expect_visit_page("page2", link("page1"), link("page3"))
     expect_visit_page("page3", link("page1"), link("page2"))
-    visit "page1"
-    subject.run
+    subject.run uri(%w(page1))
   end
 
+  # TODO: move to page_def spec?
   it "respects page_def" do
     page_def.link_path = ".good a"
     expect_visit_page("page1", "<div class='good'>", link("good"), "</div>", link("bad"))
     expect_visit_page("good")
-    visit "page1"
-    subject.run
+    subject.run uri(%w(page1))
   end
 
   it "ignores #target in url" do
     expect_visit_page("page1", link("page1#target"))
-    visit "page1"
-    subject.run
+    subject.run uri(%w(page1))
   end
 
   it "skips bad pages" do
-    expect_visit_page("page1", link("%@"))
-    visit "page1"
-    expect { subject.run }.to raise_error(/bad URI/)
+    expect_visit_once("page1", link("%@")) # it never gets to call a second time
+    expect { subject.run uri(%w(page1)) }.to raise_error(/bad URI/)
   end
 
   context "with invalid_urls" do
     it "skips invalid_urls" do
-      expect(invalid_urls).to receive(:include?).with(uri("page1")).and_return(true)
-      expect_visit_no_pages
-      visit "page1"
-      subject.run
+      expect(subject.invalid_urls).to receive(:include?).with(uri("bad")).and_return(true)
+      expect_visit_page("page1", link("bad"))
+      subject.run uri(%w(page1))
     end
   end
 
@@ -146,24 +108,18 @@ describe AudioBookCreator::Spider do
     it "logs page visits" do
       enable_logging
       expect_visit_page("page1")
-      visit "page1"
-      subject.run
+      subject.run uri(%w(page1))
       expect_to_have_logged("visit #{uri("page1")}")
     end
 
     it "doesnt log page visits" do
       expect_visit_page("page1")
-      visit "page1"
-      subject.run
+      subject.run uri(%w(page1))
       expect_to_have_logged()
     end
   end
 
   private
-
-  def visit(urls)
-    Array(urls).flatten.each { |url| subject << uri(url) }
-  end
 
   def expect_visit_no_pages
     expect(web).not_to receive(:[])
@@ -171,7 +127,11 @@ describe AudioBookCreator::Spider do
 
   def expect_visit_page(url, *args)
     url = site(url)
-    expect(visited).to receive(:<<).with(uri(url)).and_call_original
+    expect(web).to receive(:[]).with(url.to_s).twice.and_return(page(url, *args))
+  end
+
+  def expect_visit_once(url, *args)
+    url = site(url)
     expect(web).to receive(:[]).with(url.to_s).and_return(page(url, *args))
   end
 end

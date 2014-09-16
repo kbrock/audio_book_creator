@@ -31,7 +31,8 @@ describe AudioBookCreator::Cli do
   it "should base database name upon title" do
     subject[:database] = nil
     subject.parse(%w(title http://site.com/))
-    expect(subject.book_def.database_filename).to eq("#{subject.base_dir}/pages.db")
+    expect(SQLite3::Database).to receive(:new).with("title/pages.db").and_return(double(:execute => true))
+    subject.page_cache
   end
 
   context "#defaults" do
@@ -53,27 +54,27 @@ describe AudioBookCreator::Cli do
   context "#base_dir" do
     it "should derive base_dir from title" do
       subject.parse(%w(title http://www.site.com/))
-      expect(subject.base_dir).to eq("title")
+      expect(subject.book_def.base_dir).to eq("title")
     end
 
     it "should support titles with spaces" do
       subject.parse(["title !for", "http://www.site.com/"])
-      expect(subject.base_dir).to eq("title-for")
+      expect(subject.book_def.base_dir).to eq("title-for")
     end
 
     it "should support titles with extra stuff" do
       subject.parse(["title,for!", "http://www.site.com/"])
-      expect(subject.base_dir).to eq("title-for")
+      expect(subject.book_def.base_dir).to eq("title-for")
     end
 
     it "should append truncation into the title" do
       subject.parse(%w(title http://www.site.com/ --max-p 22))
-      expect(subject.base_dir).to eq("title.22")
+      expect(subject.book_def.base_dir).to eq("title.22")
     end
 
     it "should override basedir" do
       subject.parse(%w(title http://www.site.com/ --base-dir dir))
-      expect(subject.base_dir).to eq("dir")
+      expect(subject.book_def.base_dir).to eq("dir")
     end
   end
 
@@ -141,14 +142,14 @@ describe AudioBookCreator::Cli do
   context "#make_directory_structure" do
     it "should create base directory" do
       subject.parse(%w(title http://site.com/))
-      expect(File).to receive(:exist?).with(subject.base_dir).and_return(false)
-      expect(FileUtils).to receive(:mkdir).with(subject.base_dir)
+      expect(File).to receive(:exist?).with(subject.book_def.base_dir).and_return(false)
+      expect(FileUtils).to receive(:mkdir).with(subject.book_def.base_dir)
       subject.make_directory_structure
     end
 
     it "should not create base directory if it exists" do
       subject.parse(%w(title http://site.com/))
-      expect(File).to receive(:exist?).with(subject.base_dir).and_return(true)
+      expect(File).to receive(:exist?).with(subject.book_def.base_dir).and_return(true)
       expect(FileUtils).not_to receive(:mkdir)
       subject.make_directory_structure
     end
@@ -184,41 +185,10 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#visited" do
-    it "defaults" do
-      subject.parse(%w(title http://www.site.com/))
-      expect(subject.visited.max).to eq(10)
-    end
-
-    it "should have a max" do
-      subject.parse(%w(title http://www.site.com/ --max 20))
-      expect(subject.visited.max).to eq(20)
-    end
-
-    it "should have no max" do
-      subject.parse(%w(title http://www.site.com/ --no-max))
-      expect(subject.visited.max).not_to be_truthy
-    end
-  end
-
-  context "#invalid_urls" do
-    it "sets defaults" do
-      subject.parse(%w(title http://www.site.com/))
-      # defaults
-      expect(subject.invalid_urls.host).to eq("www.site.com")
-      # NOTE: not currently passed
-      expect(subject.invalid_urls.ignore_bogus).not_to be_truthy
-    end
-  end
-
   context "#spider" do
     it "sets references" do
       subject.parse(%w(title http://www.site.com/))
       expect(subject.spider.web).to eq(subject.cached_web)
-      expect(subject.spider.outstanding).to eq(subject.outstanding)
-      # defaults
-      expect(subject.spider.visited).to eq(subject.visited)
-      expect(subject.spider.invalid_urls).to eq(subject.invalid_urls)
     end
   end
 
@@ -230,11 +200,22 @@ describe AudioBookCreator::Cli do
       expect(subject.page_def.body_path).to eq("p")
       expect(subject.page_def.link_path).to eq("a")
       expect(subject.page_def.max_paragraphs).to be_nil
+      expect(subject.page_def.max).to eq(10)
     end
 
     it "should support max paragraphs" do
       subject.parse(%w(title http://www.site.com/ --max-p 5))
       expect(subject.page_def.max_paragraphs).to eq(5)
+    end
+
+    it "should have a max" do
+      subject.parse(%w(title http://www.site.com/ --max 20))
+      expect(subject.page_def.max).to eq(20)
+    end
+
+    it "should have no max" do
+      subject.parse(%w(title http://www.site.com/ --no-max))
+      expect(subject.page_def.max).not_to be_truthy
     end
 
     it "should support title" do
@@ -257,7 +238,7 @@ describe AudioBookCreator::Cli do
     it "should create book_def" do
       subject.parse(%w(title http://site.com/))
       # defaults
-      expect(subject.book_def.base_dir).to eq(subject.base_dir)
+      expect(subject.book_def.base_dir).to eq("title")
       expect(subject.book_def.title).to eq("title")
       expect(subject.book_def.author).to eq("Vicki")
       expect(subject.book_def.voice).to eq("Vicki")

@@ -30,11 +30,6 @@ module AudioBookCreator
       end
     end
 
-    # set in parse (in set_args when setting database name)
-    # setting max_paragraphs later will not change the filename
-    def base_dir
-      self[:base_dir] ||= AudioBookCreator.sanitize_filename(self[:title], self[:max_paragraphs])
-    end
 
     def [](name)
       @options[name]
@@ -67,13 +62,15 @@ module AudioBookCreator
       self
     end
 
+    # parameter objects
+
     def page_def
-      @page_def ||= PageDef.new(self[:urls].first, self[:title_path],
-                                self[:body_path], self[:link_path], self[:max_paragraphs])
+      @page_def ||= PageDef.new(self[:title_path], self[:body_path], self[:link_path],
+                                self[:max_paragraphs], self[:max])
     end
 
     def book_def
-      @book_def ||= BookDef.new(base_dir, self[:title], self[:author], self[:voice], self[:rate])
+      @book_def ||= BookDef.new(self[:title], self[:author], self[:base_dir], self[:voice], self[:rate], self[:max_paragraphs])
     end
 
     def set_logger
@@ -83,7 +80,7 @@ module AudioBookCreator
     # components
 
     def page_cache
-      @page_cache ||= PageDb.new(self[:database] || book_def.database_filename, force: self[:regen_html])
+      @page_cache ||= PageDb.new(self[:database] || book_def.cache_filename, force: self[:regen_html])
     end
 
     def web
@@ -98,10 +95,6 @@ module AudioBookCreator
       @invalid_urls ||= UrlFilter.new(host: self[:urls].first)
     end
 
-    def visited
-      @visited ||= ArrayWithCap.new(self[:max])
-    end
-
     def outstanding
       @outstanding ||= CascadingArray.new([], outstanding_chapters)
     end
@@ -111,7 +104,7 @@ module AudioBookCreator
     end
 
     def spider
-      @spider ||= Spider.new(cached_web, outstanding, visited, invalid_urls, page_def)
+      @spider ||= Spider.new(page_def, cached_web, invalid_urls)
     end
 
     def editor
@@ -126,14 +119,10 @@ module AudioBookCreator
       @binder ||= Binder.new(book_def, force: self[:regen_audio])
     end
 
-    def visited_pages
-      visited.map { |visited_url| page_cache[visited_url.to_s] }
-    end
-
     def run
       set_logger
       make_directory_structure
-      spider.run
+      visited_pages = spider.run(outstanding)
       chapters = editor.parse(visited_pages)
       chapters.each do |chapter|
         speaker.say(chapter)
@@ -143,7 +132,7 @@ module AudioBookCreator
 
     # create the directory that will house the cache and temporary files
     def make_directory_structure
-      FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
+      FileUtils.mkdir(book_def.base_dir) unless File.exist?(book_def.base_dir)
     end
 
     private

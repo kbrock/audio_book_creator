@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe AudioBookCreator::Binder do
-  let(:book_def) { AudioBookCreator::BookDef.new("dir", "title") }
+  let(:book_def) { AudioBookCreator::BookDef.new("title", nil, "dir") }
   subject { described_class.new(book_def) }
 
   it "should work with no options" do

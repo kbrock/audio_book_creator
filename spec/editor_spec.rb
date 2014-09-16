@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe AudioBookCreator::Editor do
-  let(:page_def) { AudioBookCreator::PageDef.new(nil, "h1", "p") }
+  let(:page_def) { AudioBookCreator::PageDef.new("h1", "p") }
   subject { described_class.new(page_def) }
   let(:chapter1) { chapter("first\n\nsecond", "the title") }
   it "should generate a page" do

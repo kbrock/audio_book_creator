@@ -8,65 +8,48 @@ module AudioBookCreator
     # @!attribute web
     #   @return Hash access to the world wide web
     attr_accessor :web
-    attr_accessor :outstanding
-    attr_accessor :visited
     attr_accessor :invalid_urls
 
     attr_accessor :page_def
 
-    def initialize(web = {}, outstanding = [], visited = [], invalid_urls = {}, page_def = PageDef.new)
-      @web             = web
-      @outstanding     = outstanding
-      @visited         = visited
-      @invalid_urls    = invalid_urls
-      @page_def        = page_def
+    def initialize(page_def, web = {}, invalid_urls = {})
+      @page_def     = page_def
+      @web          = web
+      @invalid_urls = invalid_urls
     end
 
-    # Add a url to the outstanding list of pages to visit
-    def <<(url)
-      if (url = uri(url)) && valid_link?(url)
-        outstanding << url
+    def run(outstanding)
+      visited = AudioBookCreator::ArrayWithCap.new(page_def.max)
+      # hack to support pre-set outstanding
+
+      while (url = uri(outstanding.shift))
+        visited << url
+        new_pages = visit_page(url)
+        new_pages.select do |href|
+          !invalid_urls.include?(href) && !visited.include?(href)
+        end.each do |href|
+          outstanding << href unless outstanding.include?(href)
+        end
       end
-      self
-    end
-    alias_method :visit, :<<
-
-    def valid_link?(url)
-      !outstanding.include?(url) && !invalid_urls.include?(url) && !visited.include?(url)
-    end
-
-    def run
-      while (url = outstanding.shift)
-        visit_page(url)
-      end
+      visited.map { |url| web[url.to_s] }
     end
 
     private
 
     # this one hangs on mutations
     def visit_page(url)
-      visited << url
       logger.info { "visit #{url}" }
-      follow_url(url)
-    end
-
-    def follow_url(url)
-      follow_links url, Nokogiri::HTML(web[url.to_s])
+      doc = Nokogiri::HTML(web[url.to_s])
+      page_def.page_links(doc) { |a| uri(url, a["href"]) }
     end
 
     # raises URI::Error (BadURIError)
     def uri(url, alt = nil)
+      return unless url
       url = URI.parse(url) unless url.is_a?(URI)
       url = url + alt if alt
       url.fragment = nil # remove #x part of url
       url
-    end
-
-    # possibly move valid_link? from <<() to follow_links()
-    def follow_links(url, doc)
-      page_def.page_links(doc) do |a|
-        self << uri(url, a["href"])
-      end
     end
   end
 end

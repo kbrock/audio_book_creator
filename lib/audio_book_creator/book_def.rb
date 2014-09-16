@@ -17,19 +17,21 @@ module AudioBookCreator
     # Paulina           # 0 Mexican
     attr_accessor :voice
     attr_accessor :rate
+    attr_accessor :max_paragraphs
 
     # only set for testing purposes (stubbed to :memory:)
-    attr_accessor :database_filename
+    attr_accessor :cache_filename
 
-    def initialize(base_dir, title = nil, author = nil, voice = nil, rate = nil)
-      @base_dir = base_dir 
-      # @base_dir ||= AudioBookCreator.sanitize_filename(title, self[:max_paragraphs])
-      @title    = title    || base_dir
+    def initialize(title, author = nil, base_dir = nil, voice = nil, rate = nil, max_paragraphs = nil)
+      @title    = title
+      @base_dir = base_dir || AudioBookCreator.sanitize_filename(title, max_paragraphs)
+      @author   = author   || "Vicki"
+      # speaker prefs
       @voice    = voice    || "Vicki"
-      @author   = author   || @voice
       @rate     = rate     || 280
+      @max_paragraphs = max_paragraphs
 
-      @database_filename = "#{base_dir}/pages.db"
+      @cache_filename = "#{@base_dir}/pages.db"
     end
 
     def chapter_text_filename(chapter)
@@ -38,10 +40,6 @@ module AudioBookCreator
 
     def chapter_sound_filename(chapter)
       "#{base_dir}/#{chapter.filename}.m4a"
-    end
-
-    def cache_filename
-      "#{base_dir}/pages.db"
     end
 
     def filename
