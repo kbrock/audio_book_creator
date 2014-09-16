@@ -10,37 +10,28 @@ module AudioBookCreator
 
     def initialize(filename, options = {})
       @filename = filename
-      @force = options[:force]
       @db = create
-      clear if force
+      clear if (@force = options[:force])
     end
 
     def []=(key, value)
-      @db.execute "insert into pages (name, contents) values ( ?, ?)", [key, value]
+      db.execute "insert into pages (name, contents) values ( ?, ?)", [key, value]
     end
 
     def [](key)
-      result = nil
-      @db.execute "select contents from pages where name = ?", key do |row|
-        result = row.first
-      end
-      result
+      db.execute("select contents from pages where name = ?", key).map { |row| row.first }.first
     end
 
     def keys
-      result = []
-      @db.execute "select name from pages order by rowid" do |row|
-        result << row.first
-      end
-      result
+      db.execute("select name from pages order by rowid").map { |row| row.first }
     end
 
     def each(&block)
-      @db.execute "select * from pages order by rowid", &block
+      db.execute "select * from pages order by rowid", &block
     end
 
     def clear
-      @db.execute "delete from pages"
+      db.execute "delete from pages"
     end
 
     def create
