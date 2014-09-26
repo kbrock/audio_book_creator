@@ -4,28 +4,27 @@ require 'tempfile'
 describe AudioBookCreator::PageDb do
   subject { described_class.new(":memory:") }
 
-  it "should not create a file" do
-    expect(File).not_to be_exist(":memory:")
+  # all of these tests are in memory
+  # this is the only test that depends upon it
+  context "with memory databases" do
+    it "does not create a file" do
+      # access key to trigger database creation
+      subject["key"]
+      expect(File).not_to be_exist(":memory:")
+    end
   end
 
-  it "should work" do
+  it "works" do
     expect(subject).not_to be_nil
   end
 
-  it "should create cache value" do
+  it "creates cache value" do
     subject["key"] = "value"
 
     expect(subject["key"]).to eq("value")
   end
 
-  it "should clear a database" do
-    subject["key"] = "value"
-    subject.clear
-
-    expect(subject["key"]).to be_nil
-  end
-
-  context "with prepopulated database" do
+  context "with prepopulated (file) database" do
     let(:tmp) { Tempfile.new("db") }
 
     before do
@@ -38,26 +37,29 @@ describe AudioBookCreator::PageDb do
       tmp.unlink
     end
 
-    it "should find entry in database" do
+    it "finds entry in previously created cache" do
       db = described_class.new(tmp.path)
       expect(db["key"]).to eq("value")
     end
 
-    it "should not find entry in truncated database" do
+    it "clears entries in previously created cache" do
       db = described_class.new(tmp.path, force: true)
       expect(db["key"]).to be_nil      
     end
 
+    it "creates a file" do
+      expect(File.exist?(tmp.path)).to be_truthy
+    end
   end
 
-  it "should handle url keys" do
+  it "handles url keys" do
     key = "http://the.web.site.com/path/to/cgi?param1=x&param2=y#substuff"
     contents = "a" * 555
     subject[key] = contents
     expect(subject[key]).to eq(contents)
   end
 
-  it "should return all keys in order of insert" do
+  it "return all keys in order of insert" do
     subject["keyc"] = "value"
     subject["keya"] = "value"
     subject["keyz"] = "value"
@@ -65,7 +67,7 @@ describe AudioBookCreator::PageDb do
     expect(subject.keys).to eq(%w(keyc keya keyz))
   end
 
-  it "should support enumerable (map)" do
+  it "supports enumerable (map)" do
     subject["keyc"] = "v"
     subject["keya"] = "v"
     subject["keyz"] = "v"

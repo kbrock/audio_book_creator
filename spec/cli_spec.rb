@@ -9,30 +9,44 @@ describe AudioBookCreator::Cli do
   # this sidesteps creating a database file
   subject { described_class.new(database: ":memory:") }
 
-  it "should treat first arguments as a url" do
-    subject.parse(%w(title http://site.com/))
-    expect(subject[:title]).to eq("title")
-    expect(subject[:urls]).to eq(%w(http://site.com/))
+  context "basic arguments" do
+    it "should treat first arguments as a url" do
+      subject.parse(%w(title http://site.com/))
+      expect(subject[:title]).to eq("title")
+      expect(subject[:urls]).to eq(%w(http://site.com/))
+    end
+
+    it "should support multiple urls" do
+      subject.parse(%w(title http://site.com/page1 http://site.com/page2))
+      expect(subject[:title]).to eq("title")
+      expect(subject[:urls]).to eq(%w(http://site.com/page1 http://site.com/page2))
+    end
+
+    it "should require 2 parameters" do
+      expect($stdout).to receive(:puts).with(/url/, /Usage.*title/)
+      expect(subject).to receive(:exit).with(2).and_raise("exited")
+      expect { subject.parse(%w(title_only)) }.to raise_error("exited")
+    end
   end
 
-  it "should support multiple urls" do
-    subject.parse(%w(title http://site.com/page1 http://site.com/page2))
-    expect(subject[:title]).to eq("title")
-    expect(subject[:urls]).to eq(%w(http://site.com/page1 http://site.com/page2))
-  end
+  context "database name" do
+    it "defaults to test override" do
+      expect(subject[:database]).to eq(":memory:")
+    end
 
-  it "should require 2 parameters" do
-    expect($stdout).to receive(:puts).with(/url/, /Usage.*title/)
-    expect(subject).to receive(:exit).with(2).and_raise("exited")
-    expect { subject.parse(%w(title_only)) }.to raise_error("exited")
-  end
+    it "creates database with overriden value" do
+      subject.parse(%w(title http://site.com/))
+      expect(subject.book_def.cache_filename).to eq(":memory:")
+      expect(subject.page_cache.filename).to eq(subject.book_def.cache_filename)
+    end
 
-  # in tests, we are stubbing this with ":memory:" so we don't create files
-  it "should base database name upon title" do
-    subject[:database] = nil
-    subject.parse(%w(title http://site.com/))
-    expect(SQLite3::Database).to receive(:new).with("title/pages.db").and_return(double(:execute => true))
-    subject.page_cache
+    it "creates database based upon title" do
+      subject[:database] = nil # removes the default test name of :memory:
+      subject.parse(%w(title http://site.com/))
+      expect(subject.book_def.cache_filename).to eq("title/pages.db")
+      expect(subject.page_cache.filename).to eq(subject.book_def.cache_filename)
+      subject.page_cache
+    end
   end
 
   context "#defaults" do
@@ -175,8 +189,6 @@ describe AudioBookCreator::Cli do
   context "#page_cache" do
     it "should have databse based upon title" do
       subject.parse(%w(title http://site.com/))
-      # NOTE: testing actual database filename calculation at top of spec
-      expect(subject.page_cache.filename).to eq(subject[:database])
       # defaults
       expect(subject.page_cache.force).not_to be_truthy
     end

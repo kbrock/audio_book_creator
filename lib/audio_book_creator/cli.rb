@@ -70,7 +70,7 @@ module AudioBookCreator
     end
 
     def book_def
-      @book_def ||= BookDef.new(self[:title], self[:author], self[:base_dir], self[:voice], self[:rate], self[:max_paragraphs])
+      @book_def ||= BookDef.new(self[:title], self[:author], self[:base_dir], self[:voice], self[:rate], self[:max_paragraphs], self[:database])
     end
 
     def set_logger
@@ -80,7 +80,7 @@ module AudioBookCreator
     # components
 
     def page_cache
-      @page_cache ||= PageDb.new(self[:database] || book_def.cache_filename, force: self[:regen_html])
+      @page_cache ||= PageDb.new(book_def.cache_filename, force: self[:regen_html])
     end
 
     def web

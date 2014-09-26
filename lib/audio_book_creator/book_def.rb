@@ -22,7 +22,7 @@ module AudioBookCreator
     # only set for testing purposes (stubbed to :memory:)
     attr_accessor :cache_filename
 
-    def initialize(title, author = nil, base_dir = nil, voice = nil, rate = nil, max_paragraphs = nil)
+    def initialize(title, author = nil, base_dir = nil, voice = nil, rate = nil, max_paragraphs = nil, cache_filename = nil)
       @title    = title
       @base_dir = base_dir || AudioBookCreator.sanitize_filename(title, max_paragraphs)
       @author   = author   || "Vicki"
@@ -31,7 +31,7 @@ module AudioBookCreator
       @rate     = rate     || 280
       @max_paragraphs = max_paragraphs
 
-      @cache_filename = "#{@base_dir}/pages.db"
+      @cache_filename = cache_filename || "#{@base_dir}/pages.db"
     end
 
     def chapter_text_filename(chapter)

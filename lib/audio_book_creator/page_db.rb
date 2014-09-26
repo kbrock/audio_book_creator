@@ -4,14 +4,13 @@ module AudioBookCreator
   class PageDb
     include Enumerable
 
+    # this is for tests - get out of here
     attr_accessor :filename
     attr_accessor :force
-    attr_accessor :db
 
     def initialize(filename, options = {})
       @filename = filename
-      @db = create
-      clear if (@force = options[:force])
+      @force = options[:force]
     end
 
     def []=(key, value)
@@ -30,13 +29,16 @@ module AudioBookCreator
       db.execute "select * from pages order by rowid", &block
     end
 
-    def clear
-      db.execute "delete from pages"
+    private
+
+    def db
+      @db ||= create(force)
     end
 
-    def create
+    def create(clear = false)
       SQLite3::Database.new(filename).tap do |db|
         db.execute("create table if not exists pages (name text, contents blob)")
+        db.execute "delete from pages" if clear
       end
     end
   end
