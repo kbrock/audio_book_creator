@@ -19,7 +19,7 @@ module AudioBookCreator
     end
 
     def run(outstanding)
-      visited = AudioBookCreator::ArrayWithCap.new(page_def.max)
+      visited = []
       # hack to support pre-set outstanding
 
       while (url = uri(outstanding.shift))
@@ -31,7 +31,7 @@ module AudioBookCreator
           outstanding << href unless outstanding.include?(href)
         end
       end
-      visited.map { |url| web[url.to_s] }
+      visited.map { |u| web[u.to_s] }
     end
 
     private

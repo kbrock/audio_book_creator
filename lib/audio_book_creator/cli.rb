@@ -66,7 +66,7 @@ module AudioBookCreator
 
     def page_def
       @page_def ||= PageDef.new(self[:title_path], self[:body_path], self[:link_path],
-                                self[:max_paragraphs], self[:max])
+                                self[:max_paragraphs])
     end
 
     def book_def
@@ -84,7 +84,7 @@ module AudioBookCreator
     end
 
     def web
-      @web ||= Web.new
+      @web ||= Web.new(self[:max])
     end
 
     def cached_web

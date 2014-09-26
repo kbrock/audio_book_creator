@@ -1,14 +1,13 @@
 module AudioBookCreator
   # information on how the page is defined in the database
   class PageDef
-    attr_accessor :title_path, :body_path, :link_path, :max_paragraphs, :max
+    attr_accessor :title_path, :body_path, :link_path, :max_paragraphs
 
-    def initialize(title_path = "h1", body_path = "p", link_path = "a", max_paragraphs = nil, max = nil)
+    def initialize(title_path = "h1", body_path = "p", link_path = "a", max_paragraphs = nil)
       @title_path = title_path
       @body_path = body_path
       @link_path = link_path
       @max_paragraphs = max_paragraphs
-      @max = max
     end
 
     def title(dom, default_title)

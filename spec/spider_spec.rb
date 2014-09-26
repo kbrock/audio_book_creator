@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe AudioBookCreator::Spider do
   # set a max to prevent errors from causing infinite loops
-  let(:page_def) { AudioBookCreator::PageDef.new("h1", "p", "a", nil, 3) }
+  let(:page_def) { AudioBookCreator::PageDef.new("h1", "p", "a", nil) }
   let(:web) { {} }
   let(:invalid_urls) { {} }
   # NOTE: could use arrays here, but put caps to catch bugs
@@ -78,8 +78,7 @@ describe AudioBookCreator::Spider do
     subject.run uri(%w(page1))
   end
 
-  # TODO: move to page_def spec?
-  it "respects page_def" do
+  it "leverages page_def to determine good links" do
     page_def.link_path = ".good a"
     expect_visit_page("page1", "<div class='good'>", link("good"), "</div>", link("bad"))
     expect_visit_page("good")
@@ -91,7 +90,7 @@ describe AudioBookCreator::Spider do
     subject.run uri(%w(page1))
   end
 
-  it "skips bad pages" do
+  it "skips bad urls" do
     expect_visit_once("page1", link("%@")) # it never gets to call a second time
     expect { subject.run uri(%w(page1)) }.to raise_error(/bad URI/)
   end

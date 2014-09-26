@@ -19,7 +19,6 @@ module AudioBookCreator
   end
 end
 
-require "audio_book_creator/array_with_cap"
 require "audio_book_creator/cached_hash"
 require "audio_book_creator/cascading_array"
 require "audio_book_creator/logging"

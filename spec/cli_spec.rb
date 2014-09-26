@@ -155,6 +155,23 @@ describe AudioBookCreator::Cli do
     end
   end
 
+  context "max param" do
+    it "should default to 10" do
+      subject.parse(%w(title http://www.site.com/))
+      expect(subject.web.max).to eq(10)
+    end
+
+    it "should have a max" do
+      subject.parse(%w(title http://www.site.com/ --max 20))
+      expect(subject.web.max).to eq(20)
+    end
+
+    it "should have no max" do
+      subject.parse(%w(title http://www.site.com/ --no-max))
+      expect(subject.web.max).not_to be_truthy
+    end
+  end
+
   context "#page_cache" do
     it "should have databse based upon title" do
       subject.parse(%w(title http://site.com/))
@@ -200,22 +217,11 @@ describe AudioBookCreator::Cli do
       expect(subject.page_def.body_path).to eq("p")
       expect(subject.page_def.link_path).to eq("a")
       expect(subject.page_def.max_paragraphs).to be_nil
-      expect(subject.page_def.max).to eq(10)
     end
 
     it "should support max paragraphs" do
       subject.parse(%w(title http://www.site.com/ --max-p 5))
       expect(subject.page_def.max_paragraphs).to eq(5)
-    end
-
-    it "should have a max" do
-      subject.parse(%w(title http://www.site.com/ --max 20))
-      expect(subject.page_def.max).to eq(20)
-    end
-
-    it "should have no max" do
-      subject.parse(%w(title http://www.site.com/ --no-max))
-      expect(subject.page_def.max).not_to be_truthy
     end
 
     it "should support title" do
