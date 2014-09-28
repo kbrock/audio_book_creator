@@ -259,8 +259,6 @@ describe AudioBookCreator::Cli do
       expect(subject.book_def.base_dir).to eq("title")
       expect(subject.book_def.title).to eq("title")
       expect(subject.book_def.author).to eq("Vicki")
-      expect(subject.book_def.voice).to eq("Vicki")
-      expect(subject.book_def.rate).to eq(280)
     end
 
     it "should support basedir" do
@@ -269,15 +267,29 @@ describe AudioBookCreator::Cli do
       expect(subject.book_def.base_dir).to eq("dir")
       expect(subject.book_def.title).to eq("title")
     end
+  end
+
+  context "#speaker_def" do
+    it "should default" do
+      subject.parse(%w(title http://site.com/))
+      expect(subject.speaker_def.voice).to eq("Vicki")
+      expect(subject.speaker_def.rate).to eq(280)
+
+
+      expect(subject.speaker_def.channels).to eq(1)
+      expect(subject.speaker_def.max_hours).to eq(7)
+      expect(subject.speaker_def.bit_rate).to eq(32)
+      expect(subject.speaker_def.sample_rate).to eq(22_050)
+    end
 
     it "should set voice" do
       subject.parse(%w(title http://site.com/ --voice Serena))
-      expect(subject.book_def.voice).to eq("Serena")
+      expect(subject.speaker_def.voice).to eq("Serena")
     end
 
     it "should set rate" do
       subject.parse(%w(title http://site.com/ --rate 200))
-      expect(subject.book_def.rate).to eq(200)
+      expect(subject.speaker_def.rate).to eq(200)
     end
   end
 
@@ -307,22 +319,10 @@ describe AudioBookCreator::Cli do
     it "should create a binder" do
       subject.parse(%w(title http://site.com/))
       # defaults
+      expect(subject.binder.book_def).to eq(subject.book_def)
+      expect(subject.binder.speaker_def).to eq(subject.speaker_def)
       expect(subject.binder.force).not_to be_truthy
       # NOTE: not currently passed
-      expect(subject.binder.channels).to eq(1)
-      expect(subject.binder.max_hours).to eq(7)
-      expect(subject.binder.bit_rate).to eq(32)
-      expect(subject.binder.sample_rate).to eq(22_050)
-    end
-
-    it "should set force" do
-      subject.parse(%w(title http://site.com/ --force-audio))
-      expect(subject.binder.force).to be_truthy
-    end
-
-    it "should set author" do
-      subject.parse(%w(title http://site.com/ --force-audio))
-      expect(subject.binder.force).to be_truthy
     end
 
     it "should set force" do

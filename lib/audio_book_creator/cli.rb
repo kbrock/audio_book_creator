@@ -30,7 +30,6 @@ module AudioBookCreator
       end
     end
 
-
     def [](name)
       @options[name]
     end
@@ -70,7 +69,11 @@ module AudioBookCreator
     end
 
     def book_def
-      @book_def ||= BookDef.new(self[:title], self[:author], self[:base_dir], self[:voice], self[:rate], self[:max_paragraphs], self[:database])
+      @book_def ||= BookDef.new(self[:title], self[:author], self[:base_dir], self[:max_paragraphs], self[:database])
+    end
+
+    def speaker_def
+      @speaker_def ||= SpeakerDef.new(voice: self[:voice], rate: self[:rate])
     end
 
     def set_logger
@@ -112,11 +115,11 @@ module AudioBookCreator
     end
 
     def speaker
-      @speaker ||= Speaker.new(book_def, force: self[:regen_audio])
+      @speaker ||= Speaker.new(speaker_def, book_def, force: self[:regen_audio])
     end
 
     def binder
-      @binder ||= Binder.new(book_def, force: self[:regen_audio])
+      @binder ||= Binder.new(book_def, speaker_def, force: self[:regen_audio])
     end
 
     def run

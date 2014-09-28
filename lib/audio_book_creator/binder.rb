@@ -1,23 +1,15 @@
 module AudioBookCreator
   class Binder
     attr_accessor :book_def
+    attr_accessor :speaker_def
     attr_accessor :force
 
     # these are more for documentation than actual variables
 
-    attr_accessor :channels
-    # split on this hour mark
-    attr_accessor :max_hours
-    attr_accessor :bit_rate
-    attr_accessor :sample_rate
-
-    def initialize(book_def, options = {})
+    def initialize(book_def, speaker_def, options = {})
       @book_def = book_def
+      @speaker_def = speaker_def
       options.each { |n, v| public_send("#{n}=", v) }
-      @channels  ||= 1
-      @bit_rate  ||= 32
-      @max_hours ||= 7
-      @sample_rate ||= 22_050
     end
 
     def create(chapters)
@@ -34,11 +26,11 @@ module AudioBookCreator
       {
         "-a" => book_def.author,
         "-t" => book_def.title,
-        "-b" => bit_rate,
-        "-c" => channels,
-        "-r" => sample_rate,
+        "-b" => speaker_def.bit_rate,
+        "-c" => speaker_def.channels,
+        "-r" => speaker_def.sample_rate,
         "-g" => "Audiobook",
-        "-l" => max_hours,
+        "-l" => speaker_def.max_hours,
         "-o" => book_def.filename,
         # "-v" => verbose,
         # "-A" => nil, #    add audiobook to iTunes

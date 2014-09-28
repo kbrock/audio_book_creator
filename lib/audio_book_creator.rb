@@ -25,6 +25,7 @@ require "audio_book_creator/logging"
 
 require "audio_book_creator/book_def"
 require "audio_book_creator/page_def"
+require "audio_book_creator/speaker_def"
 
 require "audio_book_creator/web"
 require "audio_book_creator/url_filter"

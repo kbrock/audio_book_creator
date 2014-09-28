@@ -1,5 +1,5 @@
 module AudioBookCreator
-  # information on how the page is defined in the database
+  # information on the format of the html page that is read
   class PageDef
     attr_accessor :title_path, :body_path, :link_path, :max_paragraphs
 

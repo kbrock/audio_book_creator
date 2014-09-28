@@ -2,11 +2,8 @@ require "spec_helper"
 
 describe AudioBookCreator::Binder do
   let(:book_def) { AudioBookCreator::BookDef.new("title", nil, "dir") }
-  subject { described_class.new(book_def) }
-
-  it "should work with no options" do
-    expect(described_class.new(book_def).channels).to eq(1)
-  end
+  let(:speaker_def) { AudioBookCreator::SpeakerDef.new }
+  subject { described_class.new(book_def, speaker_def) }
 
   it "should require a chapter" do
     expect { subject.create([]) }.to raise_error

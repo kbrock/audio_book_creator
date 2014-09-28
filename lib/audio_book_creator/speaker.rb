@@ -1,9 +1,11 @@
 module AudioBookCreator
   class Speaker
+    attr_accessor :speaker_def
     attr_accessor :book_def
     attr_accessor :force
 
-    def initialize(book_def, options = {})
+    def initialize(speaker_def, book_def, options = {})
+      @speaker_def = speaker_def
       @book_def = book_def
       options.each { |n, v| public_send("#{n}=", v) }
     end
@@ -23,8 +25,8 @@ module AudioBookCreator
 
     def params(text_filename, sound_filename)
       {
-        "-v" => book_def.voice,
-        "-r" => book_def.rate,
+        "-v" => speaker_def.voice,
+        "-r" => speaker_def.rate,
         "-f" => text_filename,
         "-o" => sound_filename,
       }

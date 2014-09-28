@@ -2,7 +2,8 @@ require "spec_helper"
 
 describe AudioBookCreator::Speaker do
   let(:book_def) { AudioBookCreator::BookDef.new("dir") }
-  subject { described_class.new(book_def)}
+  let(:speaker_def) { AudioBookCreator::SpeakerDef.new }
+  subject { described_class.new(speaker_def, book_def)}
   it "should require a non empty chapter" do
     expect { subject.say(chapter(nil)) }.to raise_error
   end
@@ -54,7 +55,7 @@ describe AudioBookCreator::Speaker do
   end
 
   it "should create a speaker with no options" do
-    expect { described_class.new(book_def) }.not_to raise_error
+    expect { described_class.new(speaker_def, book_def) }.not_to raise_error
   end
 
   it "should freak if no chapters are passed in" do
