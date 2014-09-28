@@ -21,9 +21,14 @@ describe AudioBookCreator::Spider do
   end
 
   context "#visit" do
-    it "visit pages" do
+    it "visit urls" do
       expect_visit_page "page1", "x"
       expect(subject.run(uri(%w(page1)))).to eq([page(site("page1"),"x")])
+    end
+
+    it "visit string" do
+      expect_visit_page "page1", "x"
+      expect(subject.run(site(%w(page1)))).to eq([page(site("page1"),"x")])
     end
 
     it "visit multiple pages" do
@@ -40,9 +45,14 @@ describe AudioBookCreator::Spider do
         .to eq([page(site("page1"),link("page2"), link("page2")), page(site("page2"))])
     end
 
-    it "skips loops" do
+    it "skips loops from uri" do
       expect_visit_page "page1", link("page1")
       subject.run uri(%w(page1))
+    end
+
+    it "skips loops from string" do
+      expect_visit_page "page1", link("page1")
+      subject.run site(%w(page1))
     end
 
     it "also accepts string urls" do

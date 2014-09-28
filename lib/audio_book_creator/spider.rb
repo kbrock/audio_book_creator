@@ -25,10 +25,8 @@ module AudioBookCreator
       while (url = uri(outstanding.shift))
         visited << url
         new_pages = visit_page(url)
-        new_pages.select do |href|
-          !invalid_urls.include?(href) && !visited.include?(href)
-        end.each do |href|
-          outstanding << href unless outstanding.include?(href)
+        new_pages.each do |href|
+          outstanding << href unless outstanding.include?(href) || invalid_urls.include?(href) || visited.include?(href)
         end
       end
       visited.map { |u| web[u.to_s] }

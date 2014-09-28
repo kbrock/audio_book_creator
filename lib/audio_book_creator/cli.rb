@@ -103,7 +103,7 @@ module AudioBookCreator
     end
 
     def outstanding_chapters
-      self[:urls].uniq.map { |url| URI.parse(url) }
+      self[:urls].uniq
     end
 
     def spider
