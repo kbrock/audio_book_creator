@@ -130,9 +130,6 @@ describe AudioBookCreator::Spider do
 
   private
 
-  def expect_visit_no_pages
-    expect(web).not_to receive(:[])
-  end
 
   def expect_visit_page(url, *args)
     url = site(url)

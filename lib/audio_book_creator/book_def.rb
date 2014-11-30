@@ -11,7 +11,7 @@ module AudioBookCreator
 
     def initialize(title, author = nil, base_dir = nil, max_paragraphs = nil, cache_filename = nil)
       @title    = title
-      @base_dir = base_dir || AudioBookCreator.sanitize_filename(title, max_paragraphs)
+      @base_dir = base_dir || BookDef.sanitize_filename(title, max_paragraphs)
       @author   = author   || "Vicki"
       @max_paragraphs = max_paragraphs
 
@@ -27,7 +27,13 @@ module AudioBookCreator
     end
 
     def filename
-      AudioBookCreator.sanitize_filename(title, "m4b")
+      BookDef.sanitize_filename(title, "m4b")
+    end
+
+    private
+
+    def self.sanitize_filename(*filenames)
+      filenames.compact.join(".").gsub(/[^-._a-z0-9A-Z]/, "-").gsub(/--*/, "-").sub(/-$/, "")
     end
   end
 end

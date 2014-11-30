@@ -31,4 +31,28 @@ describe AudioBookCreator::BookDef do
       it { expect(subject.chapter_sound_filename(chapter)).to eq("dir/chapter02.m4a") }
     end
   end
+
+  context ".sanitize_filename" do
+    subject { described_class }
+    it "should join strings" do
+      expect(subject.sanitize_filename("title", "jpg")).to eq("title.jpg")
+    end
+
+    it "should handle arrays" do
+      expect(subject.sanitize_filename(%w(title jpg))).to eq("title.jpg")
+    end
+
+    it "should ignore nils" do
+      expect(subject.sanitize_filename("title", nil)).to eq("title")
+    end
+
+    it "should support titles with spaces" do
+      expect(subject.sanitize_filename(%{title ((for "you", "Amy", and "John"))})).to eq("title-for-you-Amy-and-John")
+    end
+
+    it "should support titles with extra stuff" do
+      expect(subject.sanitize_filename("title,for!")).to eq("title-for")
+    end
+  end
+
 end

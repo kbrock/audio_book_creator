@@ -6,28 +6,6 @@ describe AudioBookCreator do
     expect(AudioBookCreator::VERSION).not_to be_nil
   end
 
-  context ".sanitize_filename" do
-    it "should join strings" do
-      expect(subject.sanitize_filename("title", "jpg")).to eq("title.jpg")
-    end
-
-    it "should handle arrays" do
-      expect(subject.sanitize_filename(%w(title jpg))).to eq("title.jpg")
-    end
-
-    it "should ignore nils" do
-      expect(subject.sanitize_filename("title", nil)).to eq("title")
-    end
-
-    it "should support titles with spaces" do
-      expect(subject.sanitize_filename(%{title ((for "you", "Amy", and "John"))})).to eq("title-for-you-Amy-and-John")
-    end
-
-    it "should support titles with extra stuff" do
-      expect(subject.sanitize_filename("title,for!")).to eq("title-for")
-    end
-  end
-
   context ".should_write" do
     it "should know file does not exist" do
       expect(File).to receive(:exist?).with("x").and_return(false)

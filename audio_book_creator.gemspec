@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "audio_book_creator"
   spec.version       = AudioBookCreator::VERSION
   spec.authors       = ["Keenan Brock"]
-  spec.email         = ["kbrock@redhat.com"]
+  spec.email         = ["keenan@thebrocks.net"]
   spec.summary       = %q{Create an audiobook from a url}
   spec.description   = %q{This takes html files and creates a chapterized audiobook.
   It leverages Apple's speak command and audio book binder}

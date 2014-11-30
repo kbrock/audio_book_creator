@@ -147,9 +147,5 @@ module AudioBookCreator
     def default(key, value)
       self[key] = value if self[key].nil?
     end
-
-    def option_hash(*keys)
-      keys.each_with_object({}) { |key, h| h[key] = self[key] }
-    end
   end
 end

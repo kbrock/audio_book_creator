@@ -49,6 +49,29 @@ describe AudioBookCreator::Cli do
     end
   end
 
+  context "#set_logger" do
+    it "should default to error" do
+      subject.parse(%w(title http://site.com/))
+      subject.set_logger
+      expect(AudioBookCreator.logger.level).to eq(Logger::WARN)
+    end
+
+    it "should warn" do
+      subject.parse(%w(title http://site.com/ --verbose))
+      subject.set_logger
+      expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
+    end
+
+    it "should warn" do
+      subject.parse(%w(title http://site.com/ -v))
+      subject.set_logger
+      expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
+    end
+  end
+
+
+  # parameters
+
   context "#defaults" do
     it "should default values" do
       # NOTE: calling with no constructor
@@ -133,26 +156,6 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#set_logger" do
-    it "should default to error" do
-      subject.parse(%w(title http://site.com/))
-      subject.set_logger
-      expect(AudioBookCreator.logger.level).to eq(Logger::WARN)
-    end
-
-    it "should warn" do
-      subject.parse(%w(title http://site.com/ --verbose))
-      subject.set_logger
-      expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
-    end
-
-    it "should warn" do
-      subject.parse(%w(title http://site.com/ -v))
-      subject.set_logger
-      expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
-    end
-  end
-
   context "#make_directory_structure" do
     it "should create base directory" do
       subject.parse(%w(title http://site.com/))
@@ -202,14 +205,14 @@ describe AudioBookCreator::Cli do
   context "#outstanding" do
     it "sets url" do
       subject.parse(%w(title http://www.site.com/))
-      expect(subject.outstanding.shift).to eq(uri("http://www.site.com/"))
+      expect(subject.outstanding.shift.to_s).to eq("http://www.site.com/")
       expect(subject.outstanding.shift).to be_nil
     end
 
     it "should not visit same url twice" do
       subject.parse(%w(title http://site.com/page1 http://site.com/page2 http://site.com/page1))
-      expect(subject.outstanding.shift).to eq(uri("http://site.com/page1"))
-      expect(subject.outstanding.shift).to eq(uri("http://site.com/page2"))
+      expect(subject.outstanding.shift.to_s).to eq("http://site.com/page1")
+      expect(subject.outstanding.shift.to_s).to eq("http://site.com/page2")
       expect(subject.outstanding.shift).to be_nil
     end
   end
