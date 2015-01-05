@@ -55,6 +55,7 @@ module AudioBookCreator
         option(opts, :rate, "--rate NUMBER", Integer, "Set words per minute")
         option(opts, :voice, "--voice STRING", "Set speaker voice")
         option(opts, :base_dir, "--base-dir STRING", "Directory to hold files")
+        option(opts, :itunes, "--itunes", "-A", "Load book into itunes")
       end
       options.parse!(argv)
       set_args(argv, options.to_s)
@@ -119,7 +120,7 @@ module AudioBookCreator
     end
 
     def binder
-      @binder ||= Binder.new(book_def, speaker_def, force: self[:regen_audio])
+      @binder ||= Binder.new(book_def, speaker_def, force: self[:regen_audio], itunes: self[:itunes])
     end
 
     def run
