@@ -3,6 +3,7 @@ module AudioBookCreator
     attr_accessor :book_def
     attr_accessor :speaker_def
     attr_accessor :force
+    attr_accessor :itunes
 
     # these are more for documentation than actual variables
 
@@ -23,7 +24,8 @@ module AudioBookCreator
     private
 
     def params(chapters)
-      {
+      ret = {
+        "-A" => nil, # add audiobook to iTunes
         "-a" => book_def.author,
         "-t" => book_def.title,
         "-b" => speaker_def.bit_rate,
@@ -33,10 +35,11 @@ module AudioBookCreator
         "-l" => speaker_def.max_hours,
         "-o" => book_def.filename,
         # "-v" => verbose,
-        # "-A" => nil, #    add audiobook to iTunes
         # "-C" => "file.png" cover image
         nil  => chapter_params(chapters),
       }
+      ret.delete("-A") unless itunes
+      ret
     end
 
     def chapter_params(chapters)
