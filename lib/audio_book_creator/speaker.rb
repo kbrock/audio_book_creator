@@ -10,6 +10,10 @@ module AudioBookCreator
       options.each { |n, v| public_send("#{n}=", v) }
     end
 
+    def make_directory_structure
+      FileUtils.mkdir(book_def.base_dir) unless File.exist?(book_def.base_dir)
+    end
+
     def say(chapter)
       raise "Empty chapter" if chapter.empty?
       text_filename = book_def.chapter_text_filename(chapter)
@@ -19,6 +23,7 @@ module AudioBookCreator
       AudioBookCreator.optionally_run(sound_filename, force) do
         ["say", params: params(text_filename, sound_filename)]
       end
+      AudioBookCreator::SpokenChapter.new(chapter.title, sound_filename)
     end
 
     private

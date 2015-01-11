@@ -156,22 +156,6 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#make_directory_structure" do
-    it "should create base directory" do
-      subject.parse(%w(title http://site.com/))
-      expect(File).to receive(:exist?).with(subject.book_def.base_dir).and_return(false)
-      expect(FileUtils).to receive(:mkdir).with(subject.book_def.base_dir)
-      subject.make_directory_structure
-    end
-
-    it "should not create base directory if it exists" do
-      subject.parse(%w(title http://site.com/))
-      expect(File).to receive(:exist?).with(subject.book_def.base_dir).and_return(true)
-      expect(FileUtils).not_to receive(:mkdir)
-      subject.make_directory_structure
-    end
-  end
-
   context "max param" do
     it "should default to 10" do
       subject.parse(%w(title http://www.site.com/))
@@ -337,11 +321,10 @@ describe AudioBookCreator::Cli do
   # this is kinda testing the implementation
   context "#run" do
     it "should call all the constructors and components" do
-      # make_directory_structure:
-      expect(File).to receive(:exist?).with("title").and_return(true)
       # spider:
       expect_visit_page("http://site.com/", "<h1>title</h1>", "<p>contents</p>")
       # speaker:
+      expect(File).to receive(:exist?).with("title").and_return(true)
       expect(File).to receive(:exist?).with("title/chapter01.txt").and_return(true)
       expect(File).to receive(:exist?).with("title/chapter01.m4a").and_return(true)
       # binder

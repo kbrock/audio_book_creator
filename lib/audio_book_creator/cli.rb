@@ -125,18 +125,14 @@ module AudioBookCreator
 
     def run
       set_logger
-      make_directory_structure
       visited_pages = spider.run(outstanding)
-      chapters = editor.parse(visited_pages)
-      chapters.each do |chapter|
-        speaker.say(chapter)
-      end
-      binder.create(chapters)
-    end
 
-    # create the directory that will house the cache and temporary files
-    def make_directory_structure
-      FileUtils.mkdir(book_def.base_dir) unless File.exist?(book_def.base_dir)
+      speaker.make_directory_structure
+      binder.create(
+        editor.parse(visited_pages).each do |chapter|
+          speaker.say(chapter)
+        end
+      )
     end
 
     private

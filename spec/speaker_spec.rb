@@ -14,7 +14,7 @@ describe AudioBookCreator::Speaker do
 
     expect(File).not_to receive(:write)
     expect_runner.not_to receive(:system)
-    subject.say(chapter("content"))
+    expect(subject.say(chapter)).to eq(spoken_chapter("the title", "dir/chapter01.m4a"))
   end
 
   it "should create text and mp4 file" do
@@ -23,7 +23,7 @@ describe AudioBookCreator::Speaker do
 
     expect_runner.to receive(:system)
       .with("say", "-v", "Vicki", "-r", "280", "-f", "dir/chapter01.txt", "-o", "dir/chapter01.m4a").and_return(true)
-    subject.say(chapter("content"))
+    subject.say(chapter)
   end
 
   it "doesnt print if not verbose" do
@@ -31,7 +31,7 @@ describe AudioBookCreator::Speaker do
     expect(File).to receive(:write)
 
     expect_runner.to receive(:system).and_return(true)
-    subject.say(chapter("content"))    
+    subject.say(chapter)
     expect_to_have_logged()
   end
 
@@ -41,7 +41,7 @@ describe AudioBookCreator::Speaker do
     expect(File).to receive(:write)
 
     expect_runner.to receive(:system).and_return(true)
-    subject.say(chapter("content"))
+    subject.say(chapter)
     expect_to_have_logged(/^run:/, "", "", "success")
   end
 
@@ -51,7 +51,7 @@ describe AudioBookCreator::Speaker do
     expect(File).to receive(:write)
 
     expect_runner.to receive(:system).and_return(true)
-    subject.say(chapter("content"))
+    subject.say(chapter)
   end
 
   it "should create a speaker with no options" do
@@ -60,6 +60,20 @@ describe AudioBookCreator::Speaker do
 
   it "should freak if no chapters are passed in" do
     expect { subject.say([]) }.to raise_error("Empty chapter")
+  end
+
+  context "#make_directory_structure" do
+    it "should create base directory" do
+      expect(File).to receive(:exist?).with(subject.book_def.base_dir).and_return(false)
+      expect(FileUtils).to receive(:mkdir).with(subject.book_def.base_dir)
+      subject.make_directory_structure
+    end
+
+    it "should not create base directory if it exists" do
+      expect(File).to receive(:exist?).with(subject.book_def.base_dir).and_return(true)
+      expect(FileUtils).not_to receive(:mkdir)
+      subject.make_directory_structure
+    end
   end
 
   private
