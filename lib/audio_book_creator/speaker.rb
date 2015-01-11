@@ -15,12 +15,9 @@ module AudioBookCreator
       text_filename = book_def.chapter_text_filename(chapter)
       sound_filename = book_def.chapter_sound_filename(chapter)
 
-      if AudioBookCreator.should_write?(text_filename, force)
-        File.write(text_filename, chapter.to_s)
-      end
-
-      if AudioBookCreator.should_write?(sound_filename, force)
-        Runner.new.run!("say", params: params(text_filename, sound_filename))
+      AudioBookCreator.optionally_write(text_filename, force) { chapter.to_s }
+      AudioBookCreator.optionally_run(sound_filename, force) do
+        ["say", params: params(text_filename, sound_filename)]
       end
     end
 

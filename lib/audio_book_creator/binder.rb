@@ -16,8 +16,8 @@ module AudioBookCreator
     def create(chapters)
       raise "No Chapters" if chapters.nil? || chapters.empty?
 
-      if AudioBookCreator.should_write?(book_def.filename, force)
-        Runner.new.run!("abbinder", params: params(chapters))
+      AudioBookCreator.optionally_run(book_def.filename, force) do
+        ["abbinder", params: params(chapters)]
       end
     end
 
