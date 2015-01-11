@@ -6,6 +6,18 @@ module AudioBookCreator
     force || !File.exist?(filename)
   end
 
+  def self.optionally_write(filename, force = nil)
+    if should_write?(filename, force)
+      File.write(filename, yield)
+    end
+  end
+
+  def self.optionally_run(filename, force = nil)
+    if should_write?(filename, force)
+      Runner.new.run!(*yield)
+    end
+  end
+
   def self.logger=(val)
     @log = val
   end
