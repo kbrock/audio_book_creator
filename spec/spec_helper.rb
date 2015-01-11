@@ -47,8 +47,12 @@ module SpecHelpers
     end
   end
 
-  def chapter(body, title = "the title", number = 1)
+  def chapter(body = "content", title = "the title", number = 1)
     AudioBookCreator::Chapter.new(number: number, title: title, body: body)
+  end
+
+  def spoken_chapter(title = "the title", filename = "dir/chapter01.m4a")
+    AudioBookCreator::SpokenChapter.new(title, filename)
   end
 
   def enable_logging

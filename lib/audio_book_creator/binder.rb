@@ -51,7 +51,7 @@ module AudioBookCreator
     end
 
     def cfilename(chapter)
-      book_def.chapter_sound_filename(chapter)
+      chapter.filename
     end
   end
 end

@@ -13,13 +13,13 @@ describe AudioBookCreator::Binder do
     expect(File).to receive(:exist?).with("title.m4b").and_return(true)
 
     expect_runner.not_to receive(:system)
-    subject.create([chapter("content")])
+    subject.create([spoken_chapter])
   end
 
   it "should base filename on title and sanitize it" do
     book_def.title = "the title"
     expect(File).to receive(:exist?).with("the-title.m4b").and_return(true)
-    subject.create([chapter("content")])
+    subject.create([spoken_chapter])
   end
 
   it "should create text and m4a file" do
@@ -29,7 +29,7 @@ describe AudioBookCreator::Binder do
       .with("abbinder", "-a", "Vicki", "-t", "title", "-b", "32", "-c", "1",
             "-r", "22050", "-g", "Audiobook", "-l", "7", "-o", "title.m4b",
             "@the title@", "dir/chapter01.m4a").and_return(true)
-    subject.create([chapter("content")])
+    subject.create([spoken_chapter])
   end
 
   it "outputs messages if set to verbose" do
@@ -38,7 +38,7 @@ describe AudioBookCreator::Binder do
 
     expect_runner.to receive(:system).and_return(true)
 
-    subject.create([chapter("content")])
+    subject.create([spoken_chapter])
     expect_to_have_logged(/^run:/, "", "","success")
   end
 
@@ -46,7 +46,7 @@ describe AudioBookCreator::Binder do
     expect(File).to receive(:exist?).and_return(false)
 
     expect_runner.to receive(:system).and_return(true)
-    subject.create([chapter("content")])
+    subject.create([spoken_chapter])
     expect_to_have_logged()
   end
 
@@ -55,7 +55,7 @@ describe AudioBookCreator::Binder do
     expect(File).not_to receive(:exist?)
 
     expect_runner.to receive(:system).and_return(true)
-    subject.create([chapter("content")])
+    subject.create([spoken_chapter])
   end
 
   it "requires chapters to be passed in" do

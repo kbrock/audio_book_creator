@@ -19,6 +19,7 @@ module AudioBookCreator
       AudioBookCreator.optionally_run(sound_filename, force) do
         ["say", params: params(text_filename, sound_filename)]
       end
+      AudioBookCreator::SpokenChapter.new(chapter.title, sound_filename)
     end
 
     private
