@@ -32,6 +32,20 @@ describe AudioBookCreator::Binder do
     subject.create([spoken_chapter])
   end
 
+
+  context "with itunes" do
+    subject { described_class.new(book_def, speaker_def, itunes: true ) }
+    it "should load into itunes" do
+      expect(File).to receive(:exist?).with("title.m4b").and_return(false)
+
+      expect_runner.to receive(:system)
+        .with("abbinder", "-A", "-a", "Vicki", "-t", "title", "-b", "32", "-c", "1",
+              "-r", "22050", "-g", "Audiobook", "-l", "7", "-o", "title.m4b",
+              "@the title@", "dir/chapter01.m4a").and_return(true)
+      subject.create([spoken_chapter])
+    end
+  end
+
   it "outputs messages if set to verbose" do
     enable_logging
     expect(File).to receive(:exist?).and_return(false)
@@ -50,12 +64,26 @@ describe AudioBookCreator::Binder do
     expect_to_have_logged()
   end
 
-  it "should create m4a if exists but are set to force" do
-    subject.force = true
-    expect(File).not_to receive(:exist?)
+  context "with force" do
+    subject { described_class.new(book_def, speaker_def, force: true ) }
 
-    expect_runner.to receive(:system).and_return(true)
-    subject.create([spoken_chapter])
+    it "should create m4a if exists" do
+      expect(File).not_to receive(:exist?)
+
+      expect_runner.to receive(:system).and_return(true)
+      subject.create([spoken_chapter])
+    end
+  end
+
+  context "with false force" do
+    subject { described_class.new(book_def, speaker_def, force: false ) }
+
+    it "should not create m4a if exists" do
+      expect(File).to receive(:exist?).and_return(true)
+
+      expect_runner.not_to receive(:system)
+      subject.create([spoken_chapter])
+    end
   end
 
   it "requires chapters to be passed in" do

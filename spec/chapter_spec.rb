@@ -43,13 +43,17 @@ describe AudioBookCreator::Chapter do
     expect(described_class.new).to be_empty
   end
 
-  context "#eq" do
+  context "#eq1" do
     it "should understand ==" do
       expect(subject).to eq(described_class.new(number: 1, title: "title1", body: "body1"))
     end
 
     it "should understand != nil" do
       expect(subject).not_to eq(nil)
+    end
+
+    it "should understand != different class" do
+      expect(subject).not_to eq("abc")
     end
 
     it "should understand != number" do
