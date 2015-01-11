@@ -19,17 +19,6 @@ describe AudioBookCreator::BookDef do
     it { expect(subject.cache_filename).to eq("cachename") }
 
     it { expect(subject.filename).to eq("the-title.m4b") }
-
-    context "#chapter_text_filename" do
-      let(:chapter) { AudioBookCreator::Chapter.new(number: 3) }
-
-      it { expect(subject.chapter_text_filename(chapter)).to eq("dir/chapter03.txt") }
-    end
-
-    context "#chapter_sound_filename" do
-      let(:chapter) { AudioBookCreator::Chapter.new(number: 2) }
-      it { expect(subject.chapter_sound_filename(chapter)).to eq("dir/chapter02.m4a") }
-    end
   end
 
   context ".sanitize_filename" do

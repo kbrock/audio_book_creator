@@ -18,14 +18,6 @@ module AudioBookCreator
       @cache_filename = cache_filename || "#{@base_dir}/pages.db"
     end
 
-    def chapter_text_filename(chapter)
-      "#{base_dir}/#{chapter.filename}.txt"
-    end
-
-    def chapter_sound_filename(chapter)
-      "#{base_dir}/#{chapter.filename}.m4a"
-    end
-
     def filename
       BookDef.sanitize_filename(title, "m4b")
     end

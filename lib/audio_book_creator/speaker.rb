@@ -16,14 +16,22 @@ module AudioBookCreator
 
     def say(chapter)
       raise "Empty chapter" if chapter.empty?
-      text_filename = book_def.chapter_text_filename(chapter)
-      sound_filename = book_def.chapter_sound_filename(chapter)
+      text_filename = chapter_text_filename(chapter)
+      sound_filename = chapter_sound_filename(chapter)
 
       AudioBookCreator.optionally_write(text_filename, force) { chapter.to_s }
       AudioBookCreator.optionally_run(sound_filename, force) do
         ["say", params: params(text_filename, sound_filename)]
       end
       AudioBookCreator::SpokenChapter.new(chapter.title, sound_filename)
+    end
+
+    def chapter_text_filename(chapter)
+      "#{book_def.base_dir}/#{chapter.filename}.txt"
+    end
+
+    def chapter_sound_filename(chapter)
+      "#{book_def.base_dir}/#{chapter.filename}.m4a"
     end
 
     private
