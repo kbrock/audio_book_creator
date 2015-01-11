@@ -62,6 +62,20 @@ describe AudioBookCreator::Speaker do
     expect { subject.say([]) }.to raise_error("Empty chapter")
   end
 
+  context "#make_directory_structure" do
+    it "should create base directory" do
+      expect(File).to receive(:exist?).with(subject.book_def.base_dir).and_return(false)
+      expect(FileUtils).to receive(:mkdir).with(subject.book_def.base_dir)
+      subject.make_directory_structure
+    end
+
+    it "should not create base directory if it exists" do
+      expect(File).to receive(:exist?).with(subject.book_def.base_dir).and_return(true)
+      expect(FileUtils).not_to receive(:mkdir)
+      subject.make_directory_structure
+    end
+  end
+
   private
 
   def expect_runner
