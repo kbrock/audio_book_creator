@@ -21,6 +21,11 @@ describe AudioBookCreator::BookDef do
     it { expect(subject.filename).to eq("the-title.m4b") }
   end
 
+  context "with derived title" do
+    subject { described_class.new("the title", "author", nil, 5, "cachename") }
+    it { expect(subject.base_dir).to eq("the-title.5") }
+  end
+
   context ".sanitize_filename" do
     subject { described_class }
     it "should join strings" do
