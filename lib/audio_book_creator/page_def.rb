@@ -10,9 +10,9 @@ module AudioBookCreator
       @max_paragraphs = max_paragraphs
     end
 
-    def title(dom, default_title)
+    def title(dom)
       title = dom.css(title_path).first
-      title = title ? title.text : default_title
+      title.text if title
     end
 
     def body(dom)
