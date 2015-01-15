@@ -44,6 +44,7 @@ module AudioBookCreator
         opts.version = VERSION
         opts.banner = "Usage: audio_book_creator [options] title url [url] [...]"
         option(opts, :verbose, "-v", "--verbose", "Run verbosely")
+        # 
         option(opts, :title_path, "--title STRING", "Title css (e.g.: h1)")
         option(opts, :body_path, "--body STRING", "Content css (e.g.: p)")
         option(opts, :link_path, "--link STRING", "Follow css (e.g.: a.Next)")
@@ -125,11 +126,11 @@ module AudioBookCreator
 
     def run
       set_logger
-      visited_pages = spider.run(outstanding)
 
       speaker.make_directory_structure
+      visited_pages = spider.run(outstanding)
       binder.create(
-        editor.parse(visited_pages).each do |chapter|
+        editor.parse(visited_pages).map do |chapter|
           speaker.say(chapter)
         end
       )
