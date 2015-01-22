@@ -33,8 +33,18 @@ describe AudioBookCreator::Chapter do
     expect(subject.filename).to eq("chapter01")
   end
 
-  it "should provide to_s" do
-    expect(subject.to_s).to eq("title1\n\nbody1\n")
+  # this is how the values are currently passed from page_def into chapter
+  describe "#to_s" do
+    context "with dom nodes" do
+      subject { described_class.new(number: 1, title: "title1", body: dom_nodes("body1")) }
+      it "should support dom nodes with to_s" do
+        expect(subject.to_s).to eq("title1\n\nbody1\n")
+      end
+    end
+
+    it "should provide to_s" do
+      expect(subject.to_s).to eq("title1\n\nbody1\n")
+    end
   end
 
   it { expect(subject).not_to be_empty }
@@ -43,7 +53,7 @@ describe AudioBookCreator::Chapter do
     expect(described_class.new).to be_empty
   end
 
-  context "#eq1" do
+  describe "#eq1" do
     it "should understand ==" do
       expect(subject).to eq(described_class.new(number: 1, title: "title1", body: "body1"))
     end

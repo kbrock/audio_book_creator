@@ -47,6 +47,14 @@ module SpecHelpers
     end
   end
 
+  def dom(str)
+    Nokogiri::HTML(str)
+  end
+
+  def dom_nodes(strs)
+    Nokogiri::HTML(Array[strs].map{ |str| "<p>#{str}</p>" }.join).css("p")
+  end
+
   def chapter(body = "content", title = "the title", number = 1)
     AudioBookCreator::Chapter.new(number: number, title: title, body: body)
   end
