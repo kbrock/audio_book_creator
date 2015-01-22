@@ -124,16 +124,13 @@ module AudioBookCreator
       @binder ||= Binder.new(book_def, speaker_def, force: self[:regen_audio], itunes: self[:itunes])
     end
 
+    def creator
+      @creator ||= BookCreator.new(spider, editor, speaker, binder)
+    end
+
     def run
       set_logger
-
-      speaker.make_directory_structure
-      visited_pages = spider.run(outstanding)
-      binder.create(
-        editor.parse(visited_pages).map do |chapter|
-          speaker.say(chapter)
-        end
-      )
+      creator.create(outstanding)
     end
 
     private

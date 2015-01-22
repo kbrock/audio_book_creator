@@ -317,31 +317,4 @@ describe AudioBookCreator::Cli do
       expect(subject.binder.force).to be_truthy
     end
   end
-
-  # this is kinda testing the implementation
-  context "#run" do
-    it "should call all the constructors and components" do
-      # spider:
-      expect_visit_page("http://site.com/", "<h1>title</h1>", "<p>contents</p>")
-      # speaker:
-      expect(File).to receive(:exist?).with("title").and_return(true)
-      expect(File).to receive(:exist?).with("title/chapter01.txt").and_return(true)
-      expect(File).to receive(:exist?).with("title/chapter01.m4a").and_return(true)
-      # binder
-      expect(File).to receive(:exist?).with("title.m4b").and_return(true)
-      # chain parse and run to mimic bin/audio_book_creator
-      subject.parse(%w(title http://site.com/ -v)).run
-      expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
-    end
-  end
-
-  private
-
-  # NOTE: this uses any_instance because we don't want to instantiate anything
-  # could assign web and use a double instead
-  def expect_visit_page(url, *args)
-    url = site(url)
-    expect_any_instance_of(AudioBookCreator::Web).to receive(:[])
-      .with(url).and_return(page(url, *args))
-  end
 end
