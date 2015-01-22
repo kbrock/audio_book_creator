@@ -309,12 +309,39 @@ describe AudioBookCreator::Cli do
       expect(subject.binder.book_def).to eq(subject.book_def)
       expect(subject.binder.speaker_def).to eq(subject.speaker_def)
       expect(subject.binder.force).not_to be_truthy
+      expect(subject.binder.itunes).not_to be_truthy
       # NOTE: not currently passed
     end
 
     it "should set force" do
       subject.parse(%w(title http://site.com/ --force-audio))
       expect(subject.binder.force).to be_truthy
+    end
+
+    it "should set itunes" do
+      subject.parse(%w(title http://site.com/ -A))
+      expect(subject.binder.itunes).to be_truthy
+    end
+  end
+
+  describe "#creator" do
+    it "should create a book creator" do
+      subject.parse(%w(title http://site.com/))
+      expect(subject.creator.spider).to  eq(subject.spider)
+      expect(subject.creator.editor).to  eq(subject.editor)
+      expect(subject.creator.speaker).to eq(subject.speaker)
+      expect(subject.creator.binder).to  eq(subject.binder)
+    end
+  end
+
+  describe "#run" do
+    it "should call book creator" do
+      subject.parse(%w(title http://site.com/))
+      creator = double(:creator)
+      expect(creator).to receive(:create).with(subject.outstanding).and_return("YAY")
+      expect(subject).to receive(:set_logger)
+      expect(subject).to receive(:creator).and_return(creator)
+      expect(subject.run).to eq("YAY")
     end
   end
 end
