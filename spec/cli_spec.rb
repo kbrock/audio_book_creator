@@ -7,31 +7,13 @@ require 'audio_book_creator/cli'
 
 describe AudioBookCreator::Cli do
   # this sidesteps creating a database file
-  subject { described_class.new(database: ":memory:") }
+  subject { described_class.new.tap { |s| s.database = ":memory:" } }
 
-  context "basic arguments" do
-    it "should treat first arguments as a url" do
-      subject.parse(%w(title http://site.com/))
-      expect(subject[:title]).to eq("title")
-      expect(subject[:urls]).to eq(%w(http://site.com/))
-    end
-
-    it "should support multiple urls" do
-      subject.parse(%w(title http://site.com/page1 http://site.com/page2))
-      expect(subject[:title]).to eq("title")
-      expect(subject[:urls]).to eq(%w(http://site.com/page1 http://site.com/page2))
-    end
-
-    it "should require 2 parameters" do
-      expect($stdout).to receive(:puts).with(/url/, /Usage.*title/)
-      expect(subject).to receive(:exit).with(2).and_raise("exited")
-      expect { subject.parse(%w(title_only)) }.to raise_error("exited")
-    end
-  end
-
+  # this is testing the spec more than the objects
+  # since we didn't want to create the cache file, this is necessary
   context "database name" do
     it "defaults to test override" do
-      expect(subject[:database]).to eq(":memory:")
+      expect(subject.database).to eq(":memory:")
     end
 
     it "creates database with overriden value" do
@@ -41,7 +23,7 @@ describe AudioBookCreator::Cli do
     end
 
     it "creates database based upon title" do
-      subject[:database] = nil # removes the default test name of :memory:
+      subject.database = nil # removes the default test name of :memory:
       subject.parse(%w(title http://site.com/))
       expect(subject.book_def.cache_filename).to eq("title/pages.db")
       expect(subject.page_cache.filename).to eq(subject.book_def.cache_filename)
@@ -49,20 +31,44 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#set_logger" do
-    it "should default to error" do
+  context "with one argument" do
+    it "displays an error" do
+      expect($stdout).to receive(:puts).with(/url/, /Usage.*title/)
+      expect(subject).to receive(:exit).with(2).and_raise("exited")
+      expect { subject.parse(%w(title_only)) }.to raise_error("exited")
+    end
+  end
+
+  context "with 2 arguments" do
+    it "assigns title and url" do
+      subject.parse(%w(title http://site.com/))
+      expect(subject[:title]).to eq("title")
+      expect(subject[:urls]).to eq(%w(http://site.com/))
+    end
+
+    it "defaults to error" do
       subject.parse(%w(title http://site.com/))
       subject.set_logger
       expect(AudioBookCreator.logger.level).to eq(Logger::WARN)
     end
+  end
 
-    it "should warn" do
+  context "with multiple urls" do
+    it "has multiple urls" do
+      subject.parse(%w(title http://site.com/page1 http://site.com/page2))
+      expect(subject[:title]).to eq("title")
+      expect(subject[:urls]).to eq(%w(http://site.com/page1 http://site.com/page2))
+    end
+  end
+
+  context "with verbose" do
+    it "defaults to warning logging" do
       subject.parse(%w(title http://site.com/ --verbose))
       subject.set_logger
       expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
     end
 
-    it "should warn" do
+    it "defaults to warning" do
       subject.parse(%w(title http://site.com/ -v))
       subject.set_logger
       expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
@@ -80,10 +86,6 @@ describe AudioBookCreator::Cli do
       expect(pristine[:title_path]).to eq("h1")
       expect(pristine[:body_path]).to eq("p")
       expect(pristine[:link_path]).to eq("a")
-    end
-
-    it "should not overwrite constructor values with defaults" do
-      expect(described_class.new(max: 20)[:max]).to eq(20)
     end
   end
 
@@ -115,7 +117,7 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#version" do
+  context "with version" do
     it "should provide version" do
       expect($stdout).to receive(:puts).with(/audio_book_creator #{AudioBookCreator::VERSION}/)
       expect { subject.parse(%w(--version)) }.to raise_error(SystemExit)

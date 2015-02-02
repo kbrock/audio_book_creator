@@ -6,20 +6,13 @@ require 'uri'
 module AudioBookCreator
   class Cli
     include Logging
-    def initialize(options = {})
-      @options = options
-      set_defaults
+    def initialize
+      @options = {max: 10, title_path: "h1", body_path: "p", link_path: "a"}
     end
 
     # stub for testing
     attr_writer :web
-
-    def set_defaults
-      default(:max, 10)
-      default(:title_path, "h1")
-      default(:body_path, "p")
-      default(:link_path, "a")
-    end
+    attr_accessor :database
 
     def set_args(argv, usage)
       self[:title] = argv.shift
@@ -71,7 +64,7 @@ module AudioBookCreator
     end
 
     def book_def
-      @book_def ||= BookDef.new(self[:title], self[:author], self[:base_dir], self[:max_paragraphs], self[:database])
+      @book_def ||= BookDef.new(self[:title], nil, self[:base_dir], self[:max_paragraphs], self.database)
     end
 
     def speaker_def
@@ -137,10 +130,6 @@ module AudioBookCreator
 
     def option(opts, value, *args)
       opts.on(*args) { |v| self[value] = v }
-    end
-
-    def default(key, value)
-      self[key] = value if self[key].nil?
     end
   end
 end
