@@ -92,6 +92,11 @@ describe AudioBookCreator::Cli do
   end
 
 
+  context "#parse" do
+    # actual cli calls subject.parse.run, so it needs to chain
+    it { expect(subject.parse(%w(http://site.com/title))).to eq(subject) }
+  end
+
   # parameters
 
   context "#defaults" do
@@ -155,6 +160,8 @@ describe AudioBookCreator::Cli do
       "--rate" => "Set words per minute",
       "--voice" => "Set speaker voice",
       "--base-dir" => "Directory to hold files",
+      "-A" => "Load book into itunes",
+      "--itunes" => "Load book into itunes",
     }.each do |switch, text|
       it "should display #{text} for #{switch} option" do
         expect($stdout).to receive(:puts).with(/#{switch}.*#{text}/)
@@ -195,6 +202,7 @@ describe AudioBookCreator::Cli do
     it "should have database based upon title" do
       subject.parse(%w(http://site.com/title))
       # defaults
+      expect(subject.page_cache.filename).to eq(subject.book_def.cache_filename)
       expect(subject.page_cache.force).not_to be_truthy
     end
 
@@ -222,7 +230,16 @@ describe AudioBookCreator::Cli do
   context "#spider" do
     it "sets references" do
       subject.parse(%w(http://site.com/title))
+      expect(subject.spider.page_def).to eq(subject.page_def)
       expect(subject.spider.web).to eq(subject.cached_web)
+      expect(subject.spider.invalid_urls).to eq(subject.invalid_urls)
+    end
+  end
+
+  context "#invalid_urls" do
+    it "sets host for invalid urls" do
+      subject.parse(%w(http://site.com/title))
+      expect(subject.invalid_urls.host).to eq("site.com")
     end
   end
 
@@ -264,6 +281,12 @@ describe AudioBookCreator::Cli do
       expect(subject.book_def.base_dir).to eq("title")
       expect(subject.book_def.title).to eq("title")
       expect(subject.book_def.author).to eq("Vicki")
+      expect(subject.book_def.cache_filename).to eq(subject.database)
+    end
+
+    it "should leverage max paragraphs" do
+      subject.parse(%w(http://site.com/title --max-p 5))
+      expect(subject.book_def.base_dir).to eq("title.5")
     end
 
     it "should support basedir" do
@@ -298,11 +321,24 @@ describe AudioBookCreator::Cli do
     end
   end
 
+  context "#cached_web" do
+    it "default" do
+      subject.parse(%w(http://site.com/title))
+      expect(subject.cached_web.cache).to eq(subject.page_cache)
+      expect(subject.cached_web.main).to eq(subject.web)
+      expect(subject.cached_web).to respond_to(:main)
+    end
+  end
+
   context "#editor" do
     it "should create editor" do
       subject.parse(%w(http://site.com/title))
       # defaults
       expect(subject.editor.page_def).to eq(subject.page_def)
+      # needs to be an editor
+      expect(subject.editor).to respond_to(:parse)
+      # hack
+      expect(subject.editor).not_to eq(subject)
     end
   end
 
@@ -310,8 +346,10 @@ describe AudioBookCreator::Cli do
     it "should create speaker" do
       subject.parse(%w(http://site.com/title))
       # defaults
+      expect(subject.speaker.speaker_def).to eq(subject.speaker_def)
       expect(subject.speaker.book_def).to eq(subject.book_def)
       expect(subject.speaker.force).not_to be_truthy
+      expect(subject.speaker).to respond_to(:say)
     end
 
     it "should set force" do
@@ -349,6 +387,7 @@ describe AudioBookCreator::Cli do
       expect(subject.creator.editor).to  eq(subject.editor)
       expect(subject.creator.speaker).to eq(subject.speaker)
       expect(subject.creator.binder).to  eq(subject.binder)
+      expect(subject.creator).to respond_to(:create)
     end
   end
 
