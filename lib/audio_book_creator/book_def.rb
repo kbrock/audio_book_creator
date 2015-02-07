@@ -4,8 +4,6 @@ module AudioBookCreator
     attr_accessor :title
     attr_accessor :author
 
-    attr_accessor :max_paragraphs
-
     # only set for testing purposes (stubbed to :memory:)
     attr_accessor :cache_filename
 
@@ -13,7 +11,6 @@ module AudioBookCreator
       @title    = title
       @base_dir = base_dir || BookDef.sanitize_filename(title, max_paragraphs)
       @author   = author   || "Vicki"
-      @max_paragraphs = max_paragraphs
 
       @cache_filename = cache_filename || "#{@base_dir}/pages.db"
     end
