@@ -15,11 +15,16 @@ module AudioBookCreator
     attr_accessor :database
 
     def set_args(argv, usage)
-      self[:title] = argv.shift
-      self[:urls] = argv
-      if self[:urls].empty?
-        puts "please provide title and url", usage
+      first = argv.first
+      if !first
+        puts "please url", usage
         exit 2
+      elsif first.include?("://")
+        self[:title] = argv.first.split("/").last
+        self[:urls] = argv
+      else
+        self[:title] = argv.shift
+        self[:urls] = argv
       end
     end
 
