@@ -26,19 +26,19 @@ module AudioBookCreator
     end
 
     def each(&block)
-      db.execute "select * from pages order by rowid", &block
+      db.execute "select name, contents from pages order by rowid", &block
     end
 
     private
 
     def db
-      @db ||= create(force)
+      @db ||= create
     end
 
-    def create(clear = false)
+    def create
       SQLite3::Database.new(filename).tap do |db|
         db.execute("create table if not exists pages (name text, contents blob)")
-        db.execute "delete from pages" if clear
+        db.execute "delete from pages" if force
       end
     end
   end

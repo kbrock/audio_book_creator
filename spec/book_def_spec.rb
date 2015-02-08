@@ -51,5 +51,4 @@ describe AudioBookCreator::BookDef do
       expect(subject.sanitize_filename("title,for!")).to eq("title-for")
     end
   end
-
 end

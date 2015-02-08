@@ -6,6 +6,7 @@ describe AudioBookCreator::Binder do
   subject { described_class.new(book_def, speaker_def) }
 
   it "should require a chapter" do
+    expect_runner.not_to receive(:system)
     expect { subject.create([]) }.to raise_error
   end
 
@@ -18,6 +19,7 @@ describe AudioBookCreator::Binder do
 
   it "should base filename on title and sanitize it" do
     book_def.title = "the title"
+    expect_runner.not_to receive(:system)
     expect(File).to receive(:exist?).with("the-title.m4b").and_return(true)
     subject.create([spoken_chapter])
   end
@@ -87,6 +89,7 @@ describe AudioBookCreator::Binder do
   end
 
   it "requires chapters to be passed in" do
+    expect_runner.not_to receive(:system)
     expect { subject.create(nil) }.to raise_error("No Chapters")
     expect { subject.create([]) }.to raise_error("No Chapters")
   end

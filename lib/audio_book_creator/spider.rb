@@ -45,7 +45,7 @@ module AudioBookCreator
     def uri(url, alt = nil)
       return unless url
       url = URI.parse(url) unless url.is_a?(URI)
-      url = url + alt if alt
+      url += alt if alt
       url.fragment = nil # remove #x part of url
       url
     end
