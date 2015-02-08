@@ -4,10 +4,10 @@ module AudioBookCreator
     attr_accessor :book_def
     attr_accessor :force
 
-    def initialize(speaker_def, book_def, options = {})
+    def initialize(speaker_def, book_def, force)
       @speaker_def = speaker_def
       @book_def = book_def
-      options.each { |n, v| public_send("#{n}=", v) }
+      @force = force
     end
 
     def make_directory_structure
@@ -23,7 +23,7 @@ module AudioBookCreator
       AudioBookCreator.optionally_run(sound_filename, force) do
         ["say", params: params(text_filename, sound_filename)]
       end
-      AudioBookCreator::SpokenChapter.new(chapter.title, sound_filename)
+      SpokenChapter.new(chapter.title, sound_filename)
     end
 
     def chapter_text_filename(chapter)

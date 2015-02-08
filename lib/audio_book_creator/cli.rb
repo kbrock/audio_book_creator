@@ -115,7 +115,7 @@ module AudioBookCreator
     end
 
     def speaker
-      @speaker ||= Speaker.new(speaker_def, book_def, force: self[:regen_audio])
+      @speaker ||= Speaker.new(speaker_def, book_def, self[:regen_audio])
     end
 
     def binder

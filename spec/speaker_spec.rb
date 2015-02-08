@@ -3,8 +3,9 @@ require "spec_helper"
 describe AudioBookCreator::Speaker do
   let(:book_def) { AudioBookCreator::BookDef.new("dir") }
   let(:speaker_def) { AudioBookCreator::SpeakerDef.new }
-  subject { described_class.new(speaker_def, book_def)}
+  subject { described_class.new(speaker_def, book_def, false) }
   it "should require a non empty chapter" do
+    expect_runner.not_to receive(:system)
     expect { subject.say(chapter(nil)) }.to raise_error
   end
 
@@ -45,31 +46,38 @@ describe AudioBookCreator::Speaker do
     expect_to_have_logged(/^run:/, "", "", "success")
   end
 
-  it "should create text and mp4 file if they exist but are set to force" do
-    subject.force = true
-    expect(File).not_to receive(:exist?)
-    expect(File).to receive(:write)
+  context "with force" do
+    subject { described_class.new(speaker_def, book_def, true) }
 
-    expect_runner.to receive(:system).and_return(true)
-    subject.say(chapter)
+    it "should create text and mp4 file if they exist but are set to force" do
+      expect(File).not_to receive(:exist?)
+      expect(File).to receive(:write)
+
+      expect_runner.to receive(:system).and_return(true)
+      subject.say(chapter)
+    end
   end
 
   it "should create a speaker with no options" do
-    expect { described_class.new(speaker_def, book_def) }.not_to raise_error
+    expect_runner.not_to receive(:system)
+    expect { described_class.new(speaker_def, book_def, false) }.not_to raise_error
   end
 
   it "should freak if no chapters are passed in" do
+    expect_runner.not_to receive(:system)
     expect { subject.say([]) }.to raise_error("Empty chapter")
   end
 
   context "#make_directory_structure" do
     it "should create base directory" do
+      expect_runner.not_to receive(:system)
       expect(File).to receive(:exist?).with(subject.book_def.base_dir).and_return(false)
       expect(FileUtils).to receive(:mkdir).with(subject.book_def.base_dir)
       subject.make_directory_structure
     end
 
     it "should not create base directory if it exists" do
+      expect_runner.not_to receive(:system)
       expect(File).to receive(:exist?).with(subject.book_def.base_dir).and_return(true)
       expect(FileUtils).not_to receive(:mkdir)
       subject.make_directory_structure
@@ -79,12 +87,18 @@ describe AudioBookCreator::Speaker do
   context "#chapter_text_filename" do
     let(:chapter) { AudioBookCreator::Chapter.new(number: 3) }
 
-    it { expect(subject.chapter_text_filename(chapter)).to eq("dir/chapter03.txt") }
+    it do
+      expect_runner.not_to receive(:system)
+      expect(subject.chapter_text_filename(chapter)).to eq("dir/chapter03.txt")
+    end
   end
 
   context "#chapter_sound_filename" do
     let(:chapter) { AudioBookCreator::Chapter.new(number: 2) }
-    it { expect(subject.chapter_sound_filename(chapter)).to eq("dir/chapter02.m4a") }
+    it do
+      expect_runner.not_to receive(:system)
+      expect(subject.chapter_sound_filename(chapter)).to eq("dir/chapter02.m4a")
+    end
   end
 
   private
