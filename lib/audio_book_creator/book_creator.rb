@@ -21,11 +21,9 @@ module AudioBookCreator
 
     def create(outstanding)
       speaker.make_directory_structure
-      binder.create(
-        editor.parse(spider.run(outstanding)).map do |chapter|
-          speaker.say(chapter)
-        end
-      )
+      chapters = editor.parse(spider.run(outstanding))
+      spoken_chapters = chapters.map { |chapter| speaker.say(chapter) }
+      binder.create(spoken_chapters)
     end
   end
 end

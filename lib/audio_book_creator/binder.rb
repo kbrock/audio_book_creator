@@ -7,7 +7,7 @@ module AudioBookCreator
 
     # these are more for documentation than actual variables
 
-    def initialize(book_def, speaker_def, force = false, itunes = false)
+    def initialize(book_def, speaker_def, force, itunes)
       @book_def = book_def
       @speaker_def = speaker_def
       @force = force

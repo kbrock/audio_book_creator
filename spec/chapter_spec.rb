@@ -48,10 +48,7 @@ describe AudioBookCreator::Chapter do
   end
 
   it { expect(subject).not_to be_empty }
-
-  it "should understand empty" do
-    expect(described_class.new).to be_empty
-  end
+  it { expect(described_class.new).to be_empty }
 
   describe "#eq1" do
     it "should understand ==" do
