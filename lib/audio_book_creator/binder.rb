@@ -7,10 +7,11 @@ module AudioBookCreator
 
     # these are more for documentation than actual variables
 
-    def initialize(book_def, speaker_def, options = {})
+    def initialize(book_def, speaker_def, force = false, itunes = false)
       @book_def = book_def
       @speaker_def = speaker_def
-      options.each { |n, v| public_send("#{n}=", v) }
+      @force = force
+      @itunes = itunes
     end
 
     def create(chapters)

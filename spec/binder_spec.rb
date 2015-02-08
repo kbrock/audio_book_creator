@@ -36,7 +36,7 @@ describe AudioBookCreator::Binder do
 
 
   context "with itunes" do
-    subject { described_class.new(book_def, speaker_def, itunes: true ) }
+    subject { described_class.new(book_def, speaker_def, false, true ) }
     it "should load into itunes" do
       expect(File).to receive(:exist?).with("title.m4b").and_return(false)
 
@@ -67,7 +67,7 @@ describe AudioBookCreator::Binder do
   end
 
   context "with force" do
-    subject { described_class.new(book_def, speaker_def, force: true ) }
+    subject { described_class.new(book_def, speaker_def, true ) }
 
     it "should create m4a if exists" do
       expect(File).not_to receive(:exist?)
@@ -78,7 +78,7 @@ describe AudioBookCreator::Binder do
   end
 
   context "with false force" do
-    subject { described_class.new(book_def, speaker_def, force: false ) }
+    subject { described_class.new(book_def, speaker_def, false ) }
 
     it "should not create m4a if exists" do
       expect(File).to receive(:exist?).and_return(true)
