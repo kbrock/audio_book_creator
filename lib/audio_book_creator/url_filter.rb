@@ -11,15 +11,7 @@ module AudioBookCreator
     end
 
     def host=(url)
-      if url
-        if url.is_a?(URI)
-          @host = url.host
-        else
-          @host = URI.parse(url).host
-        end
-      else
-        @host = nil
-      end
+      @host = url && (url.is_a?(URI) ? url : URI.parse(url)).host
     end
 
     # return true if this is invalid
