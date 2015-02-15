@@ -77,6 +77,10 @@ module AudioBookCreator
       @speaker_def ||= SpeakerDef.new(voice: self[:voice], rate: self[:rate], regen_audio: self[:regen_audio])
     end
 
+    def surfer_def
+      @surfer_def ||= SurferDef.new(self[:urls].first, self[:max], self[:regen_html])
+    end
+
     def set_logger
       logger.level = self[:verbose] ? Logger::INFO : Logger::WARN
     end
@@ -84,11 +88,11 @@ module AudioBookCreator
     # components
 
     def page_cache
-      @page_cache ||= PageDb.new(book_def.cache_filename, force: self[:regen_html])
+      @page_cache ||= PageDb.new(book_def.cache_filename, force: surfer_def.regen_html)
     end
 
     def web
-      @web ||= Web.new(self[:max])
+      @web ||= Web.new(surfer_def.max)
     end
 
     def cached_web
@@ -96,7 +100,7 @@ module AudioBookCreator
     end
 
     def invalid_urls
-      @invalid_urls ||= UrlFilter.new(host: self[:urls].first)
+      @invalid_urls ||= UrlFilter.new(host: surfer_def.host)
     end
 
     def outstanding
