@@ -12,7 +12,7 @@ module AudioBookCreator
 
     # stub for testing
     attr_writer :web
-    attr_accessor :database
+    attr_writer :database
 
     def set_args(argv, usage)
       first = argv.first
@@ -26,6 +26,11 @@ module AudioBookCreator
         self[:title] = argv.shift
         self[:urls] = argv
       end
+    end
+
+
+    def database
+      @database || "#{book_def.base_dir}/pages.db"
     end
 
     def [](name)
@@ -69,7 +74,7 @@ module AudioBookCreator
     end
 
     def book_def
-      @book_def ||= BookDef.new(self[:title], nil, self[:base_dir], self[:max_paragraphs], database, self[:urls],
+      @book_def ||= BookDef.new(self[:title], nil, self[:base_dir], self[:max_paragraphs], self[:urls],
                                 self[:itunes])
     end
 
@@ -78,7 +83,7 @@ module AudioBookCreator
     end
 
     def surfer_def
-      @surfer_def ||= SurferDef.new(self[:urls].first, self[:max], self[:regen_html])
+      @surfer_def ||= SurferDef.new(self[:urls].first, self[:max], self[:regen_html], database)
     end
 
     def set_logger
@@ -88,7 +93,7 @@ module AudioBookCreator
     # components
 
     def page_cache
-      @page_cache ||= PageDb.new(book_def.cache_filename, force: surfer_def.regen_html)
+      @page_cache ||= PageDb.new(surfer_def.cache_filename, force: surfer_def.regen_html)
     end
 
     def web
@@ -124,6 +129,7 @@ module AudioBookCreator
     end
 
     def creator
+      #@creator ||= BookCreator.new(page_def, book_def, speaker_def)
       @creator ||= BookCreator.new(spider, editor, speaker, binder)
     end
 

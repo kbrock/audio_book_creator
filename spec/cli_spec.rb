@@ -18,15 +18,15 @@ describe AudioBookCreator::Cli do
 
     it "creates database with overriden value" do
       subject.parse(%w(http://site.com/title))
-      expect(subject.book_def.cache_filename).to eq(":memory:")
-      expect(subject.page_cache.filename).to eq(subject.book_def.cache_filename)
+      expect(subject.surfer_def.cache_filename).to eq(":memory:")
+      expect(subject.page_cache.filename).to eq(subject.surfer_def.cache_filename)
     end
 
     it "creates database based upon title" do
       subject.database = nil # removes the default test name of :memory:
       subject.parse(%w(http://site.com/title))
-      expect(subject.book_def.cache_filename).to eq("title/pages.db")
-      expect(subject.page_cache.filename).to eq(subject.book_def.cache_filename)
+      expect(subject.surfer_def.cache_filename).to eq("title/pages.db")
+      expect(subject.page_cache.filename).to eq(subject.surfer_def.cache_filename)
       subject.page_cache
     end
   end
@@ -202,7 +202,7 @@ describe AudioBookCreator::Cli do
     it "should have database based upon title" do
       subject.parse(%w(http://site.com/title))
       # defaults
-      expect(subject.page_cache.filename).to eq(subject.book_def.cache_filename)
+      expect(subject.page_cache.filename).to eq(subject.surfer_def.cache_filename)
       expect(subject.page_cache.force).not_to be_truthy
     end
 
@@ -281,7 +281,7 @@ describe AudioBookCreator::Cli do
       expect(subject.book_def.base_dir).to eq("title")
       expect(subject.book_def.title).to eq("title")
       expect(subject.book_def.author).to eq("Vicki")
-      expect(subject.book_def.cache_filename).to eq(subject.database)
+      expect(subject.surfer_def.cache_filename).to eq(subject.database)
     end
 
     it "should leverage max paragraphs" do

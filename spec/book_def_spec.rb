@@ -6,30 +6,27 @@ describe AudioBookCreator::BookDef do
     it { expect(subject.base_dir).to eq("dir") }
     it { expect(subject.title).to eq("dir") }
     it { expect(subject.author).to eq("Vicki") }
-    it { expect(subject.cache_filename).to eq("dir/pages.db") }
     it { expect(subject.urls).to be_nil }
     it { expect(subject.itunes).to be_falsy }
   end
 
   context "with all parameters" do
-    subject { described_class.new("the title", "author", "dir", 5, "cachename", %w(a b), true) }
+    subject { described_class.new("the title", "author", "dir", 5, %w(a b), true) }
     it { expect(subject.base_dir).to eq("dir") }
     it { expect(subject.title).to eq("the title") }
     it { expect(subject.author).to eq("author") }
-    it { expect(subject.cache_filename).to eq("cachename") }
-
     it { expect(subject.filename).to eq("the-title.m4b") }
     it { expect(subject.urls).to eq(%w(a b)) }
     it { expect(subject.itunes).to be_truthy }
   end
 
   context "with derived title" do
-    subject { described_class.new("the title", "author", nil, nil, "cachename") }
+    subject { described_class.new("the title", "author", nil, nil) }
     it { expect(subject.base_dir).to eq("the-title") }
   end
 
   context "with derived title and max-paragraphs" do
-    subject { described_class.new("the title", "author", nil, 5, "cachename") }
+    subject { described_class.new("the title", "author", nil, 5) }
     it { expect(subject.base_dir).to eq("the-title.5") }
   end
 
