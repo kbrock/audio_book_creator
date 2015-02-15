@@ -11,6 +11,7 @@ describe AudioBookCreator::SpeakerDef do
     it { expect(subject.bit_rate).to eq(32) }
     it { expect(subject.max_hours).to eq(7) }
     it { expect(subject.sample_rate).to eq(22_050) }
+    it { expect(subject.regen_audio).to be_falsy }
   end
 
   context "with parameters" do
@@ -21,7 +22,8 @@ describe AudioBookCreator::SpeakerDef do
             channels: 2,
             bit_rate: 64,
             max_hours: 2,
-            sample_rate: 44100
+            sample_rate: 44100,
+            regen_audio: true,
         )
     end
 
@@ -32,15 +34,6 @@ describe AudioBookCreator::SpeakerDef do
     it { expect(subject.bit_rate).to eq(64) }
     it { expect(subject.max_hours).to eq(2) }
     it { expect(subject.sample_rate).to eq(44_100) }
-
-
-      @voice    ||= "Vicki"
-      @rate     ||= 280
-
-      # for binding the book
-      @channels  ||= 1
-      @bit_rate  ||= 32
-      @max_hours ||= 7
-      @sample_rate ||= 22_050
+    it { expect(subject.regen_audio).to be_truthy }
   end
 end

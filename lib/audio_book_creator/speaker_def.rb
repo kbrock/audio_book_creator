@@ -20,6 +20,7 @@ module AudioBookCreator
     attr_accessor :max_hours
     attr_accessor :bit_rate
     attr_accessor :sample_rate
+    attr_accessor :regen_audio
 
     def initialize(options = {})
       options.each { |n, v| public_send("#{n}=", v) }

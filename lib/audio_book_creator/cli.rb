@@ -73,7 +73,7 @@ module AudioBookCreator
     end
 
     def speaker_def
-      @speaker_def ||= SpeakerDef.new(voice: self[:voice], rate: self[:rate])
+      @speaker_def ||= SpeakerDef.new(voice: self[:voice], rate: self[:rate], regen_audio: self[:regen_audio])
     end
 
     def set_logger
@@ -115,7 +115,7 @@ module AudioBookCreator
     end
 
     def speaker
-      @speaker ||= Speaker.new(speaker_def, book_def, self[:regen_audio])
+      @speaker ||= Speaker.new(speaker_def, book_def, speaker_def.regen_audio)
     end
 
     def binder
