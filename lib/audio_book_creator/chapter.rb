@@ -15,6 +15,10 @@ module AudioBookCreator
       body.empty?
     end
 
+    def present?
+      !empty?
+    end
+
     def to_s
       "#{title}\n\n#{body}\n"
     end
