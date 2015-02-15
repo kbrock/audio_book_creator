@@ -69,7 +69,8 @@ module AudioBookCreator
     end
 
     def book_def
-      @book_def ||= BookDef.new(self[:title], nil, self[:base_dir], self[:max_paragraphs], database)
+      @book_def ||= BookDef.new(self[:title], nil, self[:base_dir], self[:max_paragraphs], database, self[:urls],
+                                self[:itunes])
     end
 
     def speaker_def
@@ -99,11 +100,7 @@ module AudioBookCreator
     end
 
     def outstanding
-      @outstanding ||= CascadingArray.new([], outstanding_chapters)
-    end
-
-    def outstanding_chapters
-      self[:urls].uniq
+      @outstanding ||= CascadingArray.new([], book_def.urls.uniq)
     end
 
     def spider
@@ -119,7 +116,7 @@ module AudioBookCreator
     end
 
     def binder
-      @binder ||= Binder.new(book_def, speaker_def, self[:regen_audio], self[:itunes])
+      @binder ||= Binder.new(book_def, speaker_def, speaker_def.regen_audio, book_def.itunes)
     end
 
     def creator
