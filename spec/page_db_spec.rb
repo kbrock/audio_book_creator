@@ -42,11 +42,6 @@ describe AudioBookCreator::PageDb do
       expect(db["key"]).to eq("value")
     end
 
-    it "clears entries in previously created cache" do
-      db = described_class.new(tmp.path, force: true)
-      expect(db["key"]).to be_nil      
-    end
-
     it "creates a file" do
       expect(File.exist?(tmp.path)).to be_truthy
     end

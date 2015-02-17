@@ -6,11 +6,9 @@ module AudioBookCreator
 
     # this is for tests - get out of here
     attr_accessor :filename
-    attr_accessor :force
 
-    def initialize(filename, force = false)
+    def initialize(filename)
       @filename = filename
-      @force = force
     end
 
     def []=(key, value)
@@ -38,7 +36,6 @@ module AudioBookCreator
     def create
       SQLite3::Database.new(filename).tap do |db|
         db.execute("create table if not exists pages (name text, contents blob)")
-        db.execute "delete from pages" if force
       end
     end
   end

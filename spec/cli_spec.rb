@@ -203,12 +203,6 @@ describe AudioBookCreator::Cli do
       subject.parse(%w(http://site.com/title))
       # defaults
       expect(subject.page_cache.filename).to eq(subject.surfer_def.cache_filename)
-      expect(subject.page_cache.force).not_to be_truthy
-    end
-
-    it "should support force" do
-      subject.parse(%w(http://site.com/title --force-html))
-      expect(subject.page_cache.force).to be_truthy
     end
   end
 

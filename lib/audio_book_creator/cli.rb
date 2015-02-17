@@ -93,7 +93,7 @@ module AudioBookCreator
     # components
 
     def page_cache
-      @page_cache ||= PageDb.new(surfer_def.cache_filename, surfer_def.regen_html)
+      @page_cache ||= PageDb.new(surfer_def.cache_filename)
     end
 
     def web
