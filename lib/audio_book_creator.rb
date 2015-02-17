@@ -55,4 +55,5 @@ require "audio_book_creator/editor"
 # flow
 require "audio_book_creator/speaker"
 require "audio_book_creator/binder"
-require "audio_book_creator/book_creator" #full workflow
+require "audio_book_creator/book_creator" # full workflow
+require "audio_book_creator/conductor" # creates components of flow
