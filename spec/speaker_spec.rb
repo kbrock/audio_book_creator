@@ -2,8 +2,8 @@ require "spec_helper"
 
 describe AudioBookCreator::Speaker do
   let(:book_def) { AudioBookCreator::BookDef.new("dir") }
-  let(:speaker_def) { AudioBookCreator::SpeakerDef.new }
-  subject { described_class.new(speaker_def, book_def, false) }
+  let(:speaker_def) { AudioBookCreator::SpeakerDef.new(:regen_audio => false) }
+  subject { described_class.new(speaker_def, book_def) }
   it "should require a non empty chapter" do
     expect_runner.not_to receive(:system)
     expect { subject.say(chapter(nil)) }.to raise_error
@@ -47,7 +47,8 @@ describe AudioBookCreator::Speaker do
   end
 
   context "with force" do
-    subject { described_class.new(speaker_def, book_def, true) }
+    before { speaker_def.regen_audio = true}
+    subject { described_class.new(speaker_def, book_def) }
 
     it "should create text and mp4 file if they exist but are set to force" do
       expect(File).not_to receive(:exist?)
@@ -56,11 +57,6 @@ describe AudioBookCreator::Speaker do
       expect_runner.to receive(:system).and_return(true)
       subject.say(chapter)
     end
-  end
-
-  it "should create a speaker with no options" do
-    expect_runner.not_to receive(:system)
-    expect { described_class.new(speaker_def, book_def, false) }.not_to raise_error
   end
 
   it "should freak if no chapters are passed in" do

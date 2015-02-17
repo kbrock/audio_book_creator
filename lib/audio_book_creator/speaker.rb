@@ -2,16 +2,14 @@ module AudioBookCreator
   class Speaker
     attr_accessor :speaker_def
     attr_accessor :book_def
-    attr_accessor :force
 
-    def initialize(speaker_def, book_def, force)
+    def initialize(speaker_def, book_def)
       @speaker_def = speaker_def
       @book_def = book_def
-      @force = force
     end
 
     def make_directory_structure
-      FileUtils.mkdir(book_def.base_dir) unless File.exist?(book_def.base_dir)
+      FileUtils.mkdir(base_dir) unless File.exist?(base_dir)
     end
 
     def say(chapter)
@@ -27,14 +25,22 @@ module AudioBookCreator
     end
 
     def chapter_text_filename(chapter)
-      "#{book_def.base_dir}/#{chapter.filename}.txt"
+      "#{base_dir}/#{chapter.filename}.txt"
     end
 
     def chapter_sound_filename(chapter)
-      "#{book_def.base_dir}/#{chapter.filename}.m4a"
+      "#{base_dir}/#{chapter.filename}.m4a"
     end
 
     private
+
+    def base_dir
+      book_def.base_dir
+    end
+
+    def force
+      speaker_def.regen_audio
+    end
 
     def params(text_filename, sound_filename)
       {

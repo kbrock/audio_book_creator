@@ -93,7 +93,7 @@ module AudioBookCreator
     # components
 
     def page_cache
-      @page_cache ||= PageDb.new(surfer_def.cache_filename, force: surfer_def.regen_html)
+      @page_cache ||= PageDb.new(surfer_def.cache_filename, surfer_def.regen_html)
     end
 
     def web
@@ -105,7 +105,7 @@ module AudioBookCreator
     end
 
     def invalid_urls
-      @invalid_urls ||= UrlFilter.new(host: surfer_def.host)
+      @invalid_urls ||= UrlFilter.new(surfer_def.host)
     end
 
     def outstanding
@@ -121,11 +121,11 @@ module AudioBookCreator
     end
 
     def speaker
-      @speaker ||= Speaker.new(speaker_def, book_def, speaker_def.regen_audio)
+      @speaker ||= Speaker.new(speaker_def, book_def)
     end
 
     def binder
-      @binder ||= Binder.new(book_def, speaker_def, speaker_def.regen_audio, book_def.itunes)
+      @binder ||= Binder.new(book_def, speaker_def)
     end
 
     def creator

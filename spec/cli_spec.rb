@@ -281,7 +281,7 @@ describe AudioBookCreator::Cli do
       expect(subject.book_def.base_dir).to eq("title")
       expect(subject.book_def.title).to eq("title")
       expect(subject.book_def.author).to eq("Vicki")
-      expect(subject.surfer_def.cache_filename).to eq(subject.database)
+      expect(subject.book_def.itunes).not_to be_truthy
     end
 
     it "should leverage max paragraphs" do
@@ -294,6 +294,11 @@ describe AudioBookCreator::Cli do
       # defaults
       expect(subject.book_def.base_dir).to eq("dir")
       expect(subject.book_def.title).to eq("title")
+    end
+
+    it "should set itunes" do
+      subject.parse(%w(http://site.com/title -A))
+      expect(subject.book_def.itunes).to be_truthy
     end
   end
 
@@ -308,6 +313,7 @@ describe AudioBookCreator::Cli do
       expect(subject.speaker_def.max_hours).to eq(7)
       expect(subject.speaker_def.bit_rate).to eq(32)
       expect(subject.speaker_def.sample_rate).to eq(22_050)
+      expect(subject.speaker_def.regen_audio).not_to be_truthy
     end
 
     it "should set voice" do
@@ -318,6 +324,18 @@ describe AudioBookCreator::Cli do
     it "should set rate" do
       subject.parse(%w(http://site.com/title --rate 200))
       expect(subject.speaker_def.rate).to eq(200)
+    end
+
+    it "should set force" do
+      subject.parse(%w(http://site.com/title --force-audio))
+      expect(subject.speaker_def.regen_audio).to be_truthy
+    end
+  end
+
+  context "#surfer_def" do
+    it "assigns cache_filename" do
+      subject.parse(%w(http://site.com/title))
+      expect(subject.surfer_def.cache_filename).to eq(subject.database)
     end
   end
 
@@ -348,13 +366,13 @@ describe AudioBookCreator::Cli do
       # defaults
       expect(subject.speaker.speaker_def).to eq(subject.speaker_def)
       expect(subject.speaker.book_def).to eq(subject.book_def)
-      expect(subject.speaker.force).not_to be_truthy
+      expect(subject.speaker_def.regen_audio).not_to be_truthy
       expect(subject.speaker).to respond_to(:say)
     end
 
     it "should set force" do
       subject.parse(%w(http://site.com/title --force-audio))
-      expect(subject.speaker.force).to be_truthy
+      expect(subject.speaker_def.regen_audio).to be_truthy
     end
   end
 
@@ -364,19 +382,7 @@ describe AudioBookCreator::Cli do
       # defaults
       expect(subject.binder.book_def).to eq(subject.book_def)
       expect(subject.binder.speaker_def).to eq(subject.speaker_def)
-      expect(subject.binder.force).not_to be_truthy
-      expect(subject.binder.itunes).not_to be_truthy
       # NOTE: not currently passed
-    end
-
-    it "should set force" do
-      subject.parse(%w(http://site.com/title --force-audio))
-      expect(subject.binder.force).to be_truthy
-    end
-
-    it "should set itunes" do
-      subject.parse(%w(http://site.com/title -A))
-      expect(subject.binder.itunes).to be_truthy
     end
   end
 

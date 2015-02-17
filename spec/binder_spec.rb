@@ -1,9 +1,9 @@
 require "spec_helper"
 
 describe AudioBookCreator::Binder do
-  let(:book_def) { AudioBookCreator::BookDef.new("title", nil, "dir") }
-  let(:speaker_def) { AudioBookCreator::SpeakerDef.new }
-  subject { described_class.new(book_def, speaker_def, false, false) }
+  let(:book_def) { AudioBookCreator::BookDef.new("title", nil, "dir", nil, nil, false) }
+  let(:speaker_def) { AudioBookCreator::SpeakerDef.new(regen_audio: false) }
+  subject { described_class.new(book_def, speaker_def) }
 
   it "should require a chapter" do
     expect_runner.not_to receive(:system)
@@ -36,7 +36,8 @@ describe AudioBookCreator::Binder do
 
 
   context "with itunes" do
-    subject { described_class.new(book_def, speaker_def, false, true ) }
+    before { book_def.itunes = true}
+    subject { described_class.new(book_def, speaker_def) }
     it "should load into itunes" do
       expect(File).to receive(:exist?).with("title.m4b").and_return(false)
 
@@ -67,7 +68,8 @@ describe AudioBookCreator::Binder do
   end
 
   context "with force" do
-    subject { described_class.new(book_def, speaker_def, true, false ) }
+    before { speaker_def.regen_audio = true }
+    subject { described_class.new(book_def, speaker_def) }
 
     it "should create m4a if exists" do
       expect(File).not_to receive(:exist?)
@@ -78,7 +80,7 @@ describe AudioBookCreator::Binder do
   end
 
   context "with false force" do
-    subject { described_class.new(book_def, speaker_def, false, false ) }
+    subject { described_class.new(book_def, speaker_def) }
 
     it "should not create m4a if exists" do
       expect(File).to receive(:exist?).and_return(true)

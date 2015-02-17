@@ -2,16 +2,12 @@ module AudioBookCreator
   class Binder
     attr_accessor :book_def
     attr_accessor :speaker_def
-    attr_accessor :force
-    attr_accessor :itunes
 
     # these are more for documentation than actual variables
 
-    def initialize(book_def, speaker_def, force, itunes)
+    def initialize(book_def, speaker_def)
       @book_def = book_def
       @speaker_def = speaker_def
-      @force = force
-      @itunes = itunes
     end
 
     def create(chapters)
@@ -23,6 +19,14 @@ module AudioBookCreator
     end
 
     private
+
+    def force
+      speaker_def.regen_audio
+    end
+
+    def itunes
+      book_def.itunes
+    end
 
     def params(chapters)
       ret = {

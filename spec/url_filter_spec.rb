@@ -1,10 +1,10 @@
 require 'spec_helper'
 
 describe AudioBookCreator::UrlFilter do
-  subject { described_class.new(host: uri("page1")) }
+  subject { described_class.new(uri("page1")) }
 
   context "#host" do
-    subject { described_class.new }
+    subject { described_class.new(nil) }
 
     it "supports strings (and nils)" do
       subject.host = "http://site.com/page"
@@ -16,7 +16,7 @@ describe AudioBookCreator::UrlFilter do
 
     it "supports uris" do
       subject.host = uri("page")
-      expect(subject.host).to eq(uri("page").host)      
+      expect(subject.host).to eq(uri("page").host)
     end
   end
 

@@ -6,8 +6,9 @@ module AudioBookCreator
     attr_accessor :host
     attr_accessor :ignore_bogus
 
-    def initialize(options = {})
-      options.each { |n, v| public_send("#{n}=", v) }
+    def initialize(host, ignore_bogus = false)
+      self.host = host
+      @ignore_bogus = ignore_bogus
     end
 
     def host=(url)

@@ -8,9 +8,9 @@ module AudioBookCreator
     attr_accessor :filename
     attr_accessor :force
 
-    def initialize(filename, options = {})
+    def initialize(filename, force = false)
       @filename = filename
-      @force = options[:force]
+      @force = force
     end
 
     def []=(key, value)
