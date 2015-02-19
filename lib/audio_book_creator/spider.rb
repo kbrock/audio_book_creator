@@ -23,10 +23,13 @@ module AudioBookCreator
       visited = []
 
       while (url = outstanding.shift)
-        contents, new_pages = visit_page(url)
+        contents, new_pages, new_chapters = visit_page(url)
         visited << contents
         new_pages.each do |href|
           outstanding << href unless outstanding.include?(href) || invalid_urls.include?(href)
+        end
+        new_chapters.each do |href|
+          outstanding.add_chapter(href) unless outstanding.include?(href) || invalid_urls.include?(href)
         end
       end
       visited
@@ -39,7 +42,11 @@ module AudioBookCreator
       logger.info { "visit #{url}" }
       page = web[url.to_s]
       doc = Nokogiri::HTML(page)
-      [page, page_def.page_links(doc) { |a| uri(url, a["href"]) }]
+      [
+        page,
+        page_def.page_links(doc) { |a| uri(url, a["href"]) },
+        page_def.chapter_links(doc) { |a| uri(url, a["href"]) }
+      ]
     end
 
     # raises URI::Error (BadURIError)
