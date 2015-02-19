@@ -20,6 +20,10 @@ module AudioBookCreator
       BookDef.sanitize_filename(title, "m4b")
     end
 
+    def unique_urls
+      urls.uniq
+    end
+
     private
 
     def self.sanitize_filename(*filenames)

@@ -18,18 +18,18 @@ module AudioBookCreator
       @invalid_urls = invalid_urls
     end
 
-    def run(outstanding)
+    def run(chapters)
+      outstanding = CascadingArray.new([], chapters.map { |o| uri(o) })
       visited = []
-      # hack to support pre-set outstanding
 
-      while (url = uri(outstanding.shift))
-        visited << url
-        new_pages = visit_page(url)
+      while (url = outstanding.shift)
+        contents, new_pages = visit_page(url)
+        visited << contents
         new_pages.each do |href|
-          outstanding << href unless outstanding.include?(href) || invalid_urls.include?(href) || visited.include?(href)
+          outstanding << href unless outstanding.include?(href) || invalid_urls.include?(href)
         end
       end
-      visited.map { |u| web[u.to_s] }
+      visited
     end
 
     private
@@ -37,13 +37,13 @@ module AudioBookCreator
     # this one hangs on mutations
     def visit_page(url)
       logger.info { "visit #{url}" }
-      doc = Nokogiri::HTML(web[url.to_s])
-      page_def.page_links(doc) { |a| uri(url, a["href"]) }
+      page = web[url.to_s]
+      doc = Nokogiri::HTML(page)
+      [page, page_def.page_links(doc) { |a| uri(url, a["href"]) }]
     end
 
     # raises URI::Error (BadURIError)
     def uri(url, alt = nil)
-      return unless url
       url = URI.parse(url) unless url.is_a?(URI)
       url += alt if alt
       url.fragment = nil # remove #x part of url

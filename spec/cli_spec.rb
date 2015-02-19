@@ -206,21 +206,6 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#outstanding" do
-    it "sets url" do
-      subject.parse(%w(http://site.com/title))
-      expect(subject.outstanding.shift.to_s).to eq("http://site.com/title")
-      expect(subject.outstanding.shift).to be_nil
-    end
-
-    it "should not visit same url twice" do
-      subject.parse(%w(http://site.com/page1 http://site.com/page2 http://site.com/page1))
-      expect(subject.outstanding.shift.to_s).to eq("http://site.com/page1")
-      expect(subject.outstanding.shift.to_s).to eq("http://site.com/page2")
-      expect(subject.outstanding.shift).to be_nil
-    end
-  end
-
   context "#spider" do
     it "sets references" do
       subject.parse(%w(http://site.com/title))
@@ -293,6 +278,11 @@ describe AudioBookCreator::Cli do
     it "should set itunes" do
       subject.parse(%w(http://site.com/title -A))
       expect(subject.book_def.itunes).to be_truthy
+    end
+
+    it "should pass all urls to book_def" do
+      subject.parse(%w(http://site.com/title http://site.com/title http://site.com/title2))
+      expect(subject.book_def.urls).to eq(%w(http://site.com/title http://site.com/title http://site.com/title2))
     end
   end
 
@@ -395,7 +385,7 @@ describe AudioBookCreator::Cli do
     it "should call book creator" do
       subject.parse(%w(http://site.com/title))
       creator = double(:creator)
-      expect(creator).to receive(:create).with(subject.outstanding).and_return("YAY")
+      expect(creator).to receive(:create).with(%w(http://site.com/title)).and_return("YAY")
       expect(subject).to receive(:set_logger)
       expect(subject).to receive(:creator).and_return(creator)
       expect(subject.run).to eq("YAY")

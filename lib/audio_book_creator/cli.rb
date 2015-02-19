@@ -109,7 +109,7 @@ module AudioBookCreator
     end
 
     def outstanding
-      @outstanding ||= CascadingArray.new([], book_def.urls.uniq)
+      @outstanding ||= book_def.unique_urls
     end
 
     def spider

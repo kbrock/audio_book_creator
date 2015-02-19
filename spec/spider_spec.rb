@@ -59,6 +59,16 @@ describe AudioBookCreator::Spider do
       expect_visit_page "page1"
       subject.run site(%w(page1))
     end
+
+    it "skips empty urls" do
+      expect_visit_page "page1", "<a>x</a>"
+      subject.run site(%w(page1))
+    end
+
+    it "skips blank urls" do
+      expect_visit_page "page1", "<a href=\"\">x</a>"
+      subject.run site(%w(page1))
+    end
   end
 
   it "follows relative links" do
@@ -81,7 +91,7 @@ describe AudioBookCreator::Spider do
     expect(subject.run uri(%w(page1))).to eq([page(site("page1"), *p1_contents), page(site("page2"))])
   end
 
-  it "visits all pages once" do
+  it "visits all pages once (and only once)" do
     expect_visit_page("page1", link("page2"))
     expect_visit_page("page2", link("page1"), link("page3"))
     expect_visit_page("page3", link("page1"), link("page2"))
@@ -101,7 +111,7 @@ describe AudioBookCreator::Spider do
   end
 
   it "skips bad urls" do
-    expect_visit_once("page1", link("%@")) # it never gets to call a second time
+    expect_visit_page("page1", link("%@")) # it never gets to call a second time
     expect { subject.run uri(%w(page1)) }.to raise_error(/bad URI/)
   end
 
@@ -132,11 +142,6 @@ describe AudioBookCreator::Spider do
 
 
   def expect_visit_page(url, *args)
-    url = site(url)
-    expect(web).to receive(:[]).with(url.to_s).twice.and_return(page(url, *args))
-  end
-
-  def expect_visit_once(url, *args)
     url = site(url)
     expect(web).to receive(:[]).with(url.to_s).and_return(page(url, *args))
   end
