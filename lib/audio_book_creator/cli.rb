@@ -50,7 +50,8 @@ module AudioBookCreator
         # 
         option(opts, :title_path, "--title STRING", "Title css (e.g.: h1)")
         option(opts, :body_path, "--body STRING", "Content css (e.g.: p)")
-        option(opts, :link_path, "--link STRING", "Follow css (e.g.: a.Next)")
+        option(opts, :link_path, "--link STRING", "Next Page css (e.g.: a.Next)")
+        option(opts, :chapter_path, "--chapter STRING", "Next Chapter css")
         option(opts, :max, "--no-max", "Don't limit the number of pages to visit")
         option(opts, :max, "--max NUMBER", Integer, "Maximum number of pages to visit (default: 10)")
         option(opts, :max_paragraphs, "--max-p NUMBER", Integer, "Max paragraphs per chapter (testing only)")
@@ -69,7 +70,7 @@ module AudioBookCreator
     # parameter objects
 
     def page_def
-      @page_def ||= PageDef.new(self[:title_path], self[:body_path], self[:link_path],
+      @page_def ||= PageDef.new(self[:title_path], self[:body_path], self[:link_path], self[:chapter_path],
                                 self[:max_paragraphs])
     end
 
@@ -109,7 +110,7 @@ module AudioBookCreator
     end
 
     def outstanding
-      @outstanding ||= CascadingArray.new([], book_def.urls.uniq)
+      @outstanding ||= book_def.unique_urls
     end
 
     def spider

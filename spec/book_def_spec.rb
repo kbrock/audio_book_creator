@@ -30,6 +30,12 @@ describe AudioBookCreator::BookDef do
     it { expect(subject.base_dir).to eq("the-title.5") }
   end
 
+  context "#unique_urls" do
+    subject { described_class.new("dir") }
+    before { subject.urls = %w(http://site.com/title http://site.com/title http://site.com/title2) }
+    it { expect(subject.unique_urls).to eq(%w(http://site.com/title http://site.com/title2)) }
+  end
+
   context ".sanitize_filename" do
     subject { described_class }
     it "should join strings" do
