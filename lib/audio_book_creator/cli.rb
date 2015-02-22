@@ -73,7 +73,7 @@ module AudioBookCreator
     end
 
     def book_def
-      @book_def ||= BookDef.new(self[:title], nil, self[:base_dir], self[:max_paragraphs], self[:urls],
+      @book_def ||= BookDef.new(self[:title], nil, self[:base_dir], self[:urls],
                                 self[:itunes])
     end
 

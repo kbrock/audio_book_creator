@@ -7,9 +7,9 @@ module AudioBookCreator
     attr_accessor :urls
     attr_accessor :itunes
 
-    def initialize(title, author = nil, base_dir = nil, max_paragraphs = nil, urls = nil, itunes = nil)
+    def initialize(title, author = nil, base_dir = nil, urls = nil, itunes = nil)
       @title    = title
-      @base_dir = base_dir || BookDef.sanitize_filename(title, max_paragraphs)
+      @base_dir = base_dir || BookDef.sanitize_filename(title)
       @author   = author   || "Vicki"
 
       @urls = urls
