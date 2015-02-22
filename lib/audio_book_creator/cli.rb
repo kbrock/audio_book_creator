@@ -12,7 +12,6 @@ module AudioBookCreator
 
     # stub for testing
     attr_writer :web
-    attr_writer :database
 
     def set_args(argv, usage)
       first = argv.first
@@ -28,9 +27,8 @@ module AudioBookCreator
       end
     end
 
-
     def database
-      @database || "#{book_def.base_dir}/pages.db"
+      "#{book_def.base_dir}/pages.db"
     end
 
     def [](name)
@@ -87,56 +85,21 @@ module AudioBookCreator
       @surfer_def ||= SurferDef.new(self[:urls].first, self[:max], self[:regen_html], database)
     end
 
+    def verbose
+      self[:verbose]
+    end
+
+    def conductor
+      @conductor ||= Conductor.new(page_def, book_def, speaker_def, surfer_def)
+    end
+
     def set_logger
-      logger.level = self[:verbose] ? Logger::INFO : Logger::WARN
-    end
-
-    # components
-
-    def page_cache
-      @page_cache ||= PageDb.new(surfer_def.cache_filename)
-    end
-
-    def web
-      @web ||= Web.new(surfer_def.max)
-    end
-
-    def cached_web
-      @cached_hash ||= CachedHash.new(page_cache, web)
-    end
-
-    def invalid_urls
-      @invalid_urls ||= UrlFilter.new(surfer_def.host)
-    end
-
-    def outstanding
-      @outstanding ||= book_def.unique_urls
-    end
-
-    def spider
-      @spider ||= Spider.new(page_def, cached_web, invalid_urls)
-    end
-
-    def editor
-      @editor ||= Editor.new(page_def)
-    end
-
-    def speaker
-      @speaker ||= Speaker.new(speaker_def, book_def)
-    end
-
-    def binder
-      @binder ||= Binder.new(book_def, speaker_def)
-    end
-
-    def creator
-      #@creator ||= BookCreator.new(page_def, book_def, speaker_def)
-      @creator ||= BookCreator.new(spider, editor, speaker, binder)
+      logger.level = verbose ? Logger::INFO : Logger::WARN
     end
 
     def run
       set_logger
-      creator.create(outstanding)
+      conductor.run
     end
 
     private
@@ -144,5 +107,8 @@ module AudioBookCreator
     def option(opts, value, *args)
       opts.on(*args) { |v| self[value] = v }
     end
+    # def option(opts, model, value, *args)
+    #   opts.on(*args) { |v| self.send(model).send(value) = v }
+    # end
   end
 end
