@@ -1,7 +1,7 @@
 require "spec_helper"
 
 describe AudioBookCreator::Binder do
-  let(:book_def) { AudioBookCreator::BookDef.new("title", nil, "dir", nil, nil, false) }
+  let(:book_def) { AudioBookCreator::BookDef.new("title", nil, "dir", nil, false) }
   let(:speaker_def) { AudioBookCreator::SpeakerDef.new(regen_audio: false) }
   subject { described_class.new(book_def, speaker_def) }
 

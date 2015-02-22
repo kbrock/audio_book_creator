@@ -105,11 +105,6 @@ describe AudioBookCreator::Cli do
       expect(subject.book_def.base_dir).to eq("title-for")
     end
 
-    it "should append truncation into the title" do
-      subject.parse(%w(title http://site.com/ --max-p 22))
-      expect(subject.book_def.base_dir).to eq("title.22")
-    end
-
     it "should override basedir" do
       subject.parse(%w(title http://site.com/ --base-dir dir))
       expect(subject.book_def.base_dir).to eq("dir")
@@ -199,11 +194,6 @@ describe AudioBookCreator::Cli do
       expect(subject.book_def.title).to eq("title")
       expect(subject.book_def.author).to eq("Vicki")
       expect(subject.book_def.itunes).not_to be_truthy
-    end
-
-    it "should leverage max paragraphs" do
-      subject.parse(%w(http://site.com/title --max-p 5))
-      expect(subject.book_def.base_dir).to eq("title.5")
     end
 
     it "should support basedir" do

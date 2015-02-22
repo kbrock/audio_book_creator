@@ -11,7 +11,7 @@ describe AudioBookCreator::BookDef do
   end
 
   context "with all parameters" do
-    subject { described_class.new("the title", "author", "dir", 5, %w(a b), true) }
+    subject { described_class.new("the title", "author", "dir", %w(a b), true) }
     it { expect(subject.base_dir).to eq("dir") }
     it { expect(subject.title).to eq("the title") }
     it { expect(subject.author).to eq("author") }
@@ -23,11 +23,6 @@ describe AudioBookCreator::BookDef do
   context "with derived title" do
     subject { described_class.new("the title", "author", nil, nil) }
     it { expect(subject.base_dir).to eq("the-title") }
-  end
-
-  context "with derived title and max-paragraphs" do
-    subject { described_class.new("the title", "author", nil, 5) }
-    it { expect(subject.base_dir).to eq("the-title.5") }
   end
 
   context "#unique_urls" do
