@@ -20,13 +20,12 @@ describe AudioBookCreator::Cli do
   context "with one argument" do
     it "assigns title and url" do
       subject.parse(%w(http://site.com/title))
-      expect(subject[:title]).to eq("title")
-      expect(subject[:urls]).to eq(%w(http://site.com/title))
+      expect(subject.book_def.title).to eq("title")
+      expect(subject.book_def.urls).to eq(%w(http://site.com/title))
     end
 
-    it "defaults to error" do
+    it "defaults to warn" do
       subject.parse(%w(http://site.com/title))
-      subject.set_logger
       expect(AudioBookCreator.logger.level).to eq(Logger::WARN)
     end
   end
@@ -34,37 +33,35 @@ describe AudioBookCreator::Cli do
   context "with title and url" do
     it "assigns title and url" do
       subject.parse(%w(title http://site.com/))
-      expect(subject[:title]).to eq("title")
-      expect(subject[:urls]).to eq(%w(http://site.com/))
+      expect(subject.book_def.title).to eq("title")
+      expect(subject.book_def.urls).to eq(%w(http://site.com/))
     end
   end
 
   context "with multiple urls" do
     it "assigns title and url" do
       subject.parse(%w(http://site.com/title http://site.com/title2))
-      expect(subject[:title]).to eq("title")
-      expect(subject[:urls]).to eq(%w(http://site.com/title http://site.com/title2))
+      expect(subject.book_def.title).to eq("title")
+      expect(subject.book_def.urls).to eq(%w(http://site.com/title http://site.com/title2))
     end
   end
 
   context "with title and multiple urls" do
     it "has multiple urls" do
       subject.parse(%w(title http://site.com/page1 http://site.com/page2))
-      expect(subject[:title]).to eq("title")
-      expect(subject[:urls]).to eq(%w(http://site.com/page1 http://site.com/page2))
+      expect(subject.book_def.title).to eq("title")
+      expect(subject.book_def.urls).to eq(%w(http://site.com/page1 http://site.com/page2))
     end
   end
 
   context "with verbose" do
     it "defaults to warning logging" do
       subject.parse(%w(http://site.com/title --verbose))
-      subject.set_logger
       expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
     end
 
     it "defaults to warning" do
       subject.parse(%w(http://site.com/title -v))
-      subject.set_logger
       expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
     end
   end
@@ -81,10 +78,10 @@ describe AudioBookCreator::Cli do
     it "should default values" do
       # NOTE: calling with no constructor
       pristine = described_class.new
-      expect(pristine[:max]).to eq(10)
-      expect(pristine[:title_path]).to eq("h1")
-      expect(pristine[:body_path]).to eq("p")
-      expect(pristine[:link_path]).to eq("a")
+      expect(subject.surfer_def.max).to eq(10)
+      expect(subject.page_def.title_path).to eq("h1")
+      expect(subject.page_def.body_path).to eq("p")
+      expect(subject.page_def.link_path).to eq("a")
     end
   end
 
@@ -282,7 +279,6 @@ describe AudioBookCreator::Cli do
       subject.parse(%w(http://site.com/title))
       conductor = double(:conductor)
       expect(conductor).to receive(:run).and_return("YAY")
-      expect(subject).to receive(:set_logger)
       expect(subject).to receive(:conductor).and_return(conductor)
       expect(subject.run).to eq("YAY")
     end
