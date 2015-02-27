@@ -18,11 +18,10 @@ module AudioBookCreator
     attr_writer :web
 
     def set_args(argv, usage)
-      first = argv.first
-      if !first
+      if argv.empty?
         puts "please url", usage
         exit 2
-      elsif first.include?("://")
+      elsif argv.first.include?("://")
         book_def.title = argv.first.split("/").last
         book_def.urls = argv
       else
