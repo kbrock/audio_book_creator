@@ -45,7 +45,7 @@ module AudioBookCreator
         opts.program_name = "audio_book_creator"
         opts.version = VERSION
         opts.banner = "Usage: audio_book_creator [options] title url [url] [...]"
-        option(opts, :self, :verbose, "-v", "--verbose", "Run verbosely") { |v| self.verbose = v }
+        opts.on("-v", "--verbose", "Run verbosely") { |v| self.verbose = v }
         # 
         option(opts, :page_def, :title_path, "--title STRING", "Title css (e.g.: h1)")
         option(opts, :page_def, :body_path, "--body STRING", "Content css (e.g.: p)")
@@ -94,12 +94,8 @@ module AudioBookCreator
 
     private
 
-    def option(opts, model, value, *args, &block)
-      if block_given?
-        opts.on(*args, &block)
-      else
-        opts.on(*args) { |v| self.send(model).send("#{value}=", v) }
-      end
+    def option(opts, model, value, *args)
+      opts.on(*args) { |v| self.send(model).send("#{value}=", v) }
     end
   end
 end
