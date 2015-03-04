@@ -24,6 +24,15 @@ describe AudioBookCreator::PageDb do
     expect(subject["key"]).to eq("value")
   end
 
+  it "include good key" do
+    subject["key"] = "value"
+    expect(subject).to include("key")
+  end
+
+  it "doesnt include bad key" do
+    expect(subject).not_to include("key")
+  end
+
   context "with prepopulated (file) database" do
     let(:tmp) { Tempfile.new("db") }
 
