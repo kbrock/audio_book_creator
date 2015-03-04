@@ -20,6 +20,7 @@ describe AudioBookCreator::CascadingArray do
   it "includes later added values" do
     subject.add_page(:p3)
     subject.add_chapter(:c3)
+    expect(subject.each.to_a).to eq([:p1,:p2,:p3,:ch1,:ch2,:c3])
     expect(subject).to be_include(:p3)
     expect(subject).to be_include(:c3)
   end
@@ -43,15 +44,6 @@ describe AudioBookCreator::CascadingArray do
     expect(subject.each.to_a).to eq([:p1,:p2,:ch1,:ch2])
   end
 
-  it "<< puts into primary" do
-    subject << :p3 << :p4
-    expect(subject.each.to_a).to eq([:p1,:p2,:p3,:p4,:ch1,:ch2])
-    expect(subject.shift).to eq(:p1)
-    expect(subject.shift).to eq(:p2)
-    expect(subject.shift).to eq(:p3)
-    expect(subject.shift).to eq(:p4)
-    expect(subject.shift).to eq(:ch1)
-  end
 
   it "puts pages into primary" do
     subject.add_page(:p3)

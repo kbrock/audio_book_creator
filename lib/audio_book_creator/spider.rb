@@ -26,7 +26,7 @@ module AudioBookCreator
         contents, new_pages, new_chapters = visit_page(url)
         visited << contents
         new_pages.each do |href|
-          outstanding << href unless outstanding.include?(href) || invalid_urls.include?(href)
+          outstanding.add_page(href) unless outstanding.include?(href) || invalid_urls.include?(href)
         end
         new_chapters.each do |href|
           outstanding.add_chapter(href) unless outstanding.include?(href) || invalid_urls.include?(href)

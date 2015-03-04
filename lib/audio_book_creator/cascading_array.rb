@@ -30,7 +30,6 @@ module AudioBookCreator
       @all << value
       @main << value
     end
-    alias_method :<<, :add_page
 
     def each(&block)
       return enum_for unless block_given?
