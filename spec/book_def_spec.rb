@@ -1,13 +1,18 @@
 require 'spec_helper'
 
 describe AudioBookCreator::BookDef do
-  context "with single parameter" do
-    subject { described_class.new("dir") }
-    it { expect(subject.base_dir).to eq("dir") }
-    it { expect(subject.title).to eq("dir") }
+  context "with no parameter" do
+    subject { described_class.new }
+    it { expect(subject.title).to eq(nil) }
     it { expect(subject.author).to eq("Vicki") }
     it { expect(subject.urls).to be_nil }
     it { expect(subject.itunes).to be_falsy }
+  end
+
+  context "with title" do
+    subject { described_class.new("dir") }
+    it { expect(subject.base_dir).to eq("dir") }
+    it { expect(subject.title).to eq("dir") }
   end
 
   context "with all parameters" do
