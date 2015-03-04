@@ -54,14 +54,6 @@ describe AudioBookCreator::PageDb do
     expect(subject[key]).to eq(contents)
   end
 
-  it "return all keys in order of insert" do
-    subject["keyc"] = "value"
-    subject["keya"] = "value"
-    subject["keyz"] = "value"
-
-    expect(subject.keys).to eq(%w(keyc keya keyz))
-  end
-
   it "supports enumerable (map)" do
     subject["keyc"] = "v"
     subject["keya"] = "v"

@@ -19,10 +19,6 @@ module AudioBookCreator
       db.execute("select contents from pages where name = ?", key).map { |row| row.first }.first
     end
 
-    def keys
-      db.execute("select name from pages order by rowid").map { |row| row.first }
-    end
-
     def each(&block)
       db.execute "select name, contents from pages order by rowid", &block
     end
