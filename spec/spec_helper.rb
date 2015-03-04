@@ -21,8 +21,9 @@ rescue LoadError
 end
 
 module SpecHelpers
-  def link(url)
-    %(<a href="#{url}">link</a>")
+  def link(url, clazz = "page")
+    clazz = " class=\"#{clazz}\"" if clazz
+    %(<a href="#{url}"#{clazz}>link</a>")
   end
 
   def page(title, *args)
