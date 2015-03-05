@@ -98,6 +98,13 @@ describe AudioBookCreator::Spider do
     subject.run uri(%w(page1))
   end
 
+  it "visits all chapters once (and only once)" do
+    expect_visit_page("page1", link("page2", "chapter"))
+    expect_visit_page("page2", link("page1", "chapter"), link("page3", "chapter"))
+    expect_visit_page("page3", link("page1", "chapter"), link("page2", "chapter"))
+    subject.run uri(%w(page1))
+  end
+
   it "visits chapters too" do
     expect_visit_page("page1", link("page2", "chapter"))
     expect_visit_page("page2")
@@ -119,6 +126,18 @@ describe AudioBookCreator::Spider do
   it "skips bad urls" do
     expect_visit_page("page1", link("%@")) # it never gets to call a second time
     expect { subject.run uri(%w(page1)) }.to raise_error(/bad URI/)
+  end
+
+  it "uses url filter for pages" do
+    expect(invalid_urls).to receive(:include?).with(URI.parse(site("x.pdf"))).and_raise("bad file extension")
+    expect_visit_page("page1", link("x.pdf"))
+    expect { subject.run uri(%w(page1)) }.to raise_error("bad file extension")
+  end
+
+  it "uses url filter for chapters" do
+    expect(invalid_urls).to receive(:include?).with(URI.parse(site("x.pdf"))).and_raise("bad file extension")
+    expect_visit_page("page1", link("x.pdf", "chapter"))
+    expect { subject.run uri(%w(page1)) }.to raise_error("bad file extension")
   end
 
   context "with invalid_urls" do
