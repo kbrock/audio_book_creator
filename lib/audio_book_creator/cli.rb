@@ -34,7 +34,7 @@ module AudioBookCreator
     end
 
     def database
-      "#{book_def.base_dir}/pages.db"
+      "pages.db"
     end
 
     def verbose=(val)

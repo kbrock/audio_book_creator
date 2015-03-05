@@ -242,7 +242,7 @@ describe AudioBookCreator::Cli do
   context "#surfer_def" do
     it "assigns cache_filename" do
       subject.parse(%w(http://site.com/title))
-      expect(subject.surfer_def.cache_filename).to eq("title/pages.db")
+      expect(subject.surfer_def.cache_filename).to eq("pages.db")
     end
   end
 
