@@ -54,7 +54,7 @@ describe AudioBookCreator::Chapter do
 
   describe "#eq1" do
     it "should understand ==" do
-      expect(subject).to eq(described_class.new(number: 1, title: "title1", body: "body1"))
+      expect(subject).to eq(Class.new(described_class).new(number: 1.0, title: "title1", body: "body1"))
     end
 
     it "should understand != nil" do

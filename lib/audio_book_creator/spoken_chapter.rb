@@ -8,8 +8,9 @@ module AudioBookCreator
     end
 
     def ==(other)
-      other.is_a?(SpokenChapter) &&
-        other.title == title && other.filename == filename
+      other.kind_of?(SpokenChapter) &&
+        other.title.eql?(title) && other.filename.eql?(filename)
     end
+    alias :eql? :==
   end
 end

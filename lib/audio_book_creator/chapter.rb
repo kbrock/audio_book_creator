@@ -24,9 +24,10 @@ module AudioBookCreator
     end
 
     def ==(other)
-      other.is_a?(Chapter) &&
+      other.kind_of?(Chapter) &&
         other.number == number &&
-        other.title == title && other.body == body
+        other.title.eql?(title) && other.body.eql?(body)
     end
+    alias :eql? :==
   end
 end

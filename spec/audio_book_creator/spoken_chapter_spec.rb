@@ -8,7 +8,7 @@ describe AudioBookCreator::SpokenChapter do
 
   context "#eql" do
     it "should understand ==" do
-      expect(subject).to eq(described_class.new("title", "filename"))
+      expect(subject).to eq(Class.new(described_class).new("title", "filename"))
     end
 
     it "should understand != nil" do

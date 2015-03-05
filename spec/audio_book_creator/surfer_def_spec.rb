@@ -10,7 +10,7 @@ describe AudioBookCreator::SurferDef do
   end
 
   context "with nils" do
-    subject { described_class.new(nil, 5, false, nil) }
+    subject { described_class.new }
     it { expect(subject.host).to be_nil }
     it { expect(subject.regen_html).not_to be_truthy }
   end
