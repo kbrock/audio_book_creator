@@ -4,11 +4,9 @@ module AudioBookCreator
   class UrlFilter
     include Logging
     attr_accessor :host
-    attr_accessor :ignore_bogus
 
-    def initialize(host, ignore_bogus = false)
+    def initialize(host)
       self.host = host
-      @ignore_bogus = ignore_bogus
     end
 
     def host=(url)
@@ -19,14 +17,10 @@ module AudioBookCreator
     def include?(url)
       if !valid_extensions.include?(File.extname(url.path))
         logger.warn { "ignoring bad file extension #{url}" }
-        raise "bad file extension" unless ignore_bogus
-        true
+        raise "bad file extension"
       elsif host && (host != url.host)
         logger.warn { "ignoring remote url #{url}" }
-        raise "remote url #{url}" unless ignore_bogus
-        true
-      # elsif already_visited(url)
-      #   true
+        raise "remote url #{url}"
       end
     end
 

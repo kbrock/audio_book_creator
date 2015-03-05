@@ -31,25 +31,8 @@ describe AudioBookCreator::UrlFilter do
     expect(subject.include?(uri("page1"))).not_to be_truthy
     expect(subject.include?(uri("good"))).not_to be_truthy
     url = uri("http://anothersite.com/bad")
+    expect(subject.logger).to receive(:warn) { |&arg| expect(arg.call).to eq("ignoring remote url #{url}") }
     expect { subject.include?(url) }.to raise_error("remote url #{url}")
-  end
-
-  context "#with ignore_bogus" do
-    before { subject.ignore_bogus = true}
-
-    it "logs remote pages" do
-      url = uri("http://anothersite.com/bad")
-      expect(subject.include?(url)).to be_truthy
-      # NOTE: warns logging
-      expect_to_have_logged("ignoring remote url #{url}")
-    end
-
-    it "logs bad extensions" do
-      url = uri("page.abc")
-      expect(subject.include?(url)).to be_truthy
-      # NOTE: warns logging
-      expect_to_have_logged("ignoring bad file extension #{url}")
-    end
   end
 
   context "visit with #extensions" do
@@ -61,7 +44,9 @@ describe AudioBookCreator::UrlFilter do
 
     %w(.jpg .png .js).each do |ext|
       it "doesnt visit #{ext}" do
-        expect { subject.include?(uri("page2#{ext}")) }.to raise_error(/bad file extension/)
+        url = uri("page2#{ext}")
+        expect(subject.logger).to receive(:warn) { |&arg| expect(arg.call).to eq("ignoring bad file extension #{url}") }
+        expect { subject.include?(url) }.to raise_error("bad file extension")
       end
     end
   end
