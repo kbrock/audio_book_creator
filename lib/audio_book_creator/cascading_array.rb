@@ -26,9 +26,17 @@ module AudioBookCreator
       @alt << value
     end
 
+    def add_unique_chapter(value)
+      add_chapter(value) unless include?(value)
+    end
+
     def add_page(value)
       @all << value
       @main << value
+    end
+
+    def add_unique_page(value)
+      add_page(value) unless include?(value)
     end
 
     def each(&block)
