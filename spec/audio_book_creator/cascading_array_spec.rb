@@ -50,8 +50,15 @@ describe AudioBookCreator::CascadingArray do
     expect(subject.each.to_a).to eq([:p1,:p2,:p3,:ch1,:ch2])
   end
 
-  it "puts chapters into secondary" do
-    subject.add_chapter(:ch3)
+  it "puts non duplicate pages into primary" do
+    subject.add_unique_page(:p3)
+    subject.add_unique_page(:p3)
+    expect(subject.each.to_a).to eq([:p1,:p2,:p3,:ch1,:ch2])
+  end
+
+  it "puts non duplicate chapters into secondary" do
+    subject.add_unique_chapter(:ch3)
+    subject.add_unique_chapter(:ch3)
     expect(subject.each.to_a).to eq([:p1,:p2,:ch1,:ch2,:ch3])
   end
 end
