@@ -25,6 +25,13 @@
 This takes html files and creates a chapterized audiobook.
   It leverages Apple's speak command and audio book binder
 
+## Goals
+
+1. create an audio book.
+2. explore [mutant](https://github.com/mbj/mutant) usage and full test coverage.
+3. explore [functional core imperative shell](https://www.destroyallsoftware.com/screencasts/catalog/functional-core-imperative-shell)
+4. explore local queued components
+4. explore javascript plugins that leverage local daemons [TODO]
 ## Installation
 
 Download [audio book binder][], link the executable into the path, and install gem. The current app store version of the application does not have the cli available.
@@ -36,14 +43,12 @@ Download [audio book binder][], link the executable into the path, and install g
 
 ## Usage
 
-audio_book_creator the_great_book http://bookurl.com/greak_book/
-
-# **TODO:** provide the command line flags
+audio_book_creator http://bookurl.com/greak_book/ --body '.content p' --link 'a.page' --chapter 'a.chapter'
 
 it will spider the files referenced by the url and create the following:
 
+pages.db
 the_great_book.mpa
-the_great_book/pages.db
 the_great_book/chapter1.txt
 the_great_book/chapter1.mpg
 the_great_book/chapter2.txt
