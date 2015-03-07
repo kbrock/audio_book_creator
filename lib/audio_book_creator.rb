@@ -2,17 +2,17 @@ require "audio_book_creator/version"
 require "logger"
 
 module AudioBookCreator
-  def self.should_write?(filename, force = nil)
+  def self.should_write?(filename, force)
     force || !File.exist?(filename)
   end
 
-  def self.optionally_write(filename, force = nil)
+  def self.optionally_write(filename, force)
     if should_write?(filename, force)
       File.write(filename, yield)
     end
   end
 
-  def self.optionally_run(filename, force = nil)
+  def self.optionally_run(filename, force)
     if should_write?(filename, force)
       Runner.new.run!(*yield)
     end

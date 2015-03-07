@@ -21,10 +21,5 @@ describe AudioBookCreator do
       expect(File).to receive(:exist?).with("x").and_return(true)
       expect(subject.should_write?("x", false)).not_to be_truthy
     end
-
-    it "should assume force is false" do
-      expect(File).to receive(:exist?).with("x").and_return(true)
-      expect(subject.should_write?("x")).not_to be_truthy
-    end
   end
 end
