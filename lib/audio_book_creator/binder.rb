@@ -30,7 +30,6 @@ module AudioBookCreator
 
     def params(chapters)
       ret = {
-        "-A" => nil, # add audiobook to iTunes
         "-a" => book_def.author,
         "-t" => book_def.title,
         "-b" => speaker_def.bit_rate,
@@ -43,7 +42,7 @@ module AudioBookCreator
         # "-C" => "file.png" cover image
         nil  => chapter_params(chapters),
       }
-      ret.delete("-A") unless itunes
+      ret["-A"] = nil if itunes # add audiobook to iTunes
       ret
     end
 
