@@ -7,16 +7,14 @@ describe AudioBookCreator::PageDef do
     it { expect(subject.body_path).to eq("p") }
     it { expect(subject.link_path).to eq("a") }
     it { expect(subject.chapter_path).to be_nil }
-    it { expect(subject.max_paragraphs).to be_nil }
   end
 
   context "with all parameters" do
-    subject { described_class.new("h1.title", "div", "a.link", "a.chapter", 55) }
+    subject { described_class.new("h1.title", "div", "a.link", "a.chapter") }
     it { expect(subject.title_path).to eq("h1.title") }
     it { expect(subject.body_path).to eq("div") }
     it { expect(subject.link_path).to eq("a.link") }
     it { expect(subject.chapter_path).to eq("a.chapter") }
-    it { expect(subject.max_paragraphs).to eq(55) }
   end
 
   describe "#title" do
@@ -43,11 +41,6 @@ describe AudioBookCreator::PageDef do
     context "with many bodies" do
       let(:page) { dom("<p>p1</p><p>p2</p><p>p3</p><p>p4</p>")}
       it { expect(Array(subject.body(page)).join).to eq(%w(p1 p2 p3 p4).join) }
-    end
-    context "with low limit" do
-      let(:page) { dom("<p>p1</p><p>p2</p><p>p3</p><p>p4</p>")}
-      before { subject.max_paragraphs = 3}
-      it { expect(Array(subject.body(page)).join).to eq(%w(p1 p2 p3).join) }
     end
   end
 

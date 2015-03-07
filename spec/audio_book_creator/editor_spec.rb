@@ -19,13 +19,6 @@ describe AudioBookCreator::Editor do
                           ])).to eq([chapter1])
   end
 
-  it "should limit content" do
-    page_def.max_paragraphs = 2
-    expect(subject.parse([page("page1", "<h1>the title</h1>",
-                               "<p>first</p>", "<p>second</p>", "<p>third</p>")
-                         ])).to eq([chapter1])
-  end
-
   it "should ignore body formatting" do
     expect(subject.parse([page("page1", "<h1>the title</h1>",
                                "<p><a href='#this'>first</a></p>", "<p><b>second</b></p>")
