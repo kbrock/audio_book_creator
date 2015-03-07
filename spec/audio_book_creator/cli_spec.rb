@@ -78,7 +78,7 @@ describe AudioBookCreator::Cli do
     it "should default values" do
       # NOTE: calling with no constructor
       pristine = described_class.new
-      expect(subject.surfer_def.max).to eq(10)
+      expect(subject.surfer_def.max).not_to be_truthy
       expect(subject.page_def.title_path).to eq("h1")
       expect(subject.page_def.body_path).to eq("p")
       expect(subject.page_def.link_path).to eq("a")
@@ -247,18 +247,13 @@ describe AudioBookCreator::Cli do
   end
 
   context "max param" do
-    it "should default to 10" do
-      subject.parse(%w(http://site.com/title))
-      expect(subject.surfer_def.max).to eq(10)
-    end
-
     it "should have a max" do
       subject.parse(%w(http://site.com/title --max 20))
       expect(subject.surfer_def.max).to eq(20)
     end
 
     it "should have no max" do
-      subject.parse(%w(http://site.com/title --no-max))
+      subject.parse(%w(http://site.com/title --max 20 --no-max))
       expect(subject.surfer_def.max).not_to be_truthy
     end
   end

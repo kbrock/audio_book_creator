@@ -8,7 +8,6 @@ module AudioBookCreator
     include Logging
     def initialize
       self.verbose = false
-      surfer_def.max = 10
       page_def.title_path = "h1"
       page_def.body_path = "p"
       page_def.link_path = "a"
