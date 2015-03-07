@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe AudioBookCreator::Conductor do
-  let(:page_def)    { AudioBookCreator::PageDef.new("h1.title", "div", "a.link", "a.chapter", 55) }
+  let(:page_def)    { AudioBookCreator::PageDef.new("h1.title", "div", "a.link", "a.chapter") }
   let(:book_def)    do
     AudioBookCreator::BookDef.new("the title", "author", "dir", %w(a b), true).tap do |bd|
       bd.urls = %w(http://www.host.com/ http://www.host.com/)

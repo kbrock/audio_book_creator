@@ -78,7 +78,7 @@ describe AudioBookCreator::Cli do
     it "should default values" do
       # NOTE: calling with no constructor
       pristine = described_class.new
-      expect(subject.surfer_def.max).to eq(10)
+      expect(subject.surfer_def.max).not_to be_truthy
       expect(subject.page_def.title_path).to eq("h1")
       expect(subject.page_def.body_path).to eq("p")
       expect(subject.page_def.link_path).to eq("a")
@@ -125,7 +125,6 @@ describe AudioBookCreator::Cli do
       "--chapter" => "Next Chapter css",
       "--no-max" => "Don't limit the number of pages to visit",
       "--max" => "Maximum number of pages to visit",
-      "--max-p" => "Max paragraphs per chapter",
       "--force-audio" => "Regerate the audio",
       "--force-html" => "Regerate the audio",
       "--rate" => "Set words per minute",
@@ -159,12 +158,6 @@ describe AudioBookCreator::Cli do
       expect(subject.page_def.title_path).to eq("h1")
       expect(subject.page_def.body_path).to eq("p")
       expect(subject.page_def.link_path).to eq("a")
-      expect(subject.page_def.max_paragraphs).to be_nil
-    end
-
-    it "should support max paragraphs" do
-      subject.parse(%w(http://site.com/title --max-p 5))
-      expect(subject.page_def.max_paragraphs).to eq(5)
     end
 
     it "should support title" do
@@ -247,18 +240,13 @@ describe AudioBookCreator::Cli do
   end
 
   context "max param" do
-    it "should default to 10" do
-      subject.parse(%w(http://site.com/title))
-      expect(subject.surfer_def.max).to eq(10)
-    end
-
     it "should have a max" do
       subject.parse(%w(http://site.com/title --max 20))
       expect(subject.surfer_def.max).to eq(20)
     end
 
     it "should have no max" do
-      subject.parse(%w(http://site.com/title --no-max))
+      subject.parse(%w(http://site.com/title --max 20 --no-max))
       expect(subject.surfer_def.max).not_to be_truthy
     end
   end

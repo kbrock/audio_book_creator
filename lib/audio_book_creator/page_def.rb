@@ -1,14 +1,13 @@
 module AudioBookCreator
   # information on the format of the html page that is read
   class PageDef
-    attr_accessor :title_path, :body_path, :link_path, :chapter_path, :max_paragraphs
+    attr_accessor :title_path, :body_path, :link_path, :chapter_path
 
-    def initialize(title_path = "h1", body_path = "p", link_path = "a", chapter_path = nil, max_paragraphs = nil)
+    def initialize(title_path = "h1", body_path = "p", link_path = "a", chapter_path = nil)
       @title_path = title_path
       @body_path = body_path
       @link_path = link_path
       @chapter_path = chapter_path
-      @max_paragraphs = max_paragraphs
     end
 
     def title(dom)
@@ -17,7 +16,7 @@ module AudioBookCreator
     end
 
     def body(dom)
-      limit(dom.css(body_path))
+      dom.css(body_path)
       # feels like I need .map { |n| n.text }
     end
 
@@ -27,12 +26,6 @@ module AudioBookCreator
 
     def chapter_links(dom, &block)
       dom.css(chapter_path).map(&block)
-    end
-
-    private
-
-    def limit(nodes)
-      max_paragraphs ? nodes.first(max_paragraphs) : nodes
     end
   end
 end

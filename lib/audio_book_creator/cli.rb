@@ -8,7 +8,6 @@ module AudioBookCreator
     include Logging
     def initialize
       self.verbose = false
-      surfer_def.max = 10
       page_def.title_path = "h1"
       page_def.body_path = "p"
       page_def.link_path = "a"
@@ -53,7 +52,6 @@ module AudioBookCreator
           o.opt(:body_path, "--body STRING", "Content css (e.g.: p)")
           o.opt(:link_path, "--link STRING", "Next Page css (e.g.: a.Next)")
           o.opt(:chapter_path, "--chapter STRING", "Next Chapter css")
-          o.opt(:max_paragraphs, "--max-p NUMBER", Integer, "Max paragraphs per chapter (testing only)")
         end
         opt(opts, surfer_def) do |o|
           o.opt(:max, "--no-max", "Don't limit the number of pages to visit")
