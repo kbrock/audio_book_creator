@@ -16,25 +16,6 @@ module AudioBookCreator
     # stub for testing
     attr_writer :web
 
-    def set_args(argv, usage)
-      if argv.empty?
-        puts "please url", usage
-        exit 2
-      elsif argv.first.include?("://")
-        book_def.title = argv.first.split("/").last
-        book_def.urls = argv
-      else
-        book_def.title = argv.shift
-        book_def.urls = argv
-      end
-      surfer_def.cache_filename = database
-      surfer_def.host = book_def.urls.first
-    end
-
-    def database
-      "pages.db"
-    end
-
     def verbose=(val)
       logger.level = val ? Logger::INFO : Logger::WARN
     end
@@ -114,6 +95,25 @@ module AudioBookCreator
       def opt(value, *args)
         @opts.on(*args) { |v| @model.send("#{value}=", v) }
       end
+    end
+
+    def set_args(argv, usage)
+      if argv.empty?
+        puts "please url", usage
+        exit 2
+      elsif argv.first.include?("://")
+        book_def.title = argv.first.split("/").last
+        book_def.urls = argv
+      else
+        book_def.title = argv.shift
+        book_def.urls = argv
+      end
+      surfer_def.cache_filename = database
+      surfer_def.host = book_def.urls.first
+    end
+
+    def database
+      "pages.db"
     end
   end
 end
