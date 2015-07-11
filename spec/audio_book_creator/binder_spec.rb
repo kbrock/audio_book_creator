@@ -7,7 +7,7 @@ describe AudioBookCreator::Binder do
 
   it "should require a chapter" do
     expect_runner.not_to receive(:system)
-    expect { subject.create([]) }.to raise_error
+    expect {subject.create([]) }.to raise_error("No Chapters")
   end
 
   it "should do nothing if m4b exists" do

@@ -6,7 +6,7 @@ describe AudioBookCreator::Speaker do
   subject { described_class.new(speaker_def, book_def) }
   it "should require a non empty chapter" do
     expect_runner.not_to receive(:system)
-    expect { subject.say(chapter(nil)) }.to raise_error
+    expect { subject.say(chapter(nil)) }.to raise_error("Empty Chapter")
   end
 
   it "should do nothing if txt and mp4 file exist" do
@@ -61,7 +61,7 @@ describe AudioBookCreator::Speaker do
 
   it "should freak if no chapters are passed in" do
     expect_runner.not_to receive(:system)
-    expect { subject.say([]) }.to raise_error("Empty chapter")
+    expect { subject.say([]) }.to raise_error("Empty Chapter")
   end
 
   context "#make_directory_structure" do

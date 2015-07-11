@@ -13,7 +13,7 @@ module AudioBookCreator
     end
 
     def say(chapter)
-      raise "Empty chapter" if chapter.empty?
+      raise "Empty Chapter" if chapter.empty?
       text_filename = chapter_text_filename(chapter)
       sound_filename = chapter_sound_filename(chapter)
 
