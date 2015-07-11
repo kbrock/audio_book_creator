@@ -22,4 +22,27 @@ describe AudioBookCreator do
       expect(subject.should_write?("x", false)).not_to be_truthy
     end
   end
+
+  context ".logger=" do
+    let(:log) { double("logger") }
+    it "sets logger" do
+      subject.logger=log
+      expect(subject.logger).to eq(log)
+      subject.logger=nil
+    end
+  end
+
+  context ".logger" do
+    before { subject.logger=nil }
+
+    it "logs to stdout" do
+      expect(STDOUT).to receive(:write).with(/logging message/)
+      subject.logger.error "logging message"
+    end
+
+    it "defaults to warning" do
+      # clear out the cache up front
+      expect(subject.logger.level).to eq(Logger::WARN)
+    end
+  end
 end
