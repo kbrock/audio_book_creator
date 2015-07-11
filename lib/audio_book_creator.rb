@@ -19,11 +19,11 @@ module AudioBookCreator
   end
 
   def self.logger=(val)
-    @log = val
+    @logger = val
   end
 
   def self.logger
-    @log ||= Logger.new(STDOUT).tap { |log| log.level = Logger::WARN }
+    @logger ||= Logger.new(STDOUT).tap { |log| log.level = Logger::WARN }
   end
 end
 
