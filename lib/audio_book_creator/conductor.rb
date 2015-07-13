@@ -17,7 +17,7 @@ module AudioBookCreator
     ## spider
 
     def page_cache
-      @page_cache ||= PageDb.new(surfer_def.cache_filename)
+      @page_cache ||= PageDb.new("pages.db")
     end
 
     def web

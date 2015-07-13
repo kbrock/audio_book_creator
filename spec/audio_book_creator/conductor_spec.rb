@@ -8,7 +8,7 @@ describe AudioBookCreator::Conductor do
     end
   end
   let(:speaker_def) { AudioBookCreator::SpeakerDef.new }
-  let(:surfer_def)  { AudioBookCreator::SurferDef.new("http://host.com/", 5, true, "database") }
+  let(:surfer_def)  { AudioBookCreator::SurferDef.new("http://host.com/", 5, true) }
   subject           { described_class.new(page_def, book_def, speaker_def, surfer_def) }
 
   context "#initialize" do
@@ -18,8 +18,10 @@ describe AudioBookCreator::Conductor do
     it { expect(subject.surfer_def).to  eq(surfer_def) }
   end
 
-  context "#page_cache" do
-    it { expect(subject.page_cache.filename).to eq(subject.surfer_def.cache_filename) }
+  describe "#page_cache" do
+    it "sets filename" do
+      expect(subject.page_cache.filename).to eq("pages.db")
+    end
   end
 
   context "#web" do

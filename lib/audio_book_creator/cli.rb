@@ -108,12 +108,7 @@ module AudioBookCreator
         book_def.title = argv.shift
         book_def.urls = argv
       end
-      surfer_def.cache_filename = database
       surfer_def.host = book_def.urls.first
-    end
-
-    def database
-      "pages.db"
     end
   end
 end
