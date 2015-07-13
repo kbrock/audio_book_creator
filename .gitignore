@@ -21,3 +21,5 @@ tmp
 *.txt
 *.m4a
 *.m4b
+# bundler files
+bin
