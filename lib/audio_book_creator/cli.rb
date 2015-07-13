@@ -6,12 +6,6 @@ require 'uri'
 module AudioBookCreator
   class Cli
     include Logging
-    def initialize
-      self.verbose = false
-      page_def.title_path = "h1"
-      page_def.body_path = "p"
-      page_def.link_path = "a"
-    end
 
     # stub for testing
     attr_writer :web
@@ -26,7 +20,7 @@ module AudioBookCreator
         opts.version = VERSION
         opts.banner = "Usage: audio_book_creator [options] title url [url] [...]"
         opt(opts, self) do |o|
-          o.opt(:verbose, "-v", "--verbose", "Run verbosely")
+          o.opt(:verbose, "-v", "--verbose", "--[no-]verbose", "Run verbosely")
         end
         opt(opts, page_def) do |o|
           o.opt(:title_path, "--title STRING", "Title css (e.g.: h1)")
