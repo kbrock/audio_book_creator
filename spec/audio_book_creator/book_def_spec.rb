@@ -25,9 +25,24 @@ describe AudioBookCreator::BookDef do
     it { expect(subject.itunes).to be_truthy }
   end
 
-  context "with derived title" do
-    subject { described_class.new("the title", "author", nil, nil) }
-    it { expect(subject.base_dir).to eq("the-title") }
+  describe "#base_dir (derived)" do
+    subject { described_class.new }
+
+    it "supports titles with spaces" do
+      subject.title = %{title ((for "you", "Amy", and "John"))}
+      expect(subject.base_dir).to eq("title-for-you-Amy-and-John")
+    end
+
+    it "supports titles with extra stuff" do
+      subject.title = "title,for!"
+      expect(subject.base_dir).to eq("title-for")
+    end
+
+    it "overrides" do
+      subject.base_dir = "dir"
+      subject.title = "title"
+      expect(subject.base_dir).to eq("dir")
+    end
   end
 
   context "#unique_urls" do
@@ -36,26 +51,17 @@ describe AudioBookCreator::BookDef do
     it { expect(subject.unique_urls).to eq(%w(http://site.com/title http://site.com/title2)) }
   end
 
-  context ".sanitize_filename" do
-    subject { described_class }
-    it "should join strings" do
-      expect(subject.sanitize_filename("title", "jpg")).to eq("title.jpg")
+  describe "#filename (derived)" do
+    subject { described_class.new }
+
+    it "adds extension" do
+      subject.title = "title"
+      expect(subject.filename).to eq("title.m4b")
     end
 
-    it "should handle arrays" do
-      expect(subject.sanitize_filename(%w(title jpg))).to eq("title.jpg")
-    end
-
-    it "should ignore nils" do
-      expect(subject.sanitize_filename("title", nil)).to eq("title")
-    end
-
-    it "should support titles with spaces" do
-      expect(subject.sanitize_filename(%{title ((for "you", "Amy", and "John"))})).to eq("title-for-you-Amy-and-John")
-    end
-
-    it "should support titles with extra stuff" do
-      expect(subject.sanitize_filename("title,for!")).to eq("title-for")
+    it "supports spaces" do
+      subject.title = "the title"
+      expect(subject.filename).to eq("the-title.m4b")
     end
   end
 end
