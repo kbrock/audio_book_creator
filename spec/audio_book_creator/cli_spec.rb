@@ -9,7 +9,7 @@ describe AudioBookCreator::Cli do
   # this sidesteps creating a database file
   subject { described_class.new }
 
-  context "with no arguments" do
+  describe "#parse", "with no arguments" do
     it "displays an error" do
       expect($stdout).to receive(:puts).with(/url/, /Usage.*title/)
       expect(subject).to receive(:exit).with(2).and_raise("exited")
@@ -17,105 +17,45 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "with one argument" do
-    it "assigns title and url" do
-      subject.parse(%w(http://site.com/title))
-      expect(subject.book_def.title).to eq("title")
-      expect(subject.book_def.urls).to eq(%w(http://site.com/title))
-    end
-
-    it "defaults to warn" do
+  describe "#parse" do
+    # not really part of this spec
+    it "defaults to non verbose" do
       subject.parse(%w(http://site.com/title))
       expect(AudioBookCreator.logger.level).to eq(Logger::WARN)
     end
-  end
 
-  context "with title and url" do
-    it "assigns title and url" do
-      subject.parse(%w(title http://site.com/))
-      expect(subject.book_def.title).to eq("title")
-      expect(subject.book_def.urls).to eq(%w(http://site.com/))
-    end
-  end
-
-  context "with multiple urls" do
-    it "assigns title and url" do
-      subject.parse(%w(http://site.com/title http://site.com/title2))
-      expect(subject.book_def.title).to eq("title")
-      expect(subject.book_def.urls).to eq(%w(http://site.com/title http://site.com/title2))
-    end
-  end
-
-  context "with title and multiple urls" do
-    it "has multiple urls" do
-      subject.parse(%w(title http://site.com/page1 http://site.com/page2))
-      expect(subject.book_def.title).to eq("title")
-      expect(subject.book_def.urls).to eq(%w(http://site.com/page1 http://site.com/page2))
-    end
-  end
-
-  context "with verbose" do
-    it "defaults to warning logging" do
-      subject.parse(%w(http://site.com/title --verbose))
-      expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
+    it "sets to info" do
+      subject.parse(%w(http://site.com/title --no-verbose))
+      expect(AudioBookCreator.logger.level).to eq(Logger::WARN)
     end
 
-    it "defaults to warning" do
-      subject.parse(%w(http://site.com/title -v))
-      expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
+    context "with verbose" do
+      it "sets to info" do
+        subject.parse(%w(http://site.com/title --verbose))
+        expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
+      end
+
+      it "sets to info" do
+        subject.parse(%w(http://site.com/title -v))
+        expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
+      end
     end
-  end
 
-
-  context "#parse" do
     # actual cli calls subject.parse.run, so it needs to chain
-    it { expect(subject.parse(%w(http://site.com/title))).to eq(subject) }
-  end
-
-  # parameters
-
-  context "#defaults" do
-    it "should default values" do
-      # NOTE: calling with no constructor
-      pristine = described_class.new
-      expect(subject.surfer_def.max).not_to be_truthy
-      expect(subject.page_def.title_path).to eq("h1")
-      expect(subject.page_def.body_path).to eq("p")
-      expect(subject.page_def.link_path).to eq("a")
-    end
-  end
-
-  # file sanitization is tested in audio_book_creator.spec
-  context "#base_dir" do
-    it "should derive base_dir from title" do
-      subject.parse(%w(title http://site.com/))
-      expect(subject.book_def.base_dir).to eq("title")
+    it "can chain" do
+      expect(subject.parse(%w(http://site.com/title))).to eq(subject)
     end
 
-    it "should support titles with spaces" do
-      subject.parse(["title !for", "http://site.com/"])
-      expect(subject.book_def.base_dir).to eq("title-for")
+    it "provides usage" do
+      expect($stdout).to receive(:puts).with(/Usage: audio_book_creator.*title url/)
+      expect { subject.parse(%w(--help)) }.to raise_error(SystemExit)
     end
 
-    it "should support titles with extra stuff" do
-      subject.parse(["title,for!", "http://site.com/"])
-      expect(subject.book_def.base_dir).to eq("title-for")
-    end
-
-    it "should override basedir" do
-      subject.parse(%w(title http://site.com/ --base-dir dir))
-      expect(subject.book_def.base_dir).to eq("dir")
-    end
-  end
-
-  context "with version" do
-    it "should provide version" do
+    it "provides version" do
       expect($stdout).to receive(:puts).with(/audio_book_creator #{AudioBookCreator::VERSION}/)
       expect { subject.parse(%w(--version)) }.to raise_error(SystemExit)
     end
-  end
 
-  context "#help" do
     {
       "-v" => "Run verbosely",
       "--verbose" => "Run verbosely",
@@ -141,7 +81,6 @@ describe AudioBookCreator::Cli do
 
     it "should provide help" do
       expect($stdout).to receive(:puts).with(/Usage/)
-      #expect(subject).to receive(:exit).with(1).and_raise("exited")
       expect { subject.parse(%w(--help)) }.to raise_error(SystemExit)
     end
 
@@ -151,41 +90,39 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#page_def" do
-    it "should create page_def" do
-      subject.parse(%w(http://site.com/title))
-      # defaults
-      expect(subject.page_def.title_path).to eq("h1")
-      expect(subject.page_def.body_path).to eq("p")
-      expect(subject.page_def.link_path).to eq("a")
-    end
-
-    it "should support title" do
+  describe "#parse", "#page_def" do
+    it "#title" do
       subject.parse(%w(http://site.com/title --title h1.big))
       expect(subject.page_def.title_path).to eq("h1.big")
     end
 
-    it "should support body" do
+    it "#body_path" do
       subject.parse(%w(http://site.com/title --body p.content))
       expect(subject.page_def.body_path).to eq("p.content")
     end
 
-    it "should support link" do
+    it "#link_path" do
       subject.parse(%w(http://site.com/title --link a.next_page))
       expect(subject.page_def.link_path).to eq("a.next_page")
     end
+
+    it "#chapter_path" do
+      subject.parse(%w(http://site.com/title --chapter a.chapter))
+      expect(subject.page_def.chapter_path).to eq("a.chapter")
+    end
   end
 
-  context "#book_def" do
+  context "#parse", "#book_def" do
     it "should create book_def" do
       subject.parse(%w(http://site.com/title))
       # defaults
       expect(subject.book_def.base_dir).to eq("title")
       expect(subject.book_def.title).to eq("title")
-      expect(subject.book_def.author).to eq("Vicki")
-      expect(subject.book_def.itunes).not_to be_truthy
+      #expect(subject.book_def.author).to eq("Vicki")
+      #expect(subject.book_def.itunes).not_to be_truthy
     end
 
+    # MOVE to book_def
     it "should support basedir" do
       subject.parse(%w(http://site.com/title --base-dir dir))
       # defaults
@@ -202,9 +139,57 @@ describe AudioBookCreator::Cli do
       subject.parse(%w(http://site.com/title http://site.com/title http://site.com/title2))
       expect(subject.book_def.urls).to eq(%w(http://site.com/title http://site.com/title http://site.com/title2))
     end
+
+    describe "#title #urls" do
+      context "with url" do
+        it "assigns url abbreviation as title" do
+          subject.parse(%w(http://site.com/title))
+          expect(subject.book_def.title).to eq("title")
+          expect(subject.book_def.urls).to eq(%w(http://site.com/title))
+        end
+      end
+
+      context "with title and url" do
+        it "assigns title and url" do
+          subject.parse(%w(title http://site.com/))
+          expect(subject.book_def.title).to eq("title")
+          expect(subject.book_def.urls).to eq(%w(http://site.com/))
+        end
+      end
+
+      context "with multiple urls" do
+        it "assigns title and url" do
+          subject.parse(%w(http://site.com/title http://site.com/title2))
+          expect(subject.book_def.title).to eq("title")
+          expect(subject.book_def.urls).to eq(%w(http://site.com/title http://site.com/title2))
+        end
+      end
+
+      context "with title and multiple urls" do
+        it "has multiple urls" do
+          subject.parse(%w(title http://site.com/page1 http://site.com/page2))
+          expect(subject.book_def.title).to eq("title")
+          expect(subject.book_def.urls).to eq(%w(http://site.com/page1 http://site.com/page2))
+        end
+      end
+    end
+
+    # NOTE: file sanitization is tested in audio_book_creator.spec
+    describe "#base_dir" do
+      # MOVE to book_def
+      it "should support titles with spaces" do
+        subject.parse(["title !for", "http://site.com/"])
+        expect(subject.book_def.base_dir).to eq("title-for")
+      end
+
+      it "should override basedir" do
+        subject.parse(%w(title http://site.com/ --base-dir dir))
+        expect(subject.book_def.base_dir).to eq("dir")
+      end
+    end
   end
 
-  context "#speaker_def" do
+  describe "#parse", "#speaker_def" do
     it "should default" do
       subject.parse(%w(http://site.com/title))
       expect(subject.speaker_def.voice).to eq("Vicki")
@@ -232,22 +217,33 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  context "#surfer_def" do
-    it "assigns cache_filename" do
+  describe "#parse", "#surfer_def" do
+    it "defaults" do
       subject.parse(%w(http://site.com/title))
-      expect(subject.surfer_def.cache_filename).to eq("pages.db")
-    end
-  end
-
-  context "max param" do
-    it "should have a max" do
-      subject.parse(%w(http://site.com/title --max 20))
-      expect(subject.surfer_def.max).to eq(20)
     end
 
-    it "should have no max" do
-      subject.parse(%w(http://site.com/title --max 20 --no-max))
-      expect(subject.surfer_def.max).not_to be_truthy
+    it "sets host to first url" do
+      subject.parse(%w(http://site.com/page1 http://site2.com/page2))
+      expect(subject.surfer_def.host).to eq("http://site.com/page1")
+    end
+
+    context "#max" do
+      it "sets" do
+        subject.parse(%w(http://site.com/title --max 20))
+        expect(subject.surfer_def.max).to eq(20)
+      end
+
+      it "unsets" do
+        subject.parse(%w(http://site.com/title --max 20 --no-max))
+        expect(subject.surfer_def.max).not_to be_truthy
+      end
+    end
+
+    context "#regen_html" do
+      it "sets" do
+        subject.parse(%w(http://site.com/title --force-html))
+        expect(subject.surfer_def.regen_html).to be_truthy
+      end
     end
   end
 
@@ -259,6 +255,8 @@ describe AudioBookCreator::Cli do
       expect(subject.conductor.speaker_def).to eq(subject.speaker_def)
       expect(subject.conductor.surfer_def).to eq(subject.surfer_def)
       expect(subject.conductor).to respond_to(:run)
+      # this makes it not just look like the cli
+      expect(subject.conductor).to respond_to(:spider)
     end
   end
 

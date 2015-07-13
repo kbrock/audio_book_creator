@@ -6,34 +6,9 @@ require 'uri'
 module AudioBookCreator
   class Cli
     include Logging
-    def initialize
-      self.verbose = false
-      page_def.title_path = "h1"
-      page_def.body_path = "p"
-      page_def.link_path = "a"
-    end
 
     # stub for testing
     attr_writer :web
-
-    def set_args(argv, usage)
-      if argv.empty?
-        puts "please url", usage
-        exit 2
-      elsif argv.first.include?("://")
-        book_def.title = argv.first.split("/").last
-        book_def.urls = argv
-      else
-        book_def.title = argv.shift
-        book_def.urls = argv
-      end
-      surfer_def.cache_filename = database
-      surfer_def.host = book_def.urls.first
-    end
-
-    def database
-      "pages.db"
-    end
 
     def verbose=(val)
       logger.level = val ? Logger::INFO : Logger::WARN
@@ -45,7 +20,7 @@ module AudioBookCreator
         opts.version = VERSION
         opts.banner = "Usage: audio_book_creator [options] title url [url] [...]"
         opt(opts, self) do |o|
-          o.opt(:verbose, "-v", "--verbose", "Run verbosely")
+          o.opt(:verbose, "-v", "--verbose", "--[no-]verbose", "Run verbosely")
         end
         opt(opts, page_def) do |o|
           o.opt(:title_path, "--title STRING", "Title css (e.g.: h1)")
@@ -114,6 +89,20 @@ module AudioBookCreator
       def opt(value, *args)
         @opts.on(*args) { |v| @model.send("#{value}=", v) }
       end
+    end
+
+    def set_args(argv, usage)
+      if argv.empty?
+        puts "please url", usage
+        exit 2
+      elsif argv.first.include?("://")
+        book_def.title = argv.first.split("/").last
+        book_def.urls = argv
+      else
+        book_def.title = argv.shift
+        book_def.urls = argv
+      end
+      surfer_def.host = book_def.urls.first
     end
   end
 end
