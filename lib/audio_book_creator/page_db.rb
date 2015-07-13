@@ -33,6 +33,10 @@ module AudioBookCreator
       db.execute "select name, contents from #{table_name}", &block
     end
 
+    def delete(like_name)
+      db.execute "delete from pages where name like ?", like_name
+    end
+
     private
 
     def db
