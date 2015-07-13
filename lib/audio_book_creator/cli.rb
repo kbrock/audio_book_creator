@@ -30,7 +30,7 @@ module AudioBookCreator
         end
         opt(opts, surfer_def) do |o|
           o.opt(:max, "--no-max", "Don't limit the number of pages to visit")
-          o.opt(:max, "--max NUMBER", Integer, "Maximum number of pages to visit (default: 10)")
+          o.opt(:max, "--max NUMBER", Integer, "Maximum number of pages to visit")
           o.opt(:regen_html, "--force-html", "Regerate the audio")
         end
         opt(opts, speaker_def) do |o|
