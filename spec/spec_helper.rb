@@ -16,7 +16,7 @@ end
 require_relative "support/test_logger"
 
 begin
-  require "pry"
+  require "byebug"
 rescue LoadError
 end
 

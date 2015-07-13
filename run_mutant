@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+
+class Mutt
+  attr_accessor :src
+  attr_accessor :spec
+  attr_accessor :mutant
+  attr_accessor :class_name
+
+  def initialize(src)
+    @src = src
+    @spec = src.sub("lib/","spec/").sub(".rb","_spec.rb")
+    @mutant = src.sub("lib/","muts/").sub(".rb",".txt")
+    @class_name = file_to_class(src.sub("lib/",""))
+  end
+
+  def need_to_run?
+    !File.exist?(mutant) ||
+    File.stat(src).mtime > File.stat(mutant).mtime ||
+    File.stat(spec).mtime > File.stat(mutant).mtime
+  end
+
+  def skip?
+    class_name.include?("::Version")
+  end
+
+  def ensure_mutant_dir
+    FileUtils.mkdir_p(File.dirname(mutant))
+  end
+
+  def mutant_count
+    if File.exist?(mutant)
+      %w(Kills Mutations).map { |field| `awk "/#{field}/ { print \\$2; }" #{mutant}`.chomp.to_i }
+    else
+      ["", ""]
+    end
+  end
+
+  def counts
+    k, m = mutant_count
+    "%s%4s/%4s  #{class_name}" % [(k == m ? " " : "*"), k, m]
+  end
+
+  def run_mutant
+    # --fail-fast
+    system({ "MUTANT" => "true"},
+      "mutant --include lib --require audio_book_creator --require audio_book_creator/cli " +
+      "--use rspec #{class_name} -d --jobs 1 > #{mutant}")
+  rescue SystemExit, Interrupt
+    FileUtils.rm(mutant)
+    raise
+  end
+
+  def self.run(filenames, force)
+    filenames.map { |src| Mutt.new(src) }.select { |mutant| !mutant.skip? }.each do |mutant|
+      puts mutant.counts
+      next unless force || mutant.need_to_run?
+      mutant.run_mutant
+      puts(mutant.counts)
+    end
+  end
+
+  private
+
+  def file_to_class(str)
+    str.sub(".rb","").split("/").collect { |f| f.split("_").collect(&:capitalize).join }.join("::")
+  end
+end
+
+force = ARGV.delete("-f")
+filenames = ARGV.empty? ? Dir["lib/**/*.rb"] : ARGV
+
+Mutt.run(filenames, force)
