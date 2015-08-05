@@ -18,7 +18,7 @@ module AudioBookCreator
       options = OptionParser.new do |opts|
         opts.program_name = "audio_book_creator"
         opts.version = VERSION
-        opts.banner = "Usage: audio_book_creator [options] title url [url] [...]"
+        opts.banner = "Usage: audio_book_creator [options] [title] url [url] [...]"
         opt(opts, self) do |o|
           o.opt(:verbose, "-v", "--verbose", "--[no-]verbose", "Run verbosely")
         end
@@ -97,11 +97,10 @@ module AudioBookCreator
         exit 2
       elsif argv.first.include?("://")
         book_def.title = argv.first.split("/").last
-        book_def.urls = argv
       else
         book_def.title = argv.shift
-        book_def.urls = argv
       end
+      book_def.urls = argv
       surfer_def.host = book_def.urls.first
     end
   end

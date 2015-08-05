@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'uri'
-require 'logger'
 # NOTE: cli class is not in the path by default
 #       it is only included by running the command
 require 'audio_book_creator/cli'
@@ -47,7 +45,7 @@ describe AudioBookCreator::Cli do
     end
 
     it "provides usage" do
-      expect($stdout).to receive(:puts).with(/Usage: audio_book_creator.*title url/)
+      expect($stdout).to receive(:puts).with(/Usage: audio_book_creator.*\[title\] url/)
       expect { subject.parse(%w(--help)) }.to raise_error(SystemExit)
     end
 
