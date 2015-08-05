@@ -41,9 +41,9 @@ describe AudioBookCreator::Binder do
       expect(File).to receive(:exist?).with("title.m4b").and_return(false)
 
       expect_runner.to receive(:system)
-        .with("abbinder", "-a", "Vicki", "-t", "title", "-b", "32", "-c", "1",
+        .with("abbinder", "-A", "-a", "Vicki", "-t", "title", "-b", "32", "-c", "1",
               "-r", "22050", "-g", "Audiobook", "-l", "7", "-o", "title.m4b",
-              "@the title@", "dir/chapter01.m4a", "-A").and_return(true)
+              "@the title@", "dir/chapter01.m4a").and_return(true)
       subject.create([spoken_chapter])
     end
   end
