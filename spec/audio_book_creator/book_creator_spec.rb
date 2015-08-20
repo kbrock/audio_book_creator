@@ -12,9 +12,8 @@ describe AudioBookCreator::BookCreator do
     subject { described_class.new(spider, editor, speaker, binder) }
 
     it "should call all the constructors and components" do
-
       outstanding = ["http://site.com/"]
-      page_contents = ["site.com contents"]
+      page_contents = [page("title1","contents1"), page("title2","contents2")]
       chapters = [
         chapter("contents1", "title1", 1),
         chapter("contents2", "title2", 2)
