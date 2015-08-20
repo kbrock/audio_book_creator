@@ -8,12 +8,6 @@ describe AudioBookCreator::Spider do
   # NOTE: could use arrays here, but put caps to catch bugs
   subject { described_class.new(page_def, web, invalid_urls) }
 
-  it "handles empty initializer" do
-    pristine = described_class.new(page_def)
-    expect(pristine.web).to be_a(Hash)
-    expect(pristine.invalid_urls).to be_a(Hash)
-  end
-
   it "sets arguments" do
     expect(subject.page_def).to eq(page_def)
     expect(subject.web).to eq(web)
@@ -23,26 +17,26 @@ describe AudioBookCreator::Spider do
   context "#visit" do
     it "visit urls" do
       expect_visit_page "page1", "x"
-      expect(subject.run(uri(%w(page1)))).to eq([page(site("page1"),"x")])
+      expect(subject.run(uri(%w(page1)))).to eq([web_page(site("page1"),"x")])
     end
 
     it "visit string" do
       expect_visit_page "page1", "x"
-      expect(subject.run(site(%w(page1)))).to eq([page(site("page1"),"x")])
+      expect(subject.run(site(%w(page1)))).to eq([web_page(site("page1"),"x")])
     end
 
     it "visit multiple pages" do
       expect_visit_page "page1"
       expect_visit_page "page2"
       expect(subject.run(uri(%w(page1 page2))))
-        .to eq([page(site("page1")), page(site("page2"))])
+        .to eq([web_page(site("page1")), web_page(site("page2"))])
     end
 
     it "visit unique list of pages" do
       expect_visit_page "page1", link("page2"), link("page2")
       expect_visit_page "page2"
       expect(subject.run uri(%w(page1)))
-        .to eq([page(site("page1"),link("page2"), link("page2")), page(site("page2"))])
+        .to eq([web_page(site("page1"),link("page2"), link("page2")), web_page(site("page2"))])
     end
 
     it "skips loops from uri" do
@@ -88,7 +82,7 @@ describe AudioBookCreator::Spider do
     p1_contents = "<a id='a1'>a1</a>", "<a href=''>a2</a>", "<a href='#a'>x</a>", link("page2")
     expect_visit_page("page1", *p1_contents)
     expect_visit_page("page2")
-    expect(subject.run uri(%w(page1))).to eq([page(site("page1"), *p1_contents), page(site("page2"))])
+    expect(subject.run uri(%w(page1))).to eq([web_page(site("page1"), *p1_contents), web_page(site("page2"))])
   end
 
   it "visits all pages once (and only once)" do
