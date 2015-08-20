@@ -24,7 +24,7 @@ describe AudioBookCreator::WebPage do
   describe "#css" do
     subject { described_class.new("url", "<h1>body</h1><h2></h2><p>p1</p><p>p2</p>") }
     it "fetches no element" do
-      expect(subject.css("head")).to eq([])
+      expect(subject.css("title")).to eq([])
     end
 
     it "fetches blank element" do

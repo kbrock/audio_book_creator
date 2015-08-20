@@ -10,16 +10,6 @@ module AudioBookCreator
       @chapter_path = chapter_path
     end
 
-    def title(dom)
-      title = dom.css(title_path).first
-      title.text if title
-    end
-
-    def body(dom)
-      dom.css(body_path)
-      # feels like I need .map { |n| n.text }
-    end
-
     def page_links(dom, &block)
       dom.css(link_path).map(&block)
     end

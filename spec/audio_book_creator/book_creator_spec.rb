@@ -14,6 +14,7 @@ describe AudioBookCreator::BookCreator do
     it "should call all the constructors and components" do
       outstanding = ["http://site.com/"]
       page_contents = [page("title1","contents1"), page("title2","contents2")]
+      web_page_contents = page_contents.map { |p| AudioBookCreator::WebPage.new('', p) }
       chapters = [
         chapter("contents1", "title1", 1),
         chapter("contents2", "title2", 2)
@@ -24,7 +25,7 @@ describe AudioBookCreator::BookCreator do
       ]
       expect(speaker).to receive(:make_directory_structure)
       expect(spider).to receive(:run).with(outstanding).and_return(page_contents)
-      expect(editor).to receive(:parse).with(page_contents).and_return(chapters)
+      expect(editor).to receive(:parse).with(web_page_contents).and_return(chapters)
       expect(speaker).to receive(:say).with(chapters.first).and_return(spoken_chapters.first)
       expect(speaker).to receive(:say).with(chapters.last).and_return(spoken_chapters.last)
       expect(binder).to receive(:create).with(spoken_chapters)

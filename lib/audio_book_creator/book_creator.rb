@@ -23,7 +23,9 @@ module AudioBookCreator
       speaker.make_directory_structure
       binder.create(
         editor.parse(
-          spider.run(outstanding)
+          spider.run(outstanding).map { |text|
+            WebPage.new('', text)
+          }
         ).map { |chapter| speaker.say(chapter) }
       )
     end
