@@ -10,9 +10,8 @@ module AudioBookCreator
     # convert page[] -> chapter[]
     def parse(pages)
       pages.each_with_index.map do |page, i|
-        dom = Nokogiri::HTML(page)
-        title = page_def.title(dom) || "Chapter #{i + 1}"
-        body = page_def.body(dom)
+        title = page.css(page_def.title_path).first || "Chapter #{i + 1}"
+        body = page.css(page_def.body_path)
         Chapter.new(number: (i + 1), title: title, body: body)
       end
     end

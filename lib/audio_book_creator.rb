@@ -40,6 +40,7 @@ require "audio_book_creator/speaker_def"
 require "audio_book_creator/surfer_def"
 
 # data models
+require "audio_book_creator/web_page"
 require "audio_book_creator/chapter"
 require "audio_book_creator/spoken_chapter"
 

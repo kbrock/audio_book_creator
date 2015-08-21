@@ -12,7 +12,7 @@ module AudioBookCreator
 
     attr_accessor :page_def
 
-    def initialize(page_def, web = {}, invalid_urls = {})
+    def initialize(page_def, web, invalid_urls)
       @page_def     = page_def
       @web          = web
       @invalid_urls = invalid_urls
@@ -42,8 +42,9 @@ module AudioBookCreator
       logger.info { "visit #{url}" }
       page = web[url.to_s]
       doc = Nokogiri::HTML(page)
+      wp = WebPage.new(url, page)
       [
-        page,
+        wp,
         page_def.page_links(doc) { |a| uri(url, a["href"]) },
         page_def.chapter_links(doc) { |a| uri(url, a["href"]) }
       ]

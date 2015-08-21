@@ -26,6 +26,11 @@ module SpecHelpers
     %(<a href="#{url}"#{clazz}>link</a>")
   end
 
+  def web_page(*args)
+    url = args.shift
+    AudioBookCreator::WebPage.new(url, page(*args))
+  end
+
   def page(title, *args)
     %(<html><head><title>#{title}</title></head>
       <body>#{Array(args).join(" ")}</body>
