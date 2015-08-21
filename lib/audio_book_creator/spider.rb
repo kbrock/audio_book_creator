@@ -32,7 +32,7 @@ module AudioBookCreator
           outstanding.add_unique_chapter(href) unless invalid_urls.include?(href)
         end
       end
-      visited.map { |text| WebPage.new('', text) }
+      visited
     end
 
     private
@@ -42,8 +42,9 @@ module AudioBookCreator
       logger.info { "visit #{url}" }
       page = web[url.to_s]
       doc = Nokogiri::HTML(page)
+      wp = WebPage.new(url, page)
       [
-        page,
+        wp,
         page_def.page_links(doc) { |a| uri(url, a["href"]) },
         page_def.chapter_links(doc) { |a| uri(url, a["href"]) }
       ]

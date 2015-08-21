@@ -27,7 +27,8 @@ module SpecHelpers
   end
 
   def web_page(*args)
-    AudioBookCreator::WebPage.new('',page(*args))
+    url = args.shift
+    AudioBookCreator::WebPage.new(url, page(*args))
   end
 
   def page(title, *args)
