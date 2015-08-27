@@ -18,34 +18,36 @@ describe AudioBookCreator::PageDef do
   end
 
   describe "#page_links" do
+    let(:root) { uri("") }
     context "with no page_links" do
-      let(:page) { dom("<p></p>")}
-      it { expect(subject.page_links(page){ |r| r["href"] }).to be_empty}
+      let(:wp) { web_page(root, "title","<p></p>")}
+      it { expect(subject.page_links(wp)).to be_empty}
     end
     context "with multiple page_links" do
-      let(:page) { dom("<a href='tgt1'>a</a><a href='tgt2'>a</a>")}
-      it { expect(subject.page_links(page){ |r| r["href"] }).to eq(%w(tgt1 tgt2))}
+      let(:wp) { web_page(root, "title", "<a href='tgt1'>a</a><a href='tgt2'>a</a>")}
+      it { expect(subject.page_links(wp)).to eq(uri(%w(tgt1 tgt2))) }
     end
   end
 
   describe "#chapter_links" do
+    let(:root) { uri("") }
     before { subject.chapter_path = "a.chapter"}
     context "with no chapter_links" do
-      let(:page) { dom("<p></p>")}
-      it { expect(subject.chapter_links(page){ |r| r["href"] }).to be_empty }
+      let(:wp) { web_page(root, "title","<p></p>")}
+      it { expect(subject.chapter_links(wp)).to be_empty }
     end
     context "with only page_links" do
-      let(:page) { dom("<p><a href='x'>x</a></p>")}
-      it { expect(subject.chapter_links(page){ |r| r["href"] }).to be_empty }
+      let(:wp) { web_page(root, "title", "<p><a href='x'>x</a></p>")}
+      it { expect(subject.chapter_links(wp)).to be_empty }
     end
     context "with multiple chapter_links" do
-      let(:page) { dom("<a class='chapter' href='tgt1'>a</a><a class='chapter' href='tgt2'>a</a>") }
-      it { expect(subject.chapter_links(page){ |r| r["href"] }).to eq(%w(tgt1 tgt2)) }
+      let(:wp) { web_page(root, "title", "<a class='chapter' href='tgt1'>a</a><a class='chapter' href='tgt2'>a</a>") }
+      it { expect(subject.chapter_links(wp)).to eq(uri(%w(tgt1 tgt2))) }
     end
     context "with nil chapter_path" do
       before { subject.chapter_path = nil }
-      let(:page) { dom("<a class='chapter' href='tgt1'>a</a><a class='chapter' href='tgt2'>a</a>") }
-      it { expect(subject.chapter_links(page) { |r| r["href"] }).to be_empty }
+      let(:wp) { web_page(root, "title", "<a class='chapter' href='tgt1'>a</a><a class='chapter' href='tgt2'>a</a>") }
+      it { expect(subject.chapter_links(wp)).to be_empty }
     end
   end
 end

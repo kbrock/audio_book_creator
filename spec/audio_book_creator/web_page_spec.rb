@@ -40,6 +40,14 @@ describe AudioBookCreator::WebPage do
     end
   end
 
+  describe "#links" do
+    let(:root) { uri("") }
+    let(:subject) { web_page(root, "title", "<a href='tgt1'>a</a><a href='tgt2'>a</a>")}
+
+    it { expect(subject.links('h1')).to be_empty}
+    it { expect(subject.links('a')).to eq(uri(%w(tgt1 tgt2))) }
+  end
+
   context "#eql" do
     subject { described_class.new("url", "body") }
     it "should understand ==" do
@@ -61,5 +69,11 @@ describe AudioBookCreator::WebPage do
     it "should understand != body" do
       expect(subject).not_to eq(described_class.new("url", "body2"))
     end
+  end
+
+  describe ".map_urls" do
+    subject { described_class }
+    it { expect(subject.map_urls(site(%w(a b c#d)))).to eq(uri(%w(a b c))) }
+    it { expect(subject.map_urls(uri(%w(a b c#d)))).to eq(uri(%w(a b c))) }
   end
 end

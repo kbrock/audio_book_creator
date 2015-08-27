@@ -10,12 +10,12 @@ module AudioBookCreator
       @chapter_path = chapter_path
     end
 
-    def page_links(dom, &block)
-      dom.css(link_path).map(&block)
+    def page_links(page)
+      page.links(link_path)
     end
 
-    def chapter_links(dom, &block)
-      dom.css(chapter_path).map(&block)
+    def chapter_links(page)
+      page.links(chapter_path)
     end
   end
 end
