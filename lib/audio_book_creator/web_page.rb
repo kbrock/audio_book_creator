@@ -1,3 +1,6 @@
+require 'nokogiri'
+require 'uri'
+
 module AudioBookCreator
   class WebPage
     attr_accessor :url
@@ -17,14 +20,33 @@ module AudioBookCreator
       dom.css(path).map {|n| n.text }
     end
 
+    def links(path)
+      dom.css(path).map { |a| self.class.uri(url, a["href"]) }
+    end
+
     def dom
       @dom ||= Nokogiri::HTML(body)
     end
+    private :dom
 
     def ==(other)
       other.kind_of?(WebPage) &&
         other.url.eql?(url) && other.body.eql?(body)
     end
     alias :eql? :==
+
+    def self.map_urls(url)
+      url.map { |o| uri(o) }
+    end
+
+    private
+
+    # raises URI::Error (BadURIError)
+    def self.uri(url, alt = nil)
+      url = URI.parse(url) unless url.is_a?(URI)
+      url += alt if alt
+      url.fragment = nil # remove #x part of url
+      url
+    end
   end
 end

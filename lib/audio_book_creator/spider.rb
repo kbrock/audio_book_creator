@@ -1,6 +1,3 @@
-require 'nokogiri'
-require 'uri'
-
 module AudioBookCreator
   class Spider
     include Logging
@@ -19,7 +16,7 @@ module AudioBookCreator
     end
 
     def run(chapters)
-      outstanding = CascadingArray.new([], chapters.map { |o| uri(o) })
+      outstanding = CascadingArray.new([], WebPage.map_urls(chapters))
       visited = []
 
       while (url = outstanding.shift)
@@ -41,21 +38,12 @@ module AudioBookCreator
     def visit_page(url)
       logger.info { "visit #{url}" }
       page = web[url.to_s]
-      doc = Nokogiri::HTML(page)
       wp = WebPage.new(url, page)
       [
         wp,
-        page_def.page_links(doc) { |a| uri(url, a["href"]) },
-        page_def.chapter_links(doc) { |a| uri(url, a["href"]) }
+        page_def.page_links(wp),
+        page_def.chapter_links(wp)
       ]
-    end
-
-    # raises URI::Error (BadURIError)
-    def uri(url, alt = nil)
-      url = URI.parse(url) unless url.is_a?(URI)
-      url += alt if alt
-      url.fragment = nil # remove #x part of url
-      url
     end
   end
 end
