@@ -42,6 +42,8 @@ describe AudioBookCreator::Conductor do
     it "sets references" do
       #expect(subject.invalid_urls.host).to eq(subject.surfer_def.host)
       expect(subject.invalid_urls.host).to eq("www.host.com")
+      expect(subject.page_def.invalid_urls.host).to eq("www.host.com")
+      expect(subject.page_def.invalid_urls).to eq(subject.invalid_urls)
     end
   end
 
@@ -49,7 +51,6 @@ describe AudioBookCreator::Conductor do
     it "sets references" do
       expect(subject.spider.page_def).to eq(subject.page_def)
       expect(subject.spider.web).to eq(subject.cached_web)
-      expect(subject.spider.invalid_urls).to eq(subject.invalid_urls)
     end
   end
 
