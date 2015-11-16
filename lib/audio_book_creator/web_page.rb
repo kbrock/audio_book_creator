@@ -31,7 +31,7 @@ module AudioBookCreator
 
     def ==(other)
       other.kind_of?(WebPage) &&
-        other.url.eql?(url) && other.body.eql?(body)
+        other.url.eql?(url)
     end
     alias :eql? :==
 

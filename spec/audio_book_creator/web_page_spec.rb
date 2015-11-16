@@ -65,10 +65,6 @@ describe AudioBookCreator::WebPage do
     it "should understand != url" do
       expect(subject).not_to eq(described_class.new("url2", "body"))
     end
-
-    it "should understand != body" do
-      expect(subject).not_to eq(described_class.new("url", "body2"))
-    end
   end
 
   describe ".map_urls" do
