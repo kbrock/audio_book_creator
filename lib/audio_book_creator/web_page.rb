@@ -12,10 +12,7 @@ module AudioBookCreator
       @body = body
     end
 
-    def empty?
-      body.empty?
-    end
-
+    # def single_css(path) ; css(path).first ; end
     def css(path)
       dom.css(path).map {|n| n.text }
     end
