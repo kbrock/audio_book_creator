@@ -2,16 +2,15 @@ require "spec_helper"
 
 describe AudioBookCreator::Spider do
   # set a max to prevent errors from causing infinite loops
-  let(:page_def) { AudioBookCreator::PageDef.new("h1", "p", "a.page", "a.chapter") }
+  let(:page_def) { AudioBookCreator::PageDef.new("h1", "p", "a.page", "a.chapter", invalid_urls) }
   let(:web) { {} }
   let(:invalid_urls) { {} }
   # NOTE: could use arrays here, but put caps to catch bugs
-  subject { described_class.new(page_def, web, invalid_urls) }
+  subject { described_class.new(page_def, web) }
 
   it "sets arguments" do
     expect(subject.page_def).to eq(page_def)
     expect(subject.web).to eq(web)
-    expect(subject.invalid_urls).not_to be_nil
   end
 
   context "#visit" do
@@ -138,7 +137,7 @@ describe AudioBookCreator::Spider do
 
   context "with invalid_urls" do
     it "skips invalid_urls" do
-      expect(subject.invalid_urls).to receive(:include?).with(uri("bad")).and_return(true)
+      expect(invalid_urls).to receive(:include?).with(uri("bad")).and_return(true)
       expect_visit_page("page1", link("bad"))
       subject.run uri(%w(page1))
     end

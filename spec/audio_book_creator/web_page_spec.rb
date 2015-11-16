@@ -11,16 +11,6 @@ describe AudioBookCreator::WebPage do
     end
   end
 
-  describe "#empty?" do
-    it "detects blank" do
-      expect(described_class.new(nil, "")).to be_empty
-    end
-
-    it "detects negative" do
-      expect(described_class.new(nil,"body")).not_to be_empty
-    end
-  end
-
   describe "#css" do
     subject { described_class.new("url", "<h1>body</h1><h2></h2><p>p1</p><p>p2</p>") }
     it "fetches no element" do
@@ -64,10 +54,6 @@ describe AudioBookCreator::WebPage do
 
     it "should understand != url" do
       expect(subject).not_to eq(described_class.new("url2", "body"))
-    end
-
-    it "should understand != body" do
-      expect(subject).not_to eq(described_class.new("url", "body2"))
     end
   end
 

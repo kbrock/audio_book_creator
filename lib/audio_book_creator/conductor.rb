@@ -10,6 +10,8 @@ module AudioBookCreator
       @book_def    = book_def
       @speaker_def = speaker_def
       @surfer_def  = surfer_def
+
+      page_def.invalid_urls = invalid_urls
     end
 
     # components
@@ -29,11 +31,11 @@ module AudioBookCreator
     end
 
     def invalid_urls
-      @invalid_urls ||= UrlFilter.new(surfer_def.host)
+      @invalid_urls ||= UrlFilter.new(book_def.urls.first)
     end
 
     def spider
-      @spider ||= Spider.new(page_def, cached_web, invalid_urls)
+      @spider ||= Spider.new(page_def, cached_web)
     end
 
     ##

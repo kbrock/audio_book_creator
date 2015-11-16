@@ -12,10 +12,7 @@ module AudioBookCreator
       @body = body
     end
 
-    def empty?
-      body.empty?
-    end
-
+    # def single_css(path) ; css(path).first ; end
     def css(path)
       dom.css(path).map {|n| n.text }
     end
@@ -31,7 +28,7 @@ module AudioBookCreator
 
     def ==(other)
       other.kind_of?(WebPage) &&
-        other.url.eql?(url) && other.body.eql?(body)
+        other.url.eql?(url)
     end
     alias :eql? :==
 
