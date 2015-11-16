@@ -29,7 +29,7 @@ module AudioBookCreator
     end
 
     def invalid_urls
-      @invalid_urls ||= UrlFilter.new(surfer_def.host)
+      @invalid_urls ||= UrlFilter.new(book_def.urls.first)
     end
 
     def spider

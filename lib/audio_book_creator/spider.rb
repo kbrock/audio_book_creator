@@ -20,12 +20,12 @@ module AudioBookCreator
       visited = []
 
       while (url = outstanding.shift)
-        contents, new_pages, new_chapters = visit_page(url)
-        visited << contents
-        new_pages.each do |href|
+        wp = visit_page(url)
+        visited << wp
+        page_def.page_links(wp).each do |href|
           outstanding.add_unique_page(href) unless invalid_urls.include?(href)
         end
-        new_chapters.each do |href|
+        page_def.chapter_links(wp).each do |href|
           outstanding.add_unique_chapter(href) unless invalid_urls.include?(href)
         end
       end
@@ -37,13 +37,7 @@ module AudioBookCreator
     # this one hangs on mutations
     def visit_page(url)
       logger.info { "visit #{url}" }
-      page = web[url.to_s]
-      wp = WebPage.new(url, page)
-      [
-        wp,
-        page_def.page_links(wp),
-        page_def.chapter_links(wp)
-      ]
+      WebPage.new(url, web[url.to_s])
     end
   end
 end
