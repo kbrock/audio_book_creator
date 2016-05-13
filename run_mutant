@@ -54,14 +54,26 @@ class Mutt
 
   def self.run(filenames, force)
     filenames.map { |src| Mutt.new(src) }.select { |mutant| !mutant.skip? }.each do |mutant|
-      puts mutant.counts
-      next unless force || mutant.need_to_run?
-      mutant.run_mutant
-      puts(mutant.counts)
+      if force || mutant.need_to_run?
+        k, m = mutant.mutant_count
+        if k == m
+          puts "Running #{mutant.class_name}"
+        else
+          puts "Running #{mutant.class_name} (currently %4s/%4s" % [k, m]
+        end
+        mutant.run_mutant
+        puts "#{back_a_line}#{mutant.counts}"
+      else
+        puts mutant.counts
+      end
     end
   end
 
   private
+
+  def self.back_a_line
+    @back_a_line ||= `tput cuu1; tput el`
+  end
 
   def file_to_class(str)
     str.sub(".rb","").split("/").collect { |f| f.split("_").collect(&:capitalize).join }.join("::")
