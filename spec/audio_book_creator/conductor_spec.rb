@@ -16,6 +16,7 @@ describe AudioBookCreator::Conductor do
     it { expect(subject.book_def).to    eq(book_def) }
     it { expect(subject.speaker_def).to eq(speaker_def) }
     it { expect(subject.surfer_def).to  eq(surfer_def) }
+    it { expect(subject.page_def.invalid_urls).to  eq(subject.invalid_urls) }
   end
 
   describe "#page_cache" do
@@ -40,7 +41,6 @@ describe AudioBookCreator::Conductor do
 
   context "#invalid_urls" do
     it "sets references" do
-      #expect(subject.invalid_urls.host).to eq(subject.surfer_def.host)
       expect(subject.invalid_urls.host).to eq("www.host.com")
       expect(subject.page_def.invalid_urls.host).to eq("www.host.com")
       expect(subject.page_def.invalid_urls).to eq(subject.invalid_urls)
