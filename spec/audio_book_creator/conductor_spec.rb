@@ -23,6 +23,14 @@ describe AudioBookCreator::Conductor do
     it "sets filename" do
       expect(subject.page_cache.filename).to eq("pages.db")
     end
+
+    it "sets table_name" do
+      expect(subject.page_cache.table_name).to eq("pages")
+    end
+
+    it "sets table_name" do
+      expect(subject.page_cache.encode).to eq(false)
+    end
   end
 
   context "#web" do
