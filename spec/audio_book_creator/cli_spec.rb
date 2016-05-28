@@ -6,6 +6,7 @@ require 'audio_book_creator/cli'
 describe AudioBookCreator::Cli do
   # this sidesteps creating a database file
   subject { described_class.new }
+  let(:minimal_args) { %w(http://site.com/title) }
 
   describe "#parse", "with no arguments" do
     it "displays an error" do
@@ -18,7 +19,7 @@ describe AudioBookCreator::Cli do
   describe "#parse" do
     # not really part of this spec
     it "defaults to non verbose" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
       expect(AudioBookCreator.logger.level).to eq(Logger::WARN)
     end
 
@@ -41,7 +42,7 @@ describe AudioBookCreator::Cli do
 
     # actual cli calls subject.parse.run, so it needs to chain
     it "can chain" do
-      expect(subject.parse(%w(http://site.com/title))).to eq(subject)
+      expect(subject.parse(minimal_args)).to eq(subject)
     end
 
     it "provides usage" do
@@ -112,7 +113,7 @@ describe AudioBookCreator::Cli do
 
   context "#parse", "#book_def" do
     it "should create book_def" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
       # defaults
       expect(subject.book_def.base_dir).to eq("title")
       expect(subject.book_def.title).to eq("title")
@@ -141,9 +142,9 @@ describe AudioBookCreator::Cli do
     describe "#title #urls" do
       context "with url" do
         it "assigns url abbreviation as title" do
-          subject.parse(%w(http://site.com/title))
+          subject.parse(minimal_args)
           expect(subject.book_def.title).to eq("title")
-          expect(subject.book_def.urls).to eq(%w(http://site.com/title))
+          expect(subject.book_def.urls).to eq(minimal_args)
         end
       end
 
@@ -189,7 +190,7 @@ describe AudioBookCreator::Cli do
 
   describe "#parse", "#speaker_def" do
     it "should default" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
       expect(subject.speaker_def.voice).to eq("Vicki")
       expect(subject.speaker_def.rate).to eq(280)
       expect(subject.speaker_def.channels).to eq(1)
@@ -217,7 +218,7 @@ describe AudioBookCreator::Cli do
 
   describe "#parse", "#surfer_def" do
     it "defaults" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
     end
 
     it "sets host to first url" do
@@ -247,7 +248,7 @@ describe AudioBookCreator::Cli do
 
   describe "#conductor" do
     it "should create a conductor" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
       expect(subject.conductor.page_def).to eq(subject.page_def)
       expect(subject.conductor.book_def).to eq(subject.book_def)
       expect(subject.conductor.speaker_def).to eq(subject.speaker_def)
@@ -260,7 +261,7 @@ describe AudioBookCreator::Cli do
 
   describe "#run" do
     it "should call book conductor" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
       conductor = double(:conductor)
       expect(conductor).to receive(:run).and_return("YAY")
       expect(subject).to receive(:conductor).and_return(conductor)
