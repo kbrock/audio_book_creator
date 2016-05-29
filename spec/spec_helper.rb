@@ -5,11 +5,11 @@ unless ENV['MUTANT']
   require "simplecov"
   require "codeclimate-test-reporter"
 
-  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
     Coveralls::SimpleCov::Formatter,
     SimpleCov::Formatter::HTMLFormatter,
     CodeClimate::TestReporter::Formatter
-  ]
+  ])
 
 end
 
