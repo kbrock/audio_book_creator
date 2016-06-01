@@ -37,6 +37,11 @@ class Mutt
     end
   end
 
+  def count_in_progress
+    k, m = mutant_count
+    "%s%4s/%4s  #{class_name}" % ["?", k, m]
+  end
+
   def counts
     k, m = mutant_count
     "%s%4s/%4s  #{class_name}" % [(k == m ? " " : "*"), k, m]
@@ -55,14 +60,10 @@ class Mutt
   def self.run(filenames, force)
     filenames.map { |src| Mutt.new(src) }.select { |mutant| !mutant.skip? }.each do |mutant|
       if force || mutant.need_to_run?
-        k, m = mutant.mutant_count
-        if k == m
-          puts "Running #{mutant.class_name}"
-        else
-          puts "Running #{mutant.class_name} (currently %4s/%4s" % [k, m]
-        end
+        puts "#{mutant.count_in_progress} ..."
         mutant.run_mutant
-        puts "#{back_a_line}#{mutant.counts}"
+        print back_a_line
+        puts "#{mutant.counts}    "
       else
         puts mutant.counts
       end
