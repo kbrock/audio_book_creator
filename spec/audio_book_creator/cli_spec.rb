@@ -34,7 +34,7 @@ describe AudioBookCreator::Cli do
         expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
       end
 
-      it "sets to info" do
+      it "sets to info (abbreviated)" do
         subject.parse(%w(http://site.com/title -v))
         expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
       end
@@ -58,6 +58,8 @@ describe AudioBookCreator::Cli do
     {
       "-v" => "Run verbosely",
       "--verbose" => "Run verbosely",
+      "--default" => "Set these parameters as default for this url regular expression",
+      "--skip-defaults" => "Skip using defaults",
       "--title" => "Title css",
       "--body" => "Content css",
       "--link" => "Next Page css",
@@ -86,6 +88,30 @@ describe AudioBookCreator::Cli do
     it "should provide help (with short option)" do
       expect($stdout).to receive(:puts).with(/Usage/)
       expect { subject.parse(%w(-h)) }.to raise_error(SystemExit)
+    end
+  end
+
+  describe "#parse", "#set_defaults" do
+    it "defaults to no" do
+      subject.parse(minimal_args)
+      expect(subject.set_defaults).to be_falsey
+    end
+
+    it "sets to true" do
+      subject.parse(%w(http://site.com/title --default))
+      expect(subject.set_defaults).to eq(true)
+    end
+  end
+
+  describe "#parse", "#skip_defaults" do
+    it "defaults to no" do
+      subject.parse(minimal_args)
+      expect(subject.skip_defaults).to be_falsey
+    end
+
+    it "sets to true" do
+      subject.parse(%w(http://site.com/title --skip-defaults))
+      expect(subject.skip_defaults).to eq(true)
     end
   end
 
@@ -259,13 +285,42 @@ describe AudioBookCreator::Cli do
     end
   end
 
-  describe "#run" do
-    it "should call book conductor" do
+  describe "#defaulter" do
+    it "creates a defaulter" do
       subject.parse(minimal_args)
-      conductor = double(:conductor)
-      expect(conductor).to receive(:run).and_return("YAY")
-      expect(subject).to receive(:conductor).and_return(conductor)
+      expect(subject.defaulter.page_def).to eq(subject.page_def)
+      expect(subject.defaulter.book_def).to eq(subject.book_def)
+      expect(subject.defaulter).to respond_to(:store)
+    end
+  end
+
+  describe "#run" do
+    it "call book conductor and loads from settings" do
+      subject.parse(minimal_args)
+      stub_component(:conductor) { |c| expect(c).to receive(:run).and_return("YAY") }
+      stub_component(:defaulter) { |d| expect(d).to receive(:load_unset_values) }
       expect(subject.run).to eq("YAY")
     end
+
+    it "call book conductor and loads from settings" do
+      subject.parse(minimal_args)
+      subject.skip_defaults = true
+      stub_component(:conductor) { |c| expect(c).to receive(:run).and_return("YAY") }
+      expect(subject).not_to receive(:defaulter)
+      expect(subject.run).to eq("YAY")
+    end
+
+    it "stores settings" do
+      subject.parse(minimal_args)
+      subject.set_defaults = true
+      stub_component(:defaulter) { |d| expect(d).to receive(:store) }
+      subject.run
+    end
+  end
+
+  def stub_component(name, &block)
+    dbl = double(name)
+    yield(dbl)
+    expect(subject).to receive(name).and_return(dbl)
   end
 end
