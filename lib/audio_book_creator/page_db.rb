@@ -24,7 +24,7 @@ module AudioBookCreator
     end
 
     def each(&block)
-      db.execute "select name, contents from pages order by rowid", &block
+      db.execute "select name, contents from pages", &block
     end
 
     private
