@@ -27,7 +27,7 @@ module AudioBookCreator
     private
 
     def valid_extensions
-      ["", '.html', '.htm', '.php', '.jsp']
+      ["", '.html', '.htm', '.php', '.jsp', '.cfm']
     end
   end
 end
