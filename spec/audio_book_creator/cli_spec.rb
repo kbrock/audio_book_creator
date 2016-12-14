@@ -69,10 +69,10 @@ describe AudioBookCreator::Cli do
       "--voice" => "Set speaker voice",
       "--base-dir" => "Directory to hold files",
       "-A" => "Load book into itunes",
-      "--itunes" => "Load book into itunes",
+      "--[no-]itunes" => "Load book into itunes",
     }.each do |switch, text|
       it "should display #{text} for #{switch} option" do
-        expect($stdout).to receive(:puts).with(/#{switch}.*#{text}/)
+        expect($stdout).to receive(:puts).with(/#{Regexp.escape(switch)}.*#{text}/)
         expect { subject.parse(%w(--help)) }.to raise_error(SystemExit)
       end
     end
@@ -131,6 +131,14 @@ describe AudioBookCreator::Cli do
     it "should set itunes" do
       subject.parse(%w(http://site.com/title -A))
       expect(subject.book_def.itunes).to be_truthy
+
+      subject.parse(%w(http://site.com/title --itunes))
+      expect(subject.book_def.itunes).to be_truthy
+    end
+
+    it "should unset itunes" do
+      subject.parse(%w(http://site.com/title --no-itunes))
+      expect(subject.book_def.itunes).to be_falsy
     end
 
     it "should pass all urls to book_def" do

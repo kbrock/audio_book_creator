@@ -12,7 +12,7 @@ module AudioBookCreator
       @base_dir = base_dir
       @author   = author   || "Vicki"
       @urls = urls
-      @itunes = itunes
+      @itunes = itunes.nil? ? true : itunes
     end
 
     def filename
