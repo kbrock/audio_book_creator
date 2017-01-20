@@ -22,8 +22,8 @@ module AudioBookCreator
     end
 
     def add_chapter(value)
-      @all << value
-      @alt << value
+      all << value
+      alt << value
     end
 
     def add_unique_chapter(value)
@@ -31,8 +31,8 @@ module AudioBookCreator
     end
 
     def add_page(value)
-      @all << value
-      @main << value
+      all << value
+      main << value
     end
 
     def add_unique_page(value)
@@ -41,17 +41,17 @@ module AudioBookCreator
 
     def each(&block)
       return enum_for unless block_given?
-      @main.each(&block)
-      @alt.each(&block)
+      main.each(&block)
+      alt.each(&block)
     end
 
     # note: ever included
     def include?(value)
-      @all.include?(value)
+      all.include?(value)
     end
 
     def shift
-      @main.shift || @alt.shift
+      main.shift || alt.shift
     end
   end
 end

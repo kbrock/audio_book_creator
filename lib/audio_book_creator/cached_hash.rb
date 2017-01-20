@@ -14,7 +14,7 @@ module AudioBookCreator
     end
 
     def [](name)
-      @cache[name] ||= @main[name]
+      @cache[name] ||= main[name]
     end
   end
 end

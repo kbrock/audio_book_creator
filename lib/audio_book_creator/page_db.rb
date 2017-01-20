@@ -20,7 +20,7 @@ module AudioBookCreator
     end
 
     def include?(key)
-      !!self[key]
+      self[key]
     end
 
     def each(&block)

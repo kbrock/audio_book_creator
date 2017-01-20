@@ -30,7 +30,7 @@ module AudioBookCreator
     private
 
     def self.sanitize_filename(*filenames)
-      filenames.join(".").gsub(/[^-._a-z0-9A-Z]/, "-").gsub(/--*/, "-").sub(/-$/, "")
+      filenames.join(".").gsub(/[^-._a-z0-9A-Z]/, "-").gsub(/-+/, "-").sub(/-\z/, "")
     end
   end
 end

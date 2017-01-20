@@ -4,7 +4,7 @@ module AudioBookCreator
 
     def initialize(options = {})
       options.each { |n, v| public_send("#{n}=", v) }
-      @body = Array(@body).compact.join("\n\n")
+      @body = Array(body).compact.join("\n\n")
     end
 
     def filename
