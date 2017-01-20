@@ -40,7 +40,7 @@ module AudioBookCreator
         end
         opt(opts, book_def) do |o|
           o.opt(:base_dir, "--base-dir STRING", "Directory to hold files")
-          o.opt(:itunes, "--itunes", "-A", "Load book into itunes")
+          o.opt(:itunes, "--[no-]itunes", "-A", "Load book into itunes")
         end
       end
       options.parse!(argv)

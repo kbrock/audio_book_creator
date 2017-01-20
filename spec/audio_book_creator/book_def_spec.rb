@@ -6,7 +6,7 @@ describe AudioBookCreator::BookDef do
     it { expect(subject.title).to eq(nil) }
     it { expect(subject.author).to eq("Vicki") }
     it { expect(subject.urls).to be_nil }
-    it { expect(subject.itunes).to be_falsy }
+    it { expect(subject.itunes).to be_truthy }
   end
 
   context "with title" do
@@ -16,12 +16,17 @@ describe AudioBookCreator::BookDef do
   end
 
   context "with all parameters" do
-    subject { described_class.new("the title", "author", "dir", %w(a b), true) }
+    subject { described_class.new("the title", "author", "dir", %w(a b), false) }
     it { expect(subject.base_dir).to eq("dir") }
     it { expect(subject.title).to eq("the title") }
     it { expect(subject.author).to eq("author") }
     it { expect(subject.filename).to eq("the-title.m4b") }
     it { expect(subject.urls).to eq(%w(a b)) }
+    it { expect(subject.itunes).to be_falsy }
+  end
+
+  context "with all parameters alt" do
+    subject { described_class.new("the title", "author", "dir", %w(a b), true) }
     it { expect(subject.itunes).to be_truthy }
   end
 
