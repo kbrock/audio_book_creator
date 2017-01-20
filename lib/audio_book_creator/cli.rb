@@ -83,7 +83,11 @@ module AudioBookCreator
     # integration method
     def run
       if set_defaults
-        defaulter.store
+        if defaulter.store
+          puts "stored for #{defaulter.host}"
+        else
+          puts "not stored"
+        end
       else
         defaulter.load_unset_values unless skip_defaults
         conductor.run

@@ -318,10 +318,22 @@ describe AudioBookCreator::Cli do
       expect(subject.run).to eq("YAY")
     end
 
-    it "stores settings" do
+    it "stores settings - and notify" do
       subject.parse(minimal_args)
       subject.set_defaults = true
-      stub_component(:defaulter) { |d| expect(d).to receive(:store) }
+      expect($stdout).to receive(:puts).with("stored for host.com")
+      stub_component(:defaulter) do |d|
+        allow(d).to receive(:host).at_least(:once).and_return("host.com")
+        allow(d).to receive(:store).at_least(:once).and_return(true)
+      end
+      subject.run
+    end
+
+    it "stores settings - and notify failure" do
+      subject.parse(minimal_args)
+      subject.set_defaults = true
+      expect($stdout).to receive(:puts).with(/^not stored/)
+      stub_component(:defaulter) { |d| expect(d).to receive(:store).and_return(false) }
       subject.run
     end
   end
@@ -329,6 +341,6 @@ describe AudioBookCreator::Cli do
   def stub_component(name, &block)
     dbl = double(name)
     yield(dbl)
-    expect(subject).to receive(name).and_return(dbl)
+    expect(subject).to receive(name).at_least(:once).and_return(dbl)
   end
 end
