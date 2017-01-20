@@ -16,4 +16,8 @@ describe AudioBookCreator::CachedHash do
     it { expect(subject[:key]).to eq("val") }
     it { subject[:key] ; expect(cache[:key]).to eq("val") }
   end
+
+  context "#with missing key" do
+    it { expect(subject[:key]).to be_nil }
+  end
 end

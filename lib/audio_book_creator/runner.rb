@@ -4,7 +4,7 @@ module AudioBookCreator
     include Logging
 
     def run(cmd, options)
-      params = options[:params].flatten.flatten.compact
+      params = options.fetch(:params).flatten.flatten.compact
 
       logger.info { "run: #{cmd} #{params.join(" ")}" }
       logger.info ""
