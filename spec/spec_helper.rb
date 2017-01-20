@@ -1,17 +1,15 @@
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 
-unless ENV['MUTANT']
-  require "coveralls"
-  require "simplecov"
-  require "codeclimate-test-reporter"
+# unless ENV['MUTANT']
+#   require "simplecov"
+#   require "codeclimate-test-reporter"
 
-  SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
-    Coveralls::SimpleCov::Formatter,
-    SimpleCov::Formatter::HTMLFormatter,
-    CodeClimate::TestReporter::Formatter
-  ])
+#   SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
+#     SimpleCov::Formatter::HTMLFormatter,
+#     CodeClimate::TestReporter::Formatter
+#   ])
 
-end
+# end
 
 require_relative "support/test_logger"
 
@@ -84,7 +82,7 @@ module SpecHelpers
   end
 end
 
-SimpleCov.start unless ENV['MUTANT']
+# SimpleCov.start unless ENV['MUTANT']
 
 require 'audio_book_creator'
 
