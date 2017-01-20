@@ -50,8 +50,8 @@ class Mutt
   def run_mutant
     # --fail-fast
     system({ "MUTANT" => "true"},
-      "mutant --include lib --require audio_book_creator --require audio_book_creator/cli " +
-      "--use rspec #{class_name} -d --jobs 1 > #{mutant}")
+      "bundle exec mutant --include lib --require audio_book_creator --require audio_book_creator/cli " +
+      "--use rspec #{class_name} --jobs 1 > #{mutant}")
   rescue SystemExit, Interrupt
     FileUtils.rm(mutant)
     raise
