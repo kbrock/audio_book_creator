@@ -34,7 +34,7 @@ describe AudioBookCreator::UrlFilter do
   end
 
   context "visit with #extensions" do
-    %w(/page / .html .php .jsp .htm).each do |ext|
+    %w(/page / .html .php .jsp .htm .cfm).each do |ext|
       it "visits page2#{ext}" do
         expect(subject.include?(uri("page2#{ext}"))).not_to be_truthy
       end

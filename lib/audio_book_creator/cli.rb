@@ -10,6 +10,10 @@ module AudioBookCreator
     # stub for testing
     attr_writer :web
 
+    # true if we are setting the defaults
+    attr_accessor :set_defaults
+    attr_accessor :skip_defaults
+
     def verbose=(val)
       logger.level = val ? Logger::INFO : Logger::WARN
     end
@@ -21,6 +25,8 @@ module AudioBookCreator
         opts.banner = "Usage: audio_book_creator [options] [title] url [url] [...]"
         opt(opts, self) do |o|
           o.opt(:verbose, "-v", "--verbose", "--[no-]verbose", "Run verbosely")
+          o.opt(:set_defaults, "--default", "Set these parameters as default for this url regular expression")
+          o.opt(:skip_defaults, "--skip-defaults", "Skip using defaults")
         end
         opt(opts, page_def) do |o|
           o.opt(:title_path, "--title STRING", "Title css (e.g.: h1)")
@@ -66,12 +72,26 @@ module AudioBookCreator
       @surfer_def ||= SurferDef.new
     end
 
+    def defaulter
+      @defaulter ||= Defaulter.new(page_def, book_def)
+    end
+
     def conductor
       @conductor ||= Conductor.new(page_def, book_def, speaker_def, surfer_def)
     end
 
+    # integration method
     def run
-      conductor.run
+      if set_defaults
+        if defaulter.store
+          puts "stored for #{defaulter.host}"
+        else
+          puts "not stored"
+        end
+      else
+        defaulter.load_unset_values unless skip_defaults
+        conductor.run
+      end
     end
 
     private

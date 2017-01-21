@@ -3,6 +3,7 @@
 require 'fileutils'
 
 class Mutt
+  FILE_NAME="audio_book_creator"
   attr_accessor :src
   attr_accessor :spec
   attr_accessor :mutant
@@ -48,9 +49,10 @@ class Mutt
   end
 
   def run_mutant
+    # ensure_mutant_dir
     # --fail-fast
     system({ "MUTANT" => "true"},
-      "bundle exec mutant --include lib --require audio_book_creator --require audio_book_creator/cli " +
+      "bundle exec mutant --include lib --require #{FILE_NAME} --require audio_book_creator/cli " +
       "--use rspec #{class_name} --jobs 1 > #{mutant}")
   rescue SystemExit, Interrupt
     FileUtils.rm(mutant)

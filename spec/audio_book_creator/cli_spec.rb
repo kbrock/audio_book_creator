@@ -6,6 +6,7 @@ require 'audio_book_creator/cli'
 describe AudioBookCreator::Cli do
   # this sidesteps creating a database file
   subject { described_class.new }
+  let(:minimal_args) { %w(http://site.com/title) }
 
   describe "#parse", "with no arguments" do
     it "displays an error" do
@@ -18,7 +19,7 @@ describe AudioBookCreator::Cli do
   describe "#parse" do
     # not really part of this spec
     it "defaults to non verbose" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
       expect(AudioBookCreator.logger.level).to eq(Logger::WARN)
     end
 
@@ -33,7 +34,7 @@ describe AudioBookCreator::Cli do
         expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
       end
 
-      it "sets to info" do
+      it "sets to info (abbreviated)" do
         subject.parse(%w(http://site.com/title -v))
         expect(AudioBookCreator.logger.level).to eq(Logger::INFO)
       end
@@ -41,7 +42,7 @@ describe AudioBookCreator::Cli do
 
     # actual cli calls subject.parse.run, so it needs to chain
     it "can chain" do
-      expect(subject.parse(%w(http://site.com/title))).to eq(subject)
+      expect(subject.parse(minimal_args)).to eq(subject)
     end
 
     it "provides usage" do
@@ -57,6 +58,8 @@ describe AudioBookCreator::Cli do
     {
       "-v" => "Run verbosely",
       "--verbose" => "Run verbosely",
+      "--default" => "Set these parameters as default for this url regular expression",
+      "--skip-defaults" => "Skip using defaults",
       "--title" => "Title css",
       "--body" => "Content css",
       "--link" => "Next Page css",
@@ -88,6 +91,30 @@ describe AudioBookCreator::Cli do
     end
   end
 
+  describe "#parse", "#set_defaults" do
+    it "defaults to no" do
+      subject.parse(minimal_args)
+      expect(subject.set_defaults).to be_falsey
+    end
+
+    it "sets to true" do
+      subject.parse(%w(http://site.com/title --default))
+      expect(subject.set_defaults).to eq(true)
+    end
+  end
+
+  describe "#parse", "#skip_defaults" do
+    it "defaults to no" do
+      subject.parse(minimal_args)
+      expect(subject.skip_defaults).to be_falsey
+    end
+
+    it "sets to true" do
+      subject.parse(%w(http://site.com/title --skip-defaults))
+      expect(subject.skip_defaults).to eq(true)
+    end
+  end
+
   describe "#parse", "#page_def" do
     it "#title" do
       subject.parse(%w(http://site.com/title --title h1.big))
@@ -112,7 +139,7 @@ describe AudioBookCreator::Cli do
 
   context "#parse", "#book_def" do
     it "should create book_def" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
       # defaults
       expect(subject.book_def.base_dir).to eq("title")
       expect(subject.book_def.title).to eq("title")
@@ -149,9 +176,9 @@ describe AudioBookCreator::Cli do
     describe "#title #urls" do
       context "with url" do
         it "assigns url abbreviation as title" do
-          subject.parse(%w(http://site.com/title))
+          subject.parse(minimal_args)
           expect(subject.book_def.title).to eq("title")
-          expect(subject.book_def.urls).to eq(%w(http://site.com/title))
+          expect(subject.book_def.urls).to eq(minimal_args)
         end
       end
 
@@ -197,7 +224,7 @@ describe AudioBookCreator::Cli do
 
   describe "#parse", "#speaker_def" do
     it "should default" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
       expect(subject.speaker_def.voice).to eq("Vicki")
       expect(subject.speaker_def.rate).to eq(280)
       expect(subject.speaker_def.channels).to eq(1)
@@ -225,7 +252,7 @@ describe AudioBookCreator::Cli do
 
   describe "#parse", "#surfer_def" do
     it "defaults" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
     end
 
     it "sets host to first url" do
@@ -255,7 +282,7 @@ describe AudioBookCreator::Cli do
 
   describe "#conductor" do
     it "should create a conductor" do
-      subject.parse(%w(http://site.com/title))
+      subject.parse(minimal_args)
       expect(subject.conductor.page_def).to eq(subject.page_def)
       expect(subject.conductor.book_def).to eq(subject.book_def)
       expect(subject.conductor.speaker_def).to eq(subject.speaker_def)
@@ -266,13 +293,54 @@ describe AudioBookCreator::Cli do
     end
   end
 
+  describe "#defaulter" do
+    it "creates a defaulter" do
+      subject.parse(minimal_args)
+      expect(subject.defaulter.page_def).to eq(subject.page_def)
+      expect(subject.defaulter.book_def).to eq(subject.book_def)
+      expect(subject.defaulter).to respond_to(:store)
+    end
+  end
+
   describe "#run" do
-    it "should call book conductor" do
-      subject.parse(%w(http://site.com/title))
-      conductor = double(:conductor)
-      expect(conductor).to receive(:run).and_return("YAY")
-      expect(subject).to receive(:conductor).and_return(conductor)
+    it "call book conductor and loads from settings" do
+      subject.parse(minimal_args)
+      stub_component(:conductor) { |c| expect(c).to receive(:run).and_return("YAY") }
+      stub_component(:defaulter) { |d| expect(d).to receive(:load_unset_values) }
       expect(subject.run).to eq("YAY")
     end
+
+    it "call book conductor and loads from settings" do
+      subject.parse(minimal_args)
+      subject.skip_defaults = true
+      stub_component(:conductor) { |c| expect(c).to receive(:run).and_return("YAY") }
+      expect(subject).not_to receive(:defaulter)
+      expect(subject.run).to eq("YAY")
+    end
+
+    it "stores settings - and notify" do
+      subject.parse(minimal_args)
+      subject.set_defaults = true
+      expect($stdout).to receive(:puts).with("stored for host.com")
+      stub_component(:defaulter) do |d|
+        allow(d).to receive(:host).at_least(:once).and_return("host.com")
+        allow(d).to receive(:store).at_least(:once).and_return(true)
+      end
+      subject.run
+    end
+
+    it "stores settings - and notify failure" do
+      subject.parse(minimal_args)
+      subject.set_defaults = true
+      expect($stdout).to receive(:puts).with(/^not stored/)
+      stub_component(:defaulter) { |d| expect(d).to receive(:store).and_return(false) }
+      subject.run
+    end
+  end
+
+  def stub_component(name, &block)
+    dbl = double(name)
+    yield(dbl)
+    expect(subject).to receive(name).at_least(:once).and_return(dbl)
   end
 end

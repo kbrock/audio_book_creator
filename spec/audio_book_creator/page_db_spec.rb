@@ -2,11 +2,12 @@ require "spec_helper"
 require 'tempfile'
 
 describe AudioBookCreator::PageDb do
-  subject { described_class.new(":memory:") }
+  subject { standard_db }
 
   # all of these tests are in memory
   # this is the only test that depends upon it
   context "with memory databases" do
+    subject { standard_db(":memory:")}
     it "does not create a file" do
       # access key to trigger database creation
       subject["key"]
@@ -14,30 +15,84 @@ describe AudioBookCreator::PageDb do
     end
   end
 
+  describe "#initialize" do
+    subject { described_class.new(":memory:", "tablename", true) }
+    it { expect(subject.filename).to eq(":memory:") }
+    it { expect(subject.table_name).to eq("tablename") }
+    it { expect(subject.encode).to eq(true) }
+  end
+
   it "works" do
     expect(subject).not_to be_nil
   end
 
-  it "creates cache value" do
-    subject["key"] = "value"
+  describe "#[]" do
+    it "finds value" do
+      subject["key"] = "value"
 
-    expect(subject["key"]).to eq("value")
+      expect(subject["key"]).to eq("value")
+    end
+
+    it "finds nothing" do
+      expect(subject["key"]).to be_nil
+    end
+
+    context "with encoding db" do
+      subject { encoded_db }
+      it "find hashes" do
+        subject["key"] = {:name => "value"}
+
+        expect(subject["key"]).to eq({:name => "value"})
+      end
+    end
   end
 
-  it "include good key" do
-    subject["key"] = "value"
-    expect(subject).to include("key")
+  describe "#[]=" do
+    it "sets nils" do
+      subject["key"] = nil
+
+      expect(subject["key"]).to eq(nil)
+    end
+
+    it "sets value" do
+      subject["key"] = "value"
+
+      expect(subject["key"]).to eq("value")
+    end
+
+    context "with encoding db" do
+      subject { encoded_db }
+
+      it "sets nils" do
+        subject["key"] = nil
+
+        expect(subject["key"]).to eq(nil)
+      end
+
+      it "sets hashes" do
+        subject["key"] = {:name => "value"}
+
+        expect(subject["key"]).to eq({:name => "value"})
+      end
+    end
   end
 
-  it "doesnt include bad key" do
-    expect(subject).not_to include("key")
+  describe "#include?" do
+    it "include good key" do
+      subject["key"] = "value"
+      expect(subject).to include("key")
+    end
+
+    it "doesnt include bad key" do
+      expect(subject).not_to include("key")
+    end
   end
 
   context "with prepopulated (file) database" do
     let(:tmp) { Tempfile.new("db") }
 
     before do
-      db = described_class.new(tmp.path)
+      db = standard_db(tmp.path)
       db["key"] = "value"
     end
 
@@ -47,7 +102,7 @@ describe AudioBookCreator::PageDb do
     end
 
     it "finds entry in previously created cache" do
-      db = described_class.new(tmp.path)
+      db = standard_db(tmp.path)
       expect(db["key"]).to eq("value")
     end
 
@@ -71,4 +126,11 @@ describe AudioBookCreator::PageDb do
     expect(subject.map { |(n, v)| "#{n}:#{v}" }).to eq(%w(keyc:v keya:v keyz:v))
   end
 
+  def standard_db(filename = ":memory:")
+    described_class.new(filename, "pages", false)
+  end
+
+  def encoded_db(filename = ":memory:")
+    described_class.new(filename, "settings", true)
+  end
 end
