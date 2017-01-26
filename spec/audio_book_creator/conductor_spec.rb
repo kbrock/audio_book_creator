@@ -8,7 +8,7 @@ describe AudioBookCreator::Conductor do
     end
   end
   let(:speaker_def) { AudioBookCreator::SpeakerDef.new }
-  let(:surfer_def)  { AudioBookCreator::SurferDef.new("http://www.host.com/", 5, true) }
+  let(:surfer_def)  { AudioBookCreator::SurferDef.new(5, true) }
   subject           { described_class.new(page_def, book_def, speaker_def, surfer_def) }
 
   context "#initialize" do

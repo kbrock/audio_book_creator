@@ -255,11 +255,6 @@ describe AudioBookCreator::Cli do
       subject.parse(minimal_args)
     end
 
-    it "sets host to first url" do
-      subject.parse(%w(http://site.com/page1 http://site2.com/page2))
-      expect(subject.surfer_def.host).to eq("http://site.com/page1")
-    end
-
     context "#max" do
       it "sets" do
         subject.parse(%w(http://site.com/title --max 20))

@@ -121,7 +121,6 @@ module AudioBookCreator
         book_def.title = argv.shift
       end
       book_def.urls = argv
-      surfer_def.host = book_def.urls.first
     end
   end
 end
