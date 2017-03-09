@@ -43,18 +43,36 @@ Download [audio book binder][], link the executable into the path, and install g
 
 ## Usage
 
+```
 audio_book_creator http://bookurl.com/greak_book/ --body '.content p' --link 'a.page' --chapter 'a.chapter'
+```
 
 it will spider the files referenced by the url and create the following:
 
 pages.db
-the_great_book.mpa
+the_great_book.m4b
 the_great_book/chapter1.txt
 the_great_book/chapter1.mpg
 the_great_book/chapter2.txt
 the_great_book/chapter2.mpg
 the_great_book/chapter3.txt
 the_great_book/chapter3.mpg
+
+If you tend to visit bookurl.com often, then setup the values as defaults
+
+```
+audio_book_creator http://bookurl.com/greak_book/ --body '.content p' --link 'a.page' --chapter 'a.chapter' --default
+audio_book_creator http://bookurl.com/greak_book2/
+```
+
+Since `great_book2` is at the same domain, it will reuse the `--body`, `--link` and `--chapter` path selectors.
+
+the_great_book2.m4b
+the_great_book2/chapter1.txt
+the_great_book2/chapter1.mpg
+the_great_book2/chapter2.txt
+the_great_book2/chapter2.mpg
+
 
 ## Contributing
 
