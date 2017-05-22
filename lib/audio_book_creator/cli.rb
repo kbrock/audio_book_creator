@@ -13,6 +13,7 @@ module AudioBookCreator
     # true if we are setting the defaults
     attr_accessor :set_defaults
     attr_accessor :skip_defaults
+    attr_accessor :single
 
     def verbose=(val)
       logger.level = val ? Logger::INFO : Logger::WARN
@@ -27,6 +28,7 @@ module AudioBookCreator
           o.opt(:verbose, "-v", "--verbose", "--[no-]verbose", "Run verbosely")
           o.opt(:set_defaults, "--default", "Set these parameters as default for this url regular expression")
           o.opt(:skip_defaults, "--skip-defaults", "Skip using defaults")
+          o.opt(:single, "--single", "Only load a single book")
         end
         opt(opts, page_def) do |o|
           o.opt(:title_path, "--title STRING", "Title css (e.g.: h1)")
@@ -90,6 +92,7 @@ module AudioBookCreator
         end
       else
         defaulter.load_unset_values unless skip_defaults
+        page_def.chapter_path = nil if single
         conductor.run
       end
     end
@@ -107,6 +110,7 @@ module AudioBookCreator
       end
 
       def opt(value, *args)
+        # args.last << " (default: #{@model.send(value)})" if @model.respond_to?(value) && @model.send(value)
         @opts.on(*args) { |v| @model.send("#{value}=", v) }
       end
     end
