@@ -41,7 +41,7 @@ describe AudioBookCreator::Defaulter do
     before { subject.settings = nil }
 
     it "sets filename" do
-      expect(subject.settings.filename).to eq("settings.db")
+      expect(subject.settings.filename).to eq("pages.db")
     end
 
     it "sets table_name" do

@@ -22,7 +22,7 @@ module AudioBookCreator
 
     def settings
       # in the future, move into pages
-      @settings ||= PageDb.new("settings.db", "settings", true)
+      @settings ||= PageDb.new("pages.db", "settings", true)
     end
 
     def load_unset_values
