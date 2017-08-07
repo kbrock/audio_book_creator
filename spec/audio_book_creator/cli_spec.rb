@@ -73,6 +73,7 @@ describe AudioBookCreator::Cli do
       "--base-dir" => "Directory to hold files",
       "-A" => "Load book into itunes",
       "--[no-]itunes" => "Load book into itunes",
+      "--single" => "Only load a single book",
     }.each do |switch, text|
       it "should display #{text} for #{switch} option" do
         expect($stdout).to receive(:puts).with(/#{Regexp.escape(switch)}.*#{text}/)
