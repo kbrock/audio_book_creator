@@ -40,6 +40,7 @@ module AudioBookCreator
           o.opt(:max, "--no-max", "Don't limit the number of pages to visit")
           o.opt(:max, "--max NUMBER", Integer, "Maximum number of pages to visit")
           o.opt(:regen_html, "--force-html", "Regerate the audio")
+          o.opt(:existing, "--existing", "Download even if this was downloaded in the past")
         end
         opt(opts, speaker_def) do |o|
           o.opt(:regen_audio, "--force-audio", "Regerate the audio")
@@ -93,7 +94,11 @@ module AudioBookCreator
       else
         defaulter.load_unset_values unless skip_defaults
         page_def.chapter_path = nil if single
-        conductor.run
+        if surfer_def.existing || !conductor.include?(book_def.urls.first)
+          conductor.run
+        else
+          puts "already downloaded book"
+        end
       end
     end
 

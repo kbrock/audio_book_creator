@@ -34,6 +34,11 @@ describe AudioBookCreator::Defaulter do
     end
 
     it { expect(subject.host).to eq("www.host.com") }
+    it "uses first url" do
+      book_def.urls = %w(http://www.host.com http://www.host2.com)
+      # arbitrary but makes mutant happy to think it matters
+      expect(subject.host).to eq("www.host.com")
+    end
   end
 
   describe "#settings" do

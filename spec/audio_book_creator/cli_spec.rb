@@ -92,6 +92,18 @@ describe AudioBookCreator::Cli do
     end
   end
 
+  describe "#parse", "#single" do
+    it "defaults to no" do
+      subject.parse(minimal_args)
+      expect(subject.single).to be_falsey
+    end
+
+    it "sets to true" do
+      subject.parse(%w(http://site.com/title --single))
+      expect(subject.single).to eq(true)
+    end
+  end
+
   describe "#parse", "#set_defaults" do
     it "defaults to no" do
       subject.parse(minimal_args)
@@ -301,7 +313,11 @@ describe AudioBookCreator::Cli do
   describe "#run" do
     it "call book conductor and loads from settings" do
       subject.parse(minimal_args)
-      stub_component(:conductor) { |c| expect(c).to receive(:run).and_return("YAY") }
+      #<Double :conductor> received unexpected message :page_cache with (no args)
+      stub_component(:conductor) do |c|
+        expect(c).to receive(:run).and_return("YAY")
+        expect(c).to receive(:include?).and_return(false)
+      end
       stub_component(:defaulter) { |d| expect(d).to receive(:load_unset_values) }
       expect(subject.run).to eq("YAY")
     end
@@ -309,7 +325,10 @@ describe AudioBookCreator::Cli do
     it "call book conductor and loads from settings" do
       subject.parse(minimal_args)
       subject.skip_defaults = true
-      stub_component(:conductor) { |c| expect(c).to receive(:run).and_return("YAY") }
+      stub_component(:conductor) do |c|
+        expect(c).to receive(:run).and_return("YAY")
+        expect(c).to receive(:include?).and_return(false)
+      end
       expect(subject).not_to receive(:defaulter)
       expect(subject.run).to eq("YAY")
     end

@@ -62,6 +62,10 @@ module AudioBookCreator
       @outstanding ||= book_def.unique_urls
     end
 
+    def include?(url)
+      page_cache.include?(url)
+    end
+
     def run
       creator.create(outstanding)
     end
