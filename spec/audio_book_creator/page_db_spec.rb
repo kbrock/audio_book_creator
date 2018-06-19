@@ -33,6 +33,14 @@ describe AudioBookCreator::PageDb do
       expect(subject["key"]).to eq("value")
     end
 
+    it "handles url keys" do
+      key = "http://the.web.site.com/path/to/cgi?param1=x&param2=y#substuff"
+      contents = "a" * 555
+      subject[key] = contents
+
+      expect(subject[key]).to eq(contents)
+    end
+
     it "finds nothing" do
       expect(subject["key"]).to be_nil
     end
@@ -43,6 +51,10 @@ describe AudioBookCreator::PageDb do
         subject["key"] = {:name => "value"}
 
         expect(subject["key"]).to eq({:name => "value"})
+      end
+
+      it "finds nothing" do
+        expect(subject["key"]).to be_nil
       end
     end
   end
@@ -92,6 +104,8 @@ describe AudioBookCreator::PageDb do
     let(:tmp) { Tempfile.new("db") }
 
     before do
+      # note, this is a different instantiation
+      # that way we are testing that it actually saves to disk
       db = standard_db(tmp.path)
       db["key"] = "value"
     end
@@ -111,20 +125,27 @@ describe AudioBookCreator::PageDb do
     end
   end
 
-  it "handles url keys" do
-    key = "http://the.web.site.com/path/to/cgi?param1=x&param2=y#substuff"
-    contents = "a" * 555
-    subject[key] = contents
-    expect(subject[key]).to eq(contents)
+  describe "#map" do
+    it "enumerates" do
+      subject["keyc"] = "v"
+      subject["keya"] = "v"
+      subject["keyz"] = "v"
+
+      expect(subject.map { |(n, v)| "#{n}:#{v}" }).to eq(%w(keyc:v keya:v keyz:v))
+    end
   end
 
-  it "supports enumerable (map)" do
-    subject["keyc"] = "v"
-    subject["keya"] = "v"
-    subject["keyz"] = "v"
-
-    expect(subject.map { |(n, v)| "#{n}:#{v}" }).to eq(%w(keyc:v keya:v keyz:v))
+  describe "#delete" do
+    it "deletes rows" do
+      subject["other"] = "v"
+      subject["keya"] = "value"
+      subject["keyb"] = "value"
+      subject.delete "key%"
+      expect(subject.map { |(n, v)| "#{n}:#{v}" }).to eq(%w(other:v))
+    end
   end
+
+  private
 
   def standard_db(filename = ":memory:")
     described_class.new(filename, "pages", false)
