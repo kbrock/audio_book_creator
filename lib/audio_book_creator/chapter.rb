@@ -19,8 +19,21 @@ module AudioBookCreator
       !empty?
     end
 
+    def fixed_body
+      # some webpages are encoded differently
+      # [194, 151] ==> u0097
+      # .gsub(/\u0091/, '\'')
+      # .gsub(/\x93/,   '"')
+      # .gsub(/\u0093/, '"')
+      # .gsub(/\u0094/, '"')
+      # .gsub(/\u0096/, '-')
+      # .gsub(/\x97/,   '-')
+      # .gsub(/\u0097/, '-')
+      body.encode("UTF-8", invalid: :replace, undef: :replace, replace: '-').gsub(/^[*-=]{3,}/, '---')
+    end
+
     def to_s
-      "#{title}\n\n#{body}\n"
+      "#{title}\n\n#{fixed_body}\n"
     end
 
     def ==(other)

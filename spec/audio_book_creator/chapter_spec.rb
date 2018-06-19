@@ -52,6 +52,18 @@ describe AudioBookCreator::Chapter do
   it { expect(described_class.new).to be_empty }
   it { expect(described_class.new).not_to be_present }
 
+  describe "#fixed_body" do
+    it "normalizes separators" do
+      ch = described_class.new(body: ["good\n**********\n--------\*-=-=-=-=-=-=\n", "==="])
+      expect(ch.fixed_body).to eq("good\n---\n---\n\n\n---")
+    end
+
+    it "normalizes bad characters" do
+      ch = described_class.new(body: ["\x93thing\xc3\x28"])
+      expect(ch.fixed_body).to eq("-thing-(")
+    end
+  end
+
   describe "#eq1" do
     it "should understand ==" do
       expect(subject).to eq(Class.new(described_class).new(number: 1.0, title: "title1", body: "body1"))
