@@ -68,6 +68,7 @@ describe AudioBookCreator::Cli do
       "--max" => "Maximum number of pages to visit",
       "--force-audio" => "Regerate the audio",
       "--force-html" => "Regerate the audio",
+      "--existing" => "Download even if this was downloaded in the past",
       "--rate" => "Set words per minute",
       "--voice" => "Set speaker voice",
       "--base-dir" => "Directory to hold files",
@@ -350,6 +351,20 @@ describe AudioBookCreator::Cli do
       expect($stdout).to receive(:puts).with(/^not stored/)
       stub_component(:defaulter) { |d| expect(d).to receive(:store).and_return(false) }
       subject.run
+    end
+
+    it "call book conductor and loads from settings" do
+      subject.parse(%w(http://site.com/title --single))
+      subject.skip_defaults = true
+      stub_component(:conductor) do |c|
+        expect(c).to receive(:run).and_return("YAY")
+        expect(c).to receive(:include?).and_return(false)
+      end
+      expect(subject).not_to receive(:defaulter)
+      expect(subject.run).to eq("YAY")
+
+      # This is BAD - should be testing that it only downloads 1 chapter
+      expect(subject.page_def.chapter_path).to eq(nil)
     end
   end
 

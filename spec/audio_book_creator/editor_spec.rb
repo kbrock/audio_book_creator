@@ -31,6 +31,13 @@ describe AudioBookCreator::Editor do
                          ])).to eq([chapter("first", "p1", 1), chapter("second", "p2", 2)])
   end
 
+  # arbitrary - there won't be 2 titles but makes mutant happy
+  it "should get (first) title" do
+    expect(subject.parse([web_page(uri("page1"), "page1", "<h1>the title 1</h1>","<h1>the title 2</h1>",
+                               "<p><a href='#this'>first</a></p>")
+                         ])).to eq([chapter("first", "the title 1", 1)])
+  end
+
   it "should default the title if none found" do
     expect(subject.parse([web_page(uri("page1"), "page1", "<p>first</p>"),
                           web_page(uri("page2"), "page2", "<p>second</p>"),
