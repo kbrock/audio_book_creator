@@ -125,6 +125,28 @@ describe AudioBookCreator::PageDb do
     end
   end
 
+  context "with legacy (file) database" do
+    let(:tmp) { Tempfile.new("db") }
+    let(:now) { Time.now }
+
+    before do
+      db = legacy_standard_db(tmp.path)
+      allow(Time).to receive(:now).and_return(now)
+    end
+
+    after do
+      tmp.close
+      tmp.unlink
+    end
+
+    it "finds extra columns" do
+      db = standard_db(tmp.path)
+      db["newkey"] = "value"
+
+      expect(db.date("newkey")).to eq(now.utc.to_s)
+    end
+  end
+
   describe "#map" do
     it "enumerates" do
       subject["keyc"] = "v"
@@ -153,5 +175,9 @@ describe AudioBookCreator::PageDb do
 
   def encoded_db(filename = ":memory:")
     described_class.new(filename, "settings", true)
+  end
+
+  def legacy_standard_db(filename = ":memory:")
+    described_class.new(filename, "settings", false, "name" => "text", "contents" => "blob")
   end
 end
