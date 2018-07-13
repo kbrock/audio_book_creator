@@ -29,7 +29,8 @@ module AudioBookCreator
       # .gsub(/\u0096/, '-')
       # .gsub(/\x97/,   '-')
       # .gsub(/\u0097/, '-')
-      body.encode("UTF-8", invalid: :replace, undef: :replace, replace: '-').gsub(/^[*-=]{3,}/, '---')
+      body.encode("UTF-8", invalid: :replace, undef: :replace, replace: '-')
+          .gsub(/^[+#*-=_]{3,}/, '---')
     end
 
     def to_s
