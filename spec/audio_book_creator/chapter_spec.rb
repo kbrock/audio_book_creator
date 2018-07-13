@@ -59,8 +59,8 @@ describe AudioBookCreator::Chapter do
     end
 
     it "normalizes bad characters" do
-      ch = described_class.new(body: ["\x93thing\xc3\x28"])
-      expect(ch.fixed_body).to eq("-thing-(")
+      ch = described_class.new(body: ["\x93thing\xc3\x28\xff"])
+      expect(ch.fixed_body).to eq("-thing-(-")
     end
   end
 
