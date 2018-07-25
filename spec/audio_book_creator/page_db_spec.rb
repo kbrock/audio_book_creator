@@ -26,7 +26,7 @@ describe AudioBookCreator::PageDb do
     expect(subject).not_to be_nil
   end
 
-  describe "#[]" do
+  describe "#[]", "#[]=" do
     it "finds value" do
       subject["key"] = "value"
 
@@ -45,31 +45,10 @@ describe AudioBookCreator::PageDb do
       expect(subject["key"]).to be_nil
     end
 
-    context "with encoding db" do
-      subject { encoded_db }
-      it "find hashes" do
-        subject["key"] = {:name => "value"}
-
-        expect(subject["key"]).to eq({:name => "value"})
-      end
-
-      it "finds nothing" do
-        expect(subject["key"]).to be_nil
-      end
-    end
-  end
-
-  describe "#[]=" do
     it "sets nils" do
       subject["key"] = nil
 
       expect(subject["key"]).to eq(nil)
-    end
-
-    it "sets value" do
-      subject["key"] = "value"
-
-      expect(subject["key"]).to eq("value")
     end
 
     context "with encoding db" do
@@ -85,6 +64,10 @@ describe AudioBookCreator::PageDb do
         subject["key"] = {:name => "value"}
 
         expect(subject["key"]).to eq({:name => "value"})
+      end
+
+      it "finds nothing" do
+        expect(subject["key"]).to be_nil
       end
     end
   end
@@ -125,6 +108,8 @@ describe AudioBookCreator::PageDb do
     end
   end
 
+  # TODO: the legacy db seems to have all columns
+  # so we are not testing the migration block of code
   context "with legacy (file) database" do
     let(:tmp) { Tempfile.new("db") }
     let(:now) { Time.now }
@@ -177,7 +162,7 @@ describe AudioBookCreator::PageDb do
     described_class.new(filename, "settings", true)
   end
 
-  def legacy_standard_db(filename = ":memory:")
+  def legacy_standard_db(filename)
     described_class.new(filename, "settings", false, "name" => "text", "contents" => "blob")
   end
 end
