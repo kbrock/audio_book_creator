@@ -4,7 +4,9 @@ describe AudioBookCreator::Conductor do
   let(:page_def)    { AudioBookCreator::PageDef.new("h1.title", "div", "a.link", "a.chapter") }
   let(:book_def)    do
     AudioBookCreator::BookDef.new("the title", "author", "dir", %w(a b), true).tap do |bd|
-      bd.urls = %w(http://www.host.com/ http://www.host.com/)
+      # to be fair - they will always be the same host.
+      # But mutant cares about whether we use first vs last - so we're making them a little different
+      bd.urls = %w(http://www.host.com/ http://www.host2.com/)
     end
   end
   let(:speaker_def) { AudioBookCreator::SpeakerDef.new }
