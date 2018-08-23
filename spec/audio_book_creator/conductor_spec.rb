@@ -104,6 +104,20 @@ describe AudioBookCreator::Conductor do
     end
   end
 
+  describe "#include?" do
+    it "detects a page already visited" do
+      subject.page_cache = { "http://www.host.com/" => "<html></html>"}
+
+      expect(subject.include?("http://www.host.com/")).to be_truthy
+    end
+
+    it "detects a page not visited" do
+      subject.page_cache = { }
+
+      expect(subject.include?("http://www.host.com/")).to be_falsey
+    end
+  end
+
   describe "#run" do
     it do
       expect(subject.creator).to receive(:create).with(subject.outstanding)

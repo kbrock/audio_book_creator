@@ -5,6 +5,9 @@ module AudioBookCreator
     attr_accessor :speaker_def
     attr_accessor :surfer_def
 
+    # specs only
+    attr_writer :page_cache
+
     def initialize(page_def, book_def, speaker_def, surfer_def)
       @page_def    = page_def
       @book_def    = book_def
