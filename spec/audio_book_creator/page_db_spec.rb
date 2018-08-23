@@ -51,6 +51,12 @@ describe AudioBookCreator::PageDb do
       expect(subject["key"]).to eq(nil)
     end
 
+    it "non injection" do
+      subject["key"] = "null"
+
+      expect(subject["key"]).to eq("null")
+    end
+
     context "with encoding db" do
       subject { encoded_db }
 
@@ -58,6 +64,12 @@ describe AudioBookCreator::PageDb do
         subject["key"] = nil
 
         expect(subject["key"]).to eq(nil)
+      end
+
+      it "non injection" do
+        subject["key"] = "null"
+
+        expect(subject["key"]).to eq("null")
       end
 
       it "sets hashes" do

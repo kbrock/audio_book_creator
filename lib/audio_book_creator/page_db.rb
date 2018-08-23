@@ -27,7 +27,7 @@ module AudioBookCreator
     end
 
     def []=(key, value)
-      value = JSON.generate(value) if encode && value
+      value = JSON.generate(value) if encode
       db.execute "insert into #{table_name} (name, contents, created_at) values (?, ?, ?)", [key, value, Time.now.utc.to_s]
     end
 
