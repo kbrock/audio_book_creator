@@ -93,6 +93,7 @@ describe AudioBookCreator::Binder do
     expect_runner.not_to receive(:system)
     expect { subject.create(nil) }.to raise_error("No Chapters")
     expect { subject.create([]) }.to raise_error("No Chapters")
+    expect { subject.create([nil, nil]) }.to raise_error("No Chapters")
   end
 
   private

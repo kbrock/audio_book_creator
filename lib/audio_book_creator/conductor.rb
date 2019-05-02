@@ -48,7 +48,7 @@ module AudioBookCreator
     end
 
     def speaker
-      @speaker ||= Speaker.new(speaker_def, book_def)
+      @speaker ||= speaker_def.mute ? SpeakerMute.new(speaker_def, book_def) : Speaker.new(speaker_def, book_def)
     end
 
     def binder

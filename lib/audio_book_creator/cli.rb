@@ -46,6 +46,7 @@ module AudioBookCreator
           o.opt(:regen_audio, "--force-audio", "Regerate the audio")
           o.opt(:rate, "--rate NUMBER", Integer, "Set words per minute")
           o.opt(:voice, "--voice STRING", "Set speaker voice")
+          o.opt(:mute, "--mute", "Don't speak")
         end
         opt(opts, book_def) do |o|
           o.opt(:base_dir, "--base-dir STRING", "Directory to hold files")
