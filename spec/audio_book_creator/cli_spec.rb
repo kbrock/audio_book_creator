@@ -287,6 +287,13 @@ describe AudioBookCreator::Cli do
         expect(subject.surfer_def.regen_html).to be_truthy
       end
     end
+
+    context "#existing" do
+      it "sets" do
+        subject.parse(%w(http://site.com/title --existing))
+        expect(subject.surfer_def.existing).to be_truthy
+      end
+    end
   end
 
   describe "#conductor" do

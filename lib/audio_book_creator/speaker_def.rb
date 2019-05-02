@@ -21,8 +21,10 @@ module AudioBookCreator
     attr_accessor :bit_rate
     attr_accessor :sample_rate
     attr_accessor :regen_audio
+    attr_accessor :mute
 
     def initialize(options = {})
+      # for the spec only
       options.each { |n, v| public_send("#{n}=", v) }
 
       # for speaking the chapter
@@ -34,6 +36,7 @@ module AudioBookCreator
       @bit_rate  ||= 32
       @max_hours ||= 7
       @sample_rate ||= 22_050
+      @mute      ||= false
     end    
   end
 end
