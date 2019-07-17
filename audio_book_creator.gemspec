@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency "sqlite3"
-  spec.add_runtime_dependency "nokogiri"
+  spec.add_runtime_dependency "nokogiri", "~> 1.10.3"
 
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
