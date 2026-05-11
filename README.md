@@ -1,29 +1,20 @@
 # AudioBookCreator
 
-[![Gem Version][GV img]][Gem Version]
-[![Build Status][BS img]][Build Status]
-[![Dependency Status][DS img]][Dependency Status]
-[![Code Climate][CC img]][Code Climate]
-[![Coverage Status][CS img]][Coverage Status]
-
-[Gem Version]: https://rubygems.org/gems/audio_book_creator
-[Build Status]: https://travis-ci.org/kbrock/audio_book_creator
-[travis pull requests]: https://travis-ci.org/kbrock/audio_book_creator/pull_requests
-[Dependency Status]: https://gemnasium.com/kbrock/audio_book_creator
-[Code Climate]: https://codeclimate.com/github/kbrock/audio_book_creator
-[Coverage Status]: https://coveralls.io/r/kbrock/audio_book_creator
-
-[GV img]: https://badge.fury.io/rb/audio_book_creator.png
-[BS img]: https://travis-ci.org/kbrock/audio_book_creator.png
-[DS img]: https://gemnasium.com/kbrock/audio_book_creator.png
-[CC img]: https://codeclimate.com/github/kbrock/audio_book_creator.png
-[CS img]: https://coveralls.io/repos/kbrock/audio_book_creator/badge.png?branch=master
-
+# << ARCHIVED >>
 
 ## Description
 
 This takes html files and creates a chapterized audiobook.
   It leverages Apple's speak command and audio book binder
+
+Apple has since modified the interface and makes it much more difficult to sync to your phone.
+It has made this not useful to me, or probably anyone really.
+
+But it was a good exploration into 100% code testing. Mutant testing means you compare every
+node in an if clause and ensure every boundery number matters. did you do a gsub instead of a sub?
+Yea that kind off stuff. Similar to Heckle from portland.rb group
+
+It was fun but archiving. Happy coding all
 
 ## Goals
 
